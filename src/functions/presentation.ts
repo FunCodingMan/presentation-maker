@@ -13,7 +13,7 @@ function createPresentation(id: string, name: string): Presentation
         id: id,
         name,
         slides: [],
-        activeSlideId: ''
+        active_slide_idx: 0
     }
 }
 
@@ -34,10 +34,10 @@ function loadPresentation(json: string): Presentation
     return JSON.parse(json);
 }
 
-function addSlide(presentation: Presentation, slideId: string, slideName?: string): Presentation 
+function addSlide(presentation: Presentation, slideName?: string): Presentation 
 {
     const slide: Slide = {
-        id: slideId,
+        id: generateId(),
         name: slideName,
         objects: []
     } 
@@ -56,64 +56,6 @@ function removeSlides(presentation: Presentation, slideIds: string[]): Presentat
     }
 }
 
-function moveSlide(presentation: Presentation, slideId: string, newIndex: number): Presentation
-{
-    if (!presentation.slides) return presentation;
-
-    const oldIndex = presentation.slides?.findIndex(slide => slide.id === slideId)
-
-    if (oldIndex === -1) return presentation;
-
-    const slide = presentation.slides[oldIndex]
-
-    const withoutSlide = [
-        ...presentation.slides.slice(0, oldIndex),
-        ...presentation.slides.slice(oldIndex + 1)
-    ]
-
-    const updatedSlides = [
-        ...withoutSlide.slice(0, newIndex),
-        {...slide},
-        ...withoutSlide.slice(newIndex)
-    ]
-
-    return {
-        ...presentation,
-        slides: updatedSlides
-    }
-}
-
-function setActiveSlide(presentation: Presentation, slideId: string): Presentation
-{
-    if (!presentation.slides?.map(slide => slide.id).includes(slideId)) return {...presentation}
-
-    return {
-        ...presentation,
-        activeSlideId: slideId
-    }
-}
-function duplicateSlide(presentation: Presentation, slideId: string): Presentation
-{
-    if (!presentation.slides) return presentation;
-
-    const slideIndex = presentation.slides.findIndex(slide => slide.id === slideId)
-
-    if (slideIndex === -1) return {...presentation};
-
-    const slide = presentation.slides[slideIndex]
-
-    const updatedSlides = [
-        ...presentation.slides.slice(0, slideIndex),
-        {...slide},
-        ...presentation.slides.slice(slideIndex)
-    ]
-
-    return {
-        ...presentation,
-        slides: updatedSlides
-    }
-}
-
 
 
 
@@ -126,8 +68,5 @@ export {
     loadPresentation,
     addSlide,
     removeSlides,
-    generateId,
-    moveSlide,
-    setActiveSlide,
-    duplicateSlide
+    generateId
 }
