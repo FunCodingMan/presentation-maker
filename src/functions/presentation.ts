@@ -1,5 +1,5 @@
 import type { Presentation } from "../types/presentation.js";
-import type { Slide } from "../types/slide.js";
+import type { Slide, Background } from "../types/slide.js";
 
 function generateId(): string {
   const timestamp = Date.now().toString(36);
@@ -39,6 +39,7 @@ function addSlide(presentation: Presentation, slideId: string, slideName?: strin
     const slide: Slide = {
         id: slideId,
         name: slideName,
+        background: {type: 'bg_color', color: 'white'},
         objects: []
     } 
 
