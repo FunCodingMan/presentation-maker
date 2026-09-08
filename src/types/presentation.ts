@@ -4,7 +4,7 @@ type Presentation = {
     id: string;
     name: string; 
     slides?: Slide[];
-    active_slide_idx?: number;
+    activeSlideId?: string;
 }
 
 export { 
