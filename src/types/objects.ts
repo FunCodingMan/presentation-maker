@@ -1,27 +1,20 @@
-type SlideObject = TextObject | ImageObject;
+type SlideObject = TextObject | ImageObject | FigureObject;
 
 type TextObject = BaseObject & {
     type: 'text'
     content: string
-    fontFamily: string
-    fontSize: number
-    color: string
-    style: 'normal' | 'italic' | 'bold'
-    textLayout: 'left' | 'center' | 'right'
+    textStyle: TextStyle
 }
 
 type ImageObject = BaseObject & {
-    id: string
     type: 'image'
     src: string
+    filters?: Filter;
 }
 
-type FigureObejct = BaseObject & {
+type FigureObject = BaseObject & {
     type: 'figure'
-    shape: 'rectangle' | 'circle' | 'triangle'
-    fillColor: string
-    strokeColor: string
-    strokeWidth: number
+    figureStyle: FigureStyle
 }
 
 type BaseObject = {
@@ -29,6 +22,7 @@ type BaseObject = {
     position: Point
     size: Size
     type: 'figure' | 'image' | 'text'
+    animation?: Animation;
 }
 
 type Animation = {
@@ -40,6 +34,21 @@ type Animation = {
 type Filter = {
     blur?: number
     brightness?: number
+}
+
+type FigureStyle = {
+    shape: 'rectangle' | 'circle' | 'triangle'
+    fillColor: string
+    strokeColor: string
+    strokeWidth: number
+}
+
+type TextStyle = {
+    fontFamily: string
+    fontSize: number
+    fontColor: string
+    fontStyle: 'normal' | 'italic' | 'bold'
+    textLayout: 'left' | 'center' | 'right'
 }
 
 type Size = {
@@ -56,7 +65,11 @@ export type {
     TextObject, 
     ImageObject, 
     SlideObject,
-    FigureObejct,
+    FigureObject,
     Animation,
-    Filter
+    Filter,
+    Size,
+    Point,
+    TextStyle,
+    FigureStyle,
 }
