@@ -1,4 +1,13 @@
-import type {SlideObject } from "./objects.js";
+import type { SlideObject } from "./objects.js";
+
+type Slide = {
+    id: string
+    name?: string
+    background: Background
+    objects: SlideObject[]
+}
+
+type Background = BackgroundColor | BackGroundImage | BackgroundGradient;
 
 type BackgroundColor = {
     type: 'bg-color'
@@ -16,17 +25,10 @@ type BackgroundGradient = {
     angle?: number
 }
 
-type Slide = {
-    id: string
-    name?: string
-    background: Background
-    objects: SlideObject[]
-}
-
-type Background = BackgroundColor | BackGroundImage | BackgroundGradient;
-
-export {
-    type Slide, 
-    type Background,
-    type BackgroundGradient
+export type {
+    Slide, 
+    Background,
+    BackgroundColor,
+    BackGroundImage,
+    BackgroundGradient
 }

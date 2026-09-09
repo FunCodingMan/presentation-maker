@@ -6,6 +6,6 @@ type Presentation = {
     slides: Slide[]
 }
 
-export { 
-    type Presentation 
+export type { 
+    Presentation 
 }
