@@ -7,18 +7,25 @@ import { updatePresentationName,
          removeSlides,
          generateId,
          moveSlide,
-         setActiveSlide,
          duplicateSlide
         } from '../functions/presentation.js';
 import type { Presentation } from '../types/presentation.js';
+
+function createTestPresentation(name: string, slides: string[]): Presentation {
+    let presentation = createPresentation(generateId(), name);
+    if (slides.length === 0) return presentation
+    for (const slide of slides) {
+        presentation = addSlide(presentation, slide, slide)
+    }
+    return presentation;
+}
 
 describe('presentation actions', () => {
     it('updates presenation name', () => {
         const presentation: Presentation = {
             id: 'presentation-id',
             name: 'my presentation',
-            slides: [{ id: 'slide-1', name: 'Intro', objects: [] }],
-            activeSlideId: 'slide-1'
+            slides: [{ id: 'slide-1', name: 'Intro', objects: [], background: {type: 'bg-color', color: 'white'}}]
         }
 
         const renamed = updatePresentationName(
@@ -29,7 +36,6 @@ describe('presentation actions', () => {
         expect(renamed.name).toEqual('new presentation')
         expect(renamed.id).toEqual(presentation.id)
         expect(renamed.slides).toEqual(presentation.slides)
-        expect(renamed.activeSlideId).toEqual(presentation.activeSlideId)
         expect(presentation.name).toEqual('my presentation')
         expect(renamed).not.toBe(presentation);
     })
@@ -39,8 +45,7 @@ describe('presentation actions', () => {
         expect(presentation).toEqual({
             id: 'presentation',
             name: 'new presentation',
-            slides: [],
-            activeSlideId: ''
+            slides: []
         })
     })
     it('successfully restores presentation via save and load cycle', () => {
@@ -63,7 +68,8 @@ describe('presentation actions', () => {
         expect((newPresentation.slides ?? [])[0]).toEqual({
             id: '1-slide',
             name: '1 slide',
-            objects: []
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect(newPresentation).not.toBe(presentation);
@@ -81,12 +87,14 @@ describe('presentation actions', () => {
         expect((presentationWithTwoSlides.slides ?? [])[0]).toEqual({
             id: '1-slide',
             name: '1 slide',
-            objects: []
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
         expect((presentationWithTwoSlides.slides ?? [])[1]).toEqual({
             id: '2-slide',
             name: '2 slide',
-            objects: []
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
         expect(presentationWithOneSlide).not.toBe(presentation);
         expect(presentationWithTwoSlides).not.toBe(presentation);
@@ -130,11 +138,8 @@ describe('presentation actions', () => {
     })
 
     it('moves presentation slide to begin', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
-        const presentationWithThreeSlides = addSlide(presentationWithTwoSlides, '3-slide', '3 slide')
+        
+        const presentationWithThreeSlides = createTestPresentation('old presentation', ['1-slide', '2-slide', '3-slide'])
 
         const movedPresentation = moveSlide(presentationWithThreeSlides, '3-slide', 0);
 
@@ -142,89 +147,86 @@ describe('presentation actions', () => {
 
         expect((movedPresentation.slides ?? [])[0]).toEqual({
             "id": "3-slide",
-            "name": "3 slide",
+            "name": "3-slide",
             "objects": [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
-            "id": "1-slide",
-            "name": "1 slide",
-            "objects": [],
+            id: "1-slide",
+            name: "1-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
-            "id": "2-slide",
-            "name": "2 slide",
-            "objects": [],
+            id: "2-slide",
+            name: "2-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
     })
 
     it('moves presentation slide to end', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
-        const presentationWithThreeSlides = addSlide(presentationWithTwoSlides, '3-slide', '3 slide')
+        const presentationWithThreeSlides = createTestPresentation('old presentation', ['1-slide', '2-slide', '3-slide'])
 
         const movedPresentation = moveSlide(presentationWithThreeSlides, '1-slide', 2);
 
         expect(movedPresentation.slides?.length).toEqual(3);
 
         expect((movedPresentation.slides ?? [])[0]).toEqual({
-            "id": "2-slide",
-            "name": "2 slide",
-            "objects": [],
+            id: "2-slide",
+            name: "2-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
-            "id": "3-slide",
-            "name": "3 slide",
-            "objects": [],
+            id: "3-slide",
+            name: "3-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
-            "id": "1-slide",
-            "name": "1 slide",
-            "objects": [],
+            id: "1-slide",
+            name: "1-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
     })
 
     it('moves presentation slide to middle', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
-        const presentationWithThreeSlides = addSlide(presentationWithTwoSlides, '3-slide', '3 slide')
+        const presentationWithThreeSlides = createTestPresentation('old presentation', ['1-slide', '2-slide', '3-slide'])
 
         const movedPresentation = moveSlide(presentationWithThreeSlides, '1-slide', 1);
 
         expect(movedPresentation.slides?.length).toEqual(3);
 
         expect((movedPresentation.slides ?? [])[0]).toEqual({
-            "id": "2-slide",
-            "name": "2 slide",
-            "objects": [],
+            id: "2-slide",
+            name: "2-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
-            "id": "1-slide",
-            "name": "1 slide",
-            "objects": [],
+            id: "1-slide",
+            name: "1-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
-            "id": "3-slide",
-            "name": "3 slide",
-            "objects": [],
+            id: "3-slide",
+            name: "3-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
     })
 
     it('moves presentation slide to the same position', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
-        const presentationWithThreeSlides = addSlide(presentationWithTwoSlides, '3-slide', '3 slide')
+        const presentationWithThreeSlides = createTestPresentation('old presentation', ['1-slide', '2-slide', '3-slide'])
 
         const movedPresentation = moveSlide(presentationWithThreeSlides, '3-slide', 2);
 
@@ -235,11 +237,7 @@ describe('presentation actions', () => {
     })
 
     it('moves presentation slide to the wrong position', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
-        const presentationWithThreeSlides = addSlide(presentationWithTwoSlides, '3-slide', '3 slide')
+        const presentationWithThreeSlides = createTestPresentation('old presentation', ['1-slide', '2-slide', '3-slide'])
 
         const movedPresentation = moveSlide(presentationWithThreeSlides, '3-slide', 10);
 
@@ -249,45 +247,10 @@ describe('presentation actions', () => {
         expect(movedPresentation).not.toBe(presentationWithThreeSlides)
     })
 
-    it('sets active slide', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-
-        const presentationWithActiveSlide = setActiveSlide(presentationWithOneSlide, '1-slide')
-
-        expect(presentationWithActiveSlide.activeSlideId).toEqual('1-slide')
-
-        expect(presentationWithActiveSlide).not.toBe(presentationWithOneSlide)
-    })
-
-    it('sets active slide on empty presentation', () => {
-        const emptyPresentation = createPresentation(generateId(), 'old presentation');
-
-        const presentationWithActiveSlide = setActiveSlide(emptyPresentation, '1-slide')
-
-        expect(presentationWithActiveSlide).toEqual(emptyPresentation)
-
-        expect(presentationWithActiveSlide).not.toBe(emptyPresentation)
-    })
-
-    it('sets non-existive active slide', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-
-        const presentationWithActiveSlide = setActiveSlide(presentationWithOneSlide, '1-slide')
-        const presentationWithNonExistiveActiveSlide = setActiveSlide(presentationWithActiveSlide, '2-slide')
-
-        expect(presentationWithNonExistiveActiveSlide).toEqual(presentationWithActiveSlide)
-
-        expect(presentationWithNonExistiveActiveSlide).not.toBe(presentationWithActiveSlide)
-    })
-
     it('duplicates slide', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
+        const presentationWithTwoSlides = createTestPresentation('old presentation', ['1-slide', '2-slide'])
 
-        const presentationWithDuplicatedSlide = duplicateSlide(presentationWithTwoSlides, '1-slide')
+        const presentationWithDuplicatedSlide = duplicateSlide(presentationWithTwoSlides, '1-slide', '1-slide')
 
         expect(presentationWithDuplicatedSlide.slides?.length).toEqual(3)
 
@@ -295,24 +258,25 @@ describe('presentation actions', () => {
         expect((presentationWithDuplicatedSlide.slides ?? [])[0]).not.toBe((presentationWithDuplicatedSlide.slides ?? [])[1])
 
         expect((presentationWithDuplicatedSlide.slides ?? [])[0]).toEqual({
-            "id": "1-slide",
-            "name": "1 slide",
-            "objects": [],
+            id: "1-slide",
+            name: "1-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })
 
         expect((presentationWithDuplicatedSlide.slides ?? [])[2]).toEqual({
-            "id": "2-slide",
-            "name": "2 slide",
-            "objects": [],
+            id: "2-slide",
+            name: "2-slide",
+            objects: [],
+            background: { "color": "white", "type": "bg-color"},
         })        
     })
 
     it('duplicates non-existing slide', () => {
-        const oldPresentation = createPresentation(generateId(), 'old presentation');
-        const presentationWithOneSlide = addSlide(oldPresentation, '1-slide', '1 slide')
+        const presentationWithOneSlide = createTestPresentation('old presentation', ['1-slide'])
 
-        const presentationWithDuplicateSlide = duplicateSlide(presentationWithOneSlide, '1-slide')
-        const presentationWithNonExistiveDuplicateSlide = duplicateSlide(presentationWithDuplicateSlide, '2-slide')
+        const presentationWithDuplicateSlide = duplicateSlide(presentationWithOneSlide, '1-slide', '1-slide')
+        const presentationWithNonExistiveDuplicateSlide = duplicateSlide(presentationWithDuplicateSlide, '2-slide', '2-slide')
 
         expect(presentationWithNonExistiveDuplicateSlide).toEqual(presentationWithDuplicateSlide)
 
@@ -322,7 +286,7 @@ describe('presentation actions', () => {
     it('duplicate slide in empty presentation', () => {
         const emptyPresentation = createPresentation(generateId(), 'old presentation');
 
-        const presentationWithDuplicateSlide = duplicateSlide(emptyPresentation, '1-slide')
+        const presentationWithDuplicateSlide = duplicateSlide(emptyPresentation, '1-slide', '1-slide')
 
         expect(presentationWithDuplicateSlide).toEqual(emptyPresentation)
 

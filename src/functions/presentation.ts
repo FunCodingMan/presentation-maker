@@ -7,13 +7,11 @@ function generateId(): string {
   return `${timestamp}-${randomPart}`;
 }
 
-function createPresentation(id: string, name: string): Presentation
-{
+function createPresentation(id: string, name: string): Presentation {
     return {
         id: id,
         name,
-        slides: [],
-        activeSlideId: ''
+        slides: []
     }
 }
 
@@ -24,22 +22,19 @@ function updatePresentationName(presentation: Presentation, name: string): Prese
     }
 }
 
-function savePresentation(presentation: Presentation): string
-{
+function savePresentation(presentation: Presentation): string {
     return JSON.stringify(presentation);
 }
 
-function loadPresentation(json: string): Presentation
-{
+function loadPresentation(json: string): Presentation {
     return JSON.parse(json);
 }
 
-function addSlide(presentation: Presentation, slideId: string, slideName?: string): Presentation 
-{
+function addSlide(presentation: Presentation, slideId: string, slideName?: string): Presentation {
     const slide: Slide = {
         id: slideId,
         name: slideName,
-        background: {type: 'bg_color', color: 'white'},
+        background: {type: 'bg-color', color: 'white'},
         objects: []
     } 
 
@@ -49,16 +44,14 @@ function addSlide(presentation: Presentation, slideId: string, slideName?: strin
     }
 }
 
-function removeSlides(presentation: Presentation, slideIds: string[]): Presentation
-{
+function removeSlides(presentation: Presentation, slideIds: string[]): Presentation {
     return {
         ...presentation,
         slides: (presentation.slides ?? []).filter(slide => !slideIds.includes(slide.id))
     }
 }
 
-function moveSlide(presentation: Presentation, slideId: string, newIndex: number): Presentation
-{
+function moveSlide(presentation: Presentation, slideId: string, newIndex: number): Presentation {
     if (!presentation.slides) return presentation;
 
     const oldIndex = presentation.slides?.findIndex(slide => slide.id === slideId)
@@ -84,17 +77,7 @@ function moveSlide(presentation: Presentation, slideId: string, newIndex: number
     }
 }
 
-function setActiveSlide(presentation: Presentation, slideId: string): Presentation
-{
-    if (!presentation.slides?.map(slide => slide.id).includes(slideId)) return {...presentation}
-
-    return {
-        ...presentation,
-        activeSlideId: slideId
-    }
-}
-function duplicateSlide(presentation: Presentation, slideId: string): Presentation
-{
+function duplicateSlide(presentation: Presentation, slideId: string, duplicateSlideId: string): Presentation {
     if (!presentation.slides) return presentation;
 
     const slideIndex = presentation.slides.findIndex(slide => slide.id === slideId)
@@ -103,9 +86,13 @@ function duplicateSlide(presentation: Presentation, slideId: string): Presentati
 
     const slide = presentation.slides[slideIndex]
 
+    const clonedSlide = structuredClone(slide)
+
+    clonedSlide.id = duplicateSlideId;
+
     const updatedSlides = [
         ...presentation.slides.slice(0, slideIndex),
-        {...slide},
+        clonedSlide,
         ...presentation.slides.slice(slideIndex)
     ]
 
@@ -113,12 +100,7 @@ function duplicateSlide(presentation: Presentation, slideId: string): Presentati
         ...presentation,
         slides: updatedSlides
     }
-}
-
-
-
-
-
+}  
 
 export {
     updatePresentationName,
@@ -129,6 +111,5 @@ export {
     removeSlides,
     generateId,
     moveSlide,
-    setActiveSlide,
     duplicateSlide
 }

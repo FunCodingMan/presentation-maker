@@ -1,33 +1,38 @@
-type Point = {
-    x: number,
-    y: number
-}
-
-type BaseObject = {
-    id: string,
-    posistion: Point,
-    type: 'figure' | 'image' | 'text',
-    width: number,
-    height: number
-}
+type SlideObject = TextObject | ImageObject;
 
 type TextObject = BaseObject & {
     type: 'text';
     content: string;
-    fontFamilyq: string;
+    fontFamily: string;
     fontSize: number;
     color: string;
     style: string;
     textLayout: string;
 }
 
-type ImageObject = {
+type ImageObject = BaseObject & {
     id: string;
     type: 'image';
     src: string;
 }
 
-type SlideObject = TextObject | ImageObject;
+
+type BaseObject = {
+    id: string,
+    position: Point,
+    size: Size,
+    type: 'figure' | 'image' | 'text',
+}
+
+type Size = {
+    width: number,
+    height: number
+}
+
+type Point = {
+    x: number,
+    y: number
+}
 
 export { 
     type TextObject, 
