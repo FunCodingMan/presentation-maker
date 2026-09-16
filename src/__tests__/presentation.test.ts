@@ -12,12 +12,12 @@ import { updatePresentationName,
 import type { Presentation } from '../types/presentation.js';
 
 function createTestPresentation(name: string, slides: string[]): Presentation {
-    let presentation = createPresentation(generateId(), name);
-    if (slides.length === 0) return presentation
-    for (const slide of slides) {
-        presentation = addSlide(presentation, slide, slide)
-    }
-    return presentation;
+    //TODO: аменить на метод reduce
+    const presentation = createPresentation(generateId(), name)
+
+    return slides.reduce((presentation, slide) => {
+        return addSlide(presentation, slide, slide)
+    }, presentation)
 }
 
 describe('presentation actions', () => {
@@ -25,7 +25,7 @@ describe('presentation actions', () => {
         const presentation: Presentation = {
             id: 'presentation-id',
             name: 'my presentation',
-            slides: [{ id: 'slide-1', name: 'Intro', objects: [], background: {type: 'bg-color', color: 'white'}}]
+            slides: [{ id: 'slide-1', name: 'Intro', objects: [], background: {type: 'color', color: 'white'}}]
         }
 
         const renamed = updatePresentationName(
@@ -54,24 +54,23 @@ describe('presentation actions', () => {
         const jsonPresentation = savePresentation(oldPresentation)
 
         const restoredPresentation = loadPresentation(jsonPresentation)
-
+        
         expect(restoredPresentation).toEqual(oldPresentation)
     })
 
     it('adds slide to empty presentation', () => {
         const presentation = createPresentation(generateId(), 'old presentation')
-
         const newPresentation = addSlide(presentation, '1-slide', '1 slide')
         
         expect(newPresentation.slides?.length).toEqual(1);
-
         expect((newPresentation.slides ?? [])[0]).toEqual({
             id: '1-slide',
             name: '1 slide',
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
+        expect(presentation.slides).toEqual([])
         expect(newPresentation).not.toBe(presentation);
     })
 
@@ -88,14 +87,15 @@ describe('presentation actions', () => {
             id: '1-slide',
             name: '1 slide',
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
         expect((presentationWithTwoSlides.slides ?? [])[1]).toEqual({
             id: '2-slide',
             name: '2 slide',
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
+        
         expect(presentationWithOneSlide).not.toBe(presentation);
         expect(presentationWithTwoSlides).not.toBe(presentation);
     })
@@ -149,21 +149,21 @@ describe('presentation actions', () => {
             "id": "3-slide",
             "name": "3-slide",
             "objects": [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
             id: "1-slide",
             name: "1-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
             id: "2-slide",
             name: "2-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
     })
 
@@ -178,21 +178,21 @@ describe('presentation actions', () => {
             id: "2-slide",
             name: "2-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
             id: "3-slide",
             name: "3-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
             id: "1-slide",
             name: "1-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
     })
 
@@ -207,21 +207,21 @@ describe('presentation actions', () => {
             id: "2-slide",
             name: "2-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[1]).toEqual({
             id: "1-slide",
             name: "1-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((movedPresentation.slides ?? [])[2]).toEqual({
             id: "3-slide",
             name: "3-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
     })
 
@@ -261,14 +261,14 @@ describe('presentation actions', () => {
             id: "1-slide",
             name: "1-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })
 
         expect((presentationWithDuplicatedSlide.slides ?? [])[2]).toEqual({
             id: "2-slide",
             name: "2-slide",
             objects: [],
-            background: { "color": "white", "type": "bg-color"},
+            background: { "color": "white", "type": "color"},
         })        
     })
 
@@ -280,7 +280,6 @@ describe('presentation actions', () => {
 
         expect(presentationWithNonExistiveDuplicateSlide).toEqual(presentationWithDuplicateSlide)
 
-        expect(presentationWithNonExistiveDuplicateSlide).not.toBe(presentationWithDuplicateSlide)
     })
 
     it('duplicate slide in empty presentation', () => {
@@ -289,8 +288,6 @@ describe('presentation actions', () => {
         const presentationWithDuplicateSlide = duplicateSlide(emptyPresentation, '1-slide', '1-slide')
 
         expect(presentationWithDuplicateSlide).toEqual(emptyPresentation)
-
-        expect(presentationWithDuplicateSlide).not.toBe(emptyPresentation)
     })
 
     

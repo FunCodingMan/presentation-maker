@@ -8,19 +8,19 @@ type Slide = {
 }
 
 type Background = BackgroundColor | BackGroundImage | BackgroundGradient;
-
+//TODO: Без bg
 type BackgroundColor = {
-    type: 'bg-color'
+    type: 'color'
     color: string;
 }
 
 type BackGroundImage = {
-    type: 'bg-image'
+    type: 'image'
     src: string
 }
 
 type BackgroundGradient = {
-    type: 'bg-gradient'
+    type: 'gradient'
     colors: string[]
     angle?: number
 }

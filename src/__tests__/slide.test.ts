@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Slide,
-         Background,
-         BackgroundColor,
-         BackGroundImage,
-         BackgroundGradient
+import { Slide
         } from '../types/slide.js';
-import { generateId } from '../functions/presentation';
 import {setSlideBackgroundColor,
         setSlideBackgroundGradient, 
         setSlideBackgroundImage,
@@ -16,7 +11,7 @@ function createTestSlide(slideName: string): Slide {
     return {
         id: slideName,
         name: slideName,
-        background: {type: 'bg-color', color: 'white'},
+        background: {type: 'color', color: 'white'},
         objects: []
     }
 }
@@ -29,8 +24,13 @@ describe('slide actions', () => {
         expect(coloredSlide).toEqual({
             id: '1-slide',
             name: '1-slide',
-            background: {type: 'bg-color', color: 'red'},
+            background: {type: 'color', color: 'red'},
             objects: []
+        })
+
+        expect(oldSlide.background).toEqual({
+            "color": "white",
+            "type": "color",
         })
 
         expect(coloredSlide).not.toBe(oldSlide)
@@ -43,8 +43,13 @@ describe('slide actions', () => {
         expect(slideWithImage).toEqual({
             id: '1-slide',
             name: '1-slide',
-            background: {type: 'bg-image', src: 'images/image.png'},
+            background: {type: 'image', src: 'images/image.png'},
             objects: []
+        })
+
+        expect(oldSlide.background).toEqual({
+            "color": "white",
+            "type": "color",
         })
 
         expect(slideWithImage).not.toBe(oldSlide)
@@ -57,8 +62,12 @@ describe('slide actions', () => {
         expect(slideWithGradient).toEqual({
             id: '1-slide',
             name: '1-slide',
-            background: {type: 'bg-gradient', colors: ['red', 'blue', 'green'], angle: 120},
+            background: {type: 'gradient', colors: ['red', 'blue', 'green'], angle: 120},
             objects: []
+        })
+        expect(oldSlide.background).toEqual({
+            "color": "white",
+            "type": "color",
         })
         expect(slideWithGradient).not.toBe(oldSlide)
     })
@@ -72,8 +81,16 @@ describe('slide actions', () => {
         expect(slideWithClearedBackground).toEqual({
             id: '1-slide',
             name: '1-slide',
-            background: {type: 'bg-color', color: 'white'},
+            background: {type: 'color', color: 'white'},
             objects: []
+        })
+        expect(oldSlide.background).toEqual({
+            type: "color",
+            color: "white",
+        })
+        expect(slideWithImage.background).toEqual({
+            type: 'image',
+            src: 'images/image.png'
         })
 
         expect(slideWithClearedBackground).not.toBe(slideWithImage)

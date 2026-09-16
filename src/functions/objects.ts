@@ -1,46 +1,42 @@
-import type { Presentation } from "../types/presentation.js";
 import type { Slide, Background } from "../types/slide.js";
-import type { SlideObject, Filter, Animation, Size, Point, TextStyle, FigureStyle } from "../types/objects.js";
+import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, textObjectArgs, imageObjectArgs, figuteObjectArgs } from "../types/objects.js";
 
-function addTextObject(slide: Slide,
-                       textId: string, 
-                       content: string,
-                       position: Point, 
-                       size: Size, 
-                       textStyle: TextStyle): Slide {
+
+//TODO: Отдельный тип для параметров args
+function addTextObject(slide: Slide, {id, spans, position, size, textLayout}: textObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
             type: 'text',
-            id: textId,
+            id,
             position,
             size,
-            content,
-            textStyle
+            spans,
+            textLayout
         }],
     }
 }
 
-function addImageObject(slide: Slide, imageId: string, imageUrl: string, position: Point, size: Size, imgFilter: Filter): Slide {
+function addImageObject(slide: Slide, {id, url, position, size, filters}: imageObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
             type: 'image',
-            id: imageId,
+            id,
             position,
             size,
-            src: imageUrl,
-            filters: imgFilter
+            src: url,
+            filters: filters
         }]
     }
 }
 
-function addFigureObject(slide: Slide, figureId: string, position: Point, size: Size, figureStyle: FigureStyle): Slide {
+function addFigureObject(slide: Slide, {id, position, size, figureStyle}: figuteObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
             type: 'figure',
-            id: figureId,
+            id,
             position,
             size,
             figureStyle
@@ -71,7 +67,9 @@ function moveObject(slide: Slide, objectId: string, newPosition: Point): Slide {
 }
 
 function resizeObject(slide: Slide, objectId: string, newSize: Size): Slide {
-    if (newSize.width <= 0 || newSize.width <= 0) return slide;
+    if (newSize.width <= 0 || newSize.width <= 0) {
+        return slide
+    }
 
     return {
         ...slide,
@@ -143,8 +141,3 @@ export {
     updateImageObjectStyle,
     updateFigureObjectStyle
 }
-
-
-
-    
-

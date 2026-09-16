@@ -30,29 +30,35 @@ function loadPresentation(json: string): Presentation {
     return JSON.parse(json);
 }
 
+//TODO: Вставка по индексу
+
 function addSlide(presentation: Presentation, slideId: string, slideName?: string): Presentation {
     const slide: Slide = {
         id: slideId,
         name: slideName,
-        background: {type: 'bg-color', color: 'white'},
+        background: {type: 'color', color: 'white'},
         objects: []
     } 
 
     return {
         ...presentation,
-        slides: [...(presentation.slides ?? []), slide]
+        slides: [...(presentation.slides), slide]
     }
 }
+
+//TODO: Убрать ?? []
 
 function removeSlides(presentation: Presentation, slideIds: string[]): Presentation {
     return {
         ...presentation,
-        slides: (presentation.slides ?? []).filter(slide => !slideIds.includes(slide.id))
+        slides: (presentation.slides).filter(slide => !slideIds.includes(slide.id))
     }
 }
 
 function moveSlide(presentation: Presentation, slideId: string, newIndex: number): Presentation {
-    if (!presentation.slides) return presentation;
+    if (!presentation.slides) {
+        return presentation
+    }
 
     const oldIndex = presentation.slides?.findIndex(slide => slide.id === slideId)
 
@@ -76,13 +82,13 @@ function moveSlide(presentation: Presentation, slideId: string, newIndex: number
         slides: updatedSlides
     }
 }
-
+//TODO: Подмать об id обектах, сделать здесь, или при копировании давать
 function duplicateSlide(presentation: Presentation, slideId: string, duplicateSlideId: string): Presentation {
     if (!presentation.slides) return presentation;
 
     const slideIndex = presentation.slides.findIndex(slide => slide.id === slideId)
 
-    if (slideIndex === -1) return {...presentation};
+    if (slideIndex === -1) return presentation;
 
     const slide = presentation.slides[slideIndex]
 
@@ -91,9 +97,9 @@ function duplicateSlide(presentation: Presentation, slideId: string, duplicateSl
     clonedSlide.id = duplicateSlideId;
 
     const updatedSlides = [
-        ...presentation.slides.slice(0, slideIndex),
+        ...presentation.slides.slice(0, slideIndex + 1),
         clonedSlide,
-        ...presentation.slides.slice(slideIndex)
+        ...presentation.slides.slice(slideIndex + 1)
     ]
 
     return {

@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "tsx": "^4.23.13",
+    "tsx": "4.23.13",
     "typescript": "7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "4.1.11"
   }
 }

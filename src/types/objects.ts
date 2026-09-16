@@ -2,8 +2,8 @@ type SlideObject = TextObject | ImageObject | FigureObject;
 
 type TextObject = BaseObject & {
     type: 'text'
-    content: string
-    textStyle: TextStyle
+    spans: TextSpan[]
+    textLayout: 'left' | 'center' | 'right'
 }
 
 type ImageObject = BaseObject & {
@@ -43,12 +43,40 @@ type FigureStyle = {
     strokeWidth: number
 }
 
+//TODO: TextStyle - для отделнных символов
+
 type TextStyle = {
     fontFamily: string
     fontSize: number
     fontColor: string
     fontStyle: 'normal' | 'italic' | 'bold'
-    textLayout: 'left' | 'center' | 'right'
+}
+
+type TextSpan = {
+    text: string;
+    style: TextStyle;
+}
+
+type textObjectArgs = {
+    id: string,
+    spans: TextSpan[];
+    position: Point,
+    size: Size,
+    textLayout: 'left' | 'center' | 'right';
+}
+type imageObjectArgs = {
+    id: string,
+    url: string,
+    position: Point,
+    size: Size,
+    filters: Filter
+}
+
+type figuteObjectArgs = {
+    id: string,
+    position: Point,
+    size: Size,
+    figureStyle: FigureStyle
 }
 
 type Size = {
@@ -72,4 +100,7 @@ export type {
     Point,
     TextStyle,
     FigureStyle,
+    textObjectArgs,
+    imageObjectArgs,
+    figuteObjectArgs
 }
