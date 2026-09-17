@@ -32,7 +32,11 @@ function loadPresentation(json: string): Presentation {
 
 //TODO: Вставка по индексу
 
-function addSlide(presentation: Presentation, slideId: string, slideName?: string): Presentation {
+function addSlide(presentation: Presentation, slideId: string, slideName?: string, insertIndex?: number): Presentation {
+    if (insertIndex !== undefined && (insertIndex < 0 || insertIndex > presentation.slides.length)) {
+        return presentation;
+    }
+    const idx = insertIndex ?? presentation.slides.length;
     const slide: Slide = {
         id: slideId,
         name: slideName,
@@ -42,7 +46,11 @@ function addSlide(presentation: Presentation, slideId: string, slideName?: strin
 
     return {
         ...presentation,
-        slides: [...(presentation.slides), slide]
+        slides: [
+            ...presentation.slides.slice(0, idx),
+            slide,
+            ...presentation.slides.slice(idx)
+        ]
     }
 }
 
