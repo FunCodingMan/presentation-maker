@@ -72,7 +72,7 @@ type imageObjectArgs = {
     filters: Filter
 }
 
-type figuteObjectArgs = {
+type figureObjectArgs = {
     id: string,
     position: Point,
     size: Size,
@@ -102,5 +102,5 @@ export type {
     FigureStyle,
     textObjectArgs,
     imageObjectArgs,
-    figuteObjectArgs
+    figureObjectArgs
 }

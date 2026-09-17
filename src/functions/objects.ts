@@ -1,5 +1,5 @@
 import type { Slide, Background } from "../types/slide.js";
-import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, textObjectArgs, imageObjectArgs, figuteObjectArgs } from "../types/objects.js";
+import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, textObjectArgs, imageObjectArgs, figureObjectArgs } from "../types/objects.js";
 
 
 //TODO: Отдельный тип для параметров args
@@ -31,7 +31,7 @@ function addImageObject(slide: Slide, {id, url, position, size, filters}: imageO
     }
 }
 
-function addFigureObject(slide: Slide, {id, position, size, figureStyle}: figuteObjectArgs): Slide {
+function addFigureObject(slide: Slide, {id, position, size, figureStyle}: figureObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
@@ -89,10 +89,13 @@ function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: Tex
     return {
         ...slide,
         objects: slide.objects.map(obj => {
-            if (obj.id === objectId) {
+            if (obj.id === objectId && obj.type === 'text') {
                 return {
                     ...obj,
-                    textStyle: newTextStyle
+                    spans: obj.spans.map(span => ({
+                        ...span,
+                        style: newTextStyle
+                    }))
                 }
             }
             return obj
