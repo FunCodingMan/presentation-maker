@@ -1,5 +1,27 @@
 import type { Slide, Background } from "../types/slide.js";
-import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, textObjectArgs, imageObjectArgs, figureObjectArgs, SlideObject } from "../types/objects.js";
+import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, TextSpan, SlideObject } from "../types/objects.js";
+
+type TextObjectArgs = {
+    id: string,
+    spans: TextSpan[];
+    position: Point,
+    size: Size,
+    textLayout: 'left' | 'center' | 'right';
+}
+type ImageObjectArgs = {
+    id: string,
+    url: string,
+    position: Point,
+    size: Size,
+    filters: Filter
+}
+
+type FigureObjectArgs = {
+    id: string,
+    position: Point,
+    size: Size,
+    figureStyle: FigureStyle
+}
 
 function modifyObject(slide: Slide, objectId: string, modifyFn: (obj: SlideObject) => SlideObject): Slide {
     return {
@@ -11,7 +33,8 @@ function modifyObject(slide: Slide, objectId: string, modifyFn: (obj: SlideObjec
 }
 
 //TODO: Отдельный тип для параметров args
-function addTextObject(slide: Slide, {id, spans, position, size, textLayout}: textObjectArgs): Slide {
+//TODO Типы с большой буквы
+function addTextObject(slide: Slide, {id, spans, position, size, textLayout}: TextObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
@@ -25,7 +48,7 @@ function addTextObject(slide: Slide, {id, spans, position, size, textLayout}: te
     }
 }
 
-function addImageObject(slide: Slide, {id, url, position, size, filters}: imageObjectArgs): Slide {
+function addImageObject(slide: Slide, {id, url, position, size, filters}: ImageObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {
@@ -39,7 +62,7 @@ function addImageObject(slide: Slide, {id, url, position, size, filters}: imageO
     }
 }
 
-function addFigureObject(slide: Slide, {id, position, size, figureStyle}: figureObjectArgs): Slide {
+function addFigureObject(slide: Slide, {id, position, size, figureStyle}: FigureObjectArgs): Slide {
     return {
         ...slide,
         objects: [...slide.objects, {

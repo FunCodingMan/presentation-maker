@@ -56,28 +56,8 @@ type TextSpan = {
     text: string;
     style: TextStyle;
 }
+//TODO: Переместить в функции
 
-type textObjectArgs = {
-    id: string,
-    spans: TextSpan[];
-    position: Point,
-    size: Size,
-    textLayout: 'left' | 'center' | 'right';
-}
-type imageObjectArgs = {
-    id: string,
-    url: string,
-    position: Point,
-    size: Size,
-    filters: Filter
-}
-
-type figureObjectArgs = {
-    id: string,
-    position: Point,
-    size: Size,
-    figureStyle: FigureStyle
-}
 
 type Size = {
     width: number
@@ -100,7 +80,5 @@ export type {
     Point,
     TextStyle,
     FigureStyle,
-    textObjectArgs,
-    imageObjectArgs,
-    figureObjectArgs
+    TextSpan
 }

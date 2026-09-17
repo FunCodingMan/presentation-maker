@@ -1,5 +1,11 @@
 import type { Presentation } from "../types/presentation.js";
-import type { Slide, Background, AddSlideArgs } from "../types/slide.js";
+import type { Slide } from "../types/slide.js";
+
+type AddSlideArgs = {
+    id: string,
+    slideName: string,
+    insertIndex?: number
+}
 
 function generateId(): string {
   const timestamp = Date.now().toString(36);
@@ -114,7 +120,7 @@ function duplicateSlide(presentation: Presentation, slideId: string, duplicateSl
         ...presentation,
         slides: updatedSlides
     }
-}  
+} 
 
 export {
     updatePresentationName,

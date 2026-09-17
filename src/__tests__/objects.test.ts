@@ -47,7 +47,8 @@ function createTestSlideWithFewObjects(slideName: string, objects: string[]): Sl
 function createTestImage(slide: Slide, imageId = '1-image'): Slide {
     return addImageObject(slide, {
         id: imageId, url: 'images/image.png',
-        position: { x: 150, y: 150 }, size: { width: 120, height: 180 }, filters: { blur: 10, brightness: 20 }
+        position: { x: 150, y: 150 },
+        size: { width: 120, height: 180 }, filters: { blur: 10, brightness: 20 }
     })
 }
 
