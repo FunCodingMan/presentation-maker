@@ -150,3 +150,9 @@ export {
     updateImageObjectStyle,
     updateFigureObjectStyle
 }
+
+export type {
+    TextObjectArgs,
+    ImageObjectArgs,
+    FigureObjectArgs
+}
