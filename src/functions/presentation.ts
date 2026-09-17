@@ -1,5 +1,5 @@
 import type { Presentation } from "../types/presentation.js";
-import type { Slide, Background } from "../types/slide.js";
+import type { Slide, Background, AddSlideArgs } from "../types/slide.js";
 
 function generateId(): string {
   const timestamp = Date.now().toString(36);
@@ -32,13 +32,13 @@ function loadPresentation(json: string): Presentation {
 
 //TODO: Вставка по индексу
 
-function addSlide(presentation: Presentation, slideId: string, slideName?: string, insertIndex?: number): Presentation {
+function addSlide(presentation: Presentation, {id, slideName, insertIndex}: AddSlideArgs): Presentation {
     if (insertIndex !== undefined && (insertIndex < 0 || insertIndex > presentation.slides.length)) {
         return presentation;
     }
     const idx = insertIndex ?? presentation.slides.length;
     const slide: Slide = {
-        id: slideId,
+        id: id,
         name: slideName,
         background: {type: 'color', color: 'white'},
         objects: []

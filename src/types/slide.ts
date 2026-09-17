@@ -25,10 +25,17 @@ type BackgroundGradient = {
     angle?: number
 }
 
+type AddSlideArgs = {
+    id: string,
+    slideName: string,
+    insertIndex?: number
+}
+
 export type {
     Slide, 
     Background,
     BackgroundColor,
     BackGroundImage,
-    BackgroundGradient
+    BackgroundGradient,
+    AddSlideArgs
 }

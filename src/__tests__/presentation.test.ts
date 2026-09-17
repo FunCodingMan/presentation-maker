@@ -16,7 +16,7 @@ function createTestPresentation(name: string, slides: string[]): Presentation {
     const presentation = createPresentation(generateId(), name)
 
     return slides.reduce((presentation, slide) => {
-        return addSlide(presentation, slide, slide)
+        return addSlide(presentation, {id: slide, slideName: slide})
     }, presentation)
 }
 
@@ -46,7 +46,7 @@ describe('presentation actions', () => {
 
     it('adds slide to empty presentation', () => {
         const presentation = createPresentation('id', 'old presentation')
-        const newPresentation = addSlide(presentation, '1-slide', '1 slide')
+        const newPresentation = addSlide(presentation, {id: '1-slide', slideName: '1 slide'})
         
         expect(newPresentation.slides).toHaveLength(1)
         expect(newPresentation.slides[0]).toMatchObject({ id: '1-slide', name: '1 slide' })
@@ -56,8 +56,8 @@ describe('presentation actions', () => {
 
     it('adds slide to presentation with slides', () => {
         const presentation = createPresentation('id', 'old presentation')
-        const presentationWithOneSlide = addSlide(presentation, '1-slide', '1 slide')
-        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, '2-slide', '2 slide')
+        const presentationWithOneSlide = addSlide(presentation, {id: '1-slide', slideName: '1 slide'})
+        const presentationWithTwoSlides = addSlide(presentationWithOneSlide, {id: '2-slide', slideName: '2 slide'})
         
         expect(presentationWithOneSlide.slides).toHaveLength(1)
         expect(presentationWithTwoSlides.slides).toHaveLength(2)
@@ -68,14 +68,14 @@ describe('presentation actions', () => {
     })
     it('inserts slide at specific index', () => {
         const presentation = createTestPresentation('test', ['s-1', 's-2']);
-        const res = addSlide(presentation, 's-new', 'New Slide', 1);
+        const res = addSlide(presentation, {id: 's-new', slideName: 'New Slide', insertIndex: 1});
         expect(res.slides.map(s => s.id)).toEqual(['s-1', 's-new', 's-2']);
         expect(res).not.toBe(presentation);
     });    
 
     it('removes one presentation slide', () => {
         const oldPresentation = createPresentation('id', 'old presentation')
-        const presentationWithSlide = addSlide(oldPresentation, '1-slide', '1 slide')
+        const presentationWithSlide = addSlide(oldPresentation, {id: '1-slide', slideName: '1 slide'})
         const presentationRemoved = removeSlides(presentationWithSlide, ['1-slide'])
         
         expect(presentationRemoved.slides).toHaveLength(0)
