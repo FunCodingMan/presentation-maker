@@ -49,7 +49,7 @@ type TextStyle = {
     fontFamily: string
     fontSize: number
     fontColor: string
-    fontStyle: 'normal' | 'italic' | 'bold'
+    fontStyle: Array<'bold' | 'italic' | 'underline' | 'strikethrough'>;
 }
 
 type TextSpan = {

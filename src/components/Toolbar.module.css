@@ -1,0 +1,36 @@
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.leftGroup, .centerGroup, .rightGroup {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.titleInput {
+    font-weight: bold;
+    font-size: 16px;
+    border-color: transparent;
+    min-width: 200px;
+}
+
+.titleInput:hover {
+    border-color: #ccc;
+}
+
+.primaryButton {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+}
+
+.primaryButton:hover {
+    background-color: #1565c0;
+}

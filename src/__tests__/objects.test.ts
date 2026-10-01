@@ -15,7 +15,7 @@ import type {
 const defaultPosition: Point = { x: 100, y: 100 }
 const defaultSize: Size = { width: 20, height: 30 }
 const defaultTextStyle: TextStyle = {
-    fontFamily: 'Arial', fontSize: 5, fontColor: 'black', fontStyle: 'normal'
+    fontFamily: 'Arial', fontSize: 5, fontColor: 'black', fontStyle: []
 }
 
 function getTextArgs(id = '1-text', text = 'Привет'): TextObjectArgs {
@@ -237,7 +237,7 @@ describe('object actions', () => {
         const newStyle: TextStyle = { 
             fontFamily: 'Times New Roman', 
             fontSize: 25, fontColor: 'yellow',
-            fontStyle: 'bold' 
+            fontStyle: ['bold'] 
         }
         
         const res = updateTextObjectStyle(oldSlide, '1-text', newStyle)

@@ -1,0 +1,20 @@
+.workspace {
+    flex: 1;
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    padding: 40px;
+}
+
+.canvasContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.emptyState {
+    font-size: 24px;
+    color: #999;
+}

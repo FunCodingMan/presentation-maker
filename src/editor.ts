@@ -4,6 +4,7 @@ let currentPresentation: Presentation | null = null
 let editorChangeHandler: (() => void) | null = null
 let isPreviewMode = false
 let modifierParams: any = null
+let activeSlideId: string | null = null
 
 function setInitialState(presentation: Presentation): void {
     currentPresentation = presentation
@@ -45,4 +46,15 @@ function getPreviewMode(): boolean {
     return isPreviewMode;
 }
 
-export { setInitialState, getState, dispatch, addEditorChangeHandler, setPreviewMode, getPreviewMode }
+function setActiveSlideId(id: string): void {
+    activeSlideId = id;
+    if (editorChangeHandler) {
+        editorChangeHandler();
+    }
+}
+
+function getActiveSlideId(): string | null {
+    return activeSlideId;
+}
+
+export { setInitialState, getState, dispatch, addEditorChangeHandler, setPreviewMode, getPreviewMode, setActiveSlideId, getActiveSlideId }
