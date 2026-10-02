@@ -8,7 +8,7 @@ import styles from './App.module.css';
 
 type AppProps = {
     presentation: Presentation
-    activeSlideId: string | null;
+    activeSlideId: string | null
 };
 
 function App({ presentation, activeSlideId }: AppProps) {

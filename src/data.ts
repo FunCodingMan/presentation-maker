@@ -60,9 +60,9 @@ function createTestPresentation(): Presentation {
 
     slide3 = addImageObject(slide3, {
         id: generateId(),
-        url: 'https://picsum.photos/300/200',
+        url: 'https://i.pinimg.com/236x/08/35/d9/0835d99a022ed4d72074a518bd7b451d.jpg',
         position: { x: 50, y: 50 },
-        size: { width: 300, height: 200 },
+        size: { width: 236, height: 236 },
         filters: { blur: 0, brightness: 110 }
     });
 
