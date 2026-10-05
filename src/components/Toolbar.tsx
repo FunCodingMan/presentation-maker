@@ -7,6 +7,7 @@ import { TextInput } from './TextInput.js';
 import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../functions/slide.js'
 import styles from './Toolbar.module.css';
 import { ColorPicker } from './ColorPicker.js';
+import { ShapePicker } from './ShapePicket.js';
 
 type ToolbarProps = {
     presentation: Presentation;
@@ -85,7 +86,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
         })
     }
 
-    const onAddFigure = () => {
+    const onAddFigure = (shapeType: 'rectangle' | 'circle' | 'triangle') => {
         dispatch(modifySlide, {
             slideId: activeSlide.id,
             operation: addFigureObject,
@@ -94,9 +95,9 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 position: { x: 100, y: 100 },
                 size: { width: 100, height: 100 },
                 figureStyle: {
-                    shape: 'rectangle',
-                    fillcolor: 'red',
-                    strokeColor: 'blue',
+                    shape: shapeType,
+                    fillcolor: '#3498db',
+                    strokeColor: '#2980b9',
                     strokeWidth: 2
                 }
             }
@@ -119,7 +120,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 <Button text="+ Слайд" onClick={onAddSlide} />
                 <Button text="Текст" onClick={onAddText} />
                 <Button text="Картинка" onClick={onAddImage} />
-                <Button text="Фигура" onClick={onAddFigure} />
+                <ShapePicker onChange={onAddFigure} />
 
                 <div className={styles.colorPickerTool}>
                     <span className={styles.toolLabel}>Фон:</span>

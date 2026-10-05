@@ -1,0 +1,20 @@
+.shapeSelect {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color, #e4e7ec);
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--text-primary, #333);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.shapeSelect:hover {
+    border-color: #b0b5bd;
+}
+
+.shapeSelect:focus {
+    border-color: #1a73e8;
+}
