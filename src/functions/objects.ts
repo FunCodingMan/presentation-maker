@@ -151,12 +151,14 @@ function updateTextContent(slide: Slide, {objectId, newText} : UpdateTextContent
         objects: slide.objects.map(obj => {
             if (obj.id === objectId && obj.type === 'text') {
                 const baseStyle = obj.spans[0]?.style || { fontSize: 24, fontColor: '#000000', fontStyle: [] };
+                const lines = newText.split('\n');
+                const newSpans = lines.map((line, idx) => ({
+                    text: idx    === lines.length - 1 ? line : line + '\n',
+                    style: {...baseStyle}
+                }))
                 return {
                     ...obj,
-                    spans: [{ 
-                        text: newText, 
-                        style: baseStyle 
-                    }]
+                    spans: newSpans
                 };
             }
             return obj;

@@ -13,7 +13,8 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
     const handleSave = (e: React.SyntheticEvent<HTMLDivElement>) => {
         if (readonly) return
         
-        const newText = e.currentTarget.textContent || '';
+        const newText = (e.currentTarget as HTMLElement).innerText || '';
+
         if (newText !== value) {
             onChange(newText);
         }
@@ -33,7 +34,7 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
             onBlur={handleSave}
             onKeyDown={(e) => {
                 if (readonly) return;
-                if (e.key === 'Enter' || e.key === 'Escape') {
+                if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
                     e.preventDefault();
                     e.currentTarget.blur(); 
                 }
