@@ -1,17 +1,21 @@
 import type { Presentation } from '../types/presentation.js';
-import { dispatch, setPreviewMode } from '../editor.js';
-import { updatePresentationName, addSlide } from '../functions/presentation.js';
-import { generateId } from '../functions/presentation.js';
+import { dispatch, getActiveSlideId, setPreviewMode } from '../editor.js';
+import { updatePresentationName, addSlide, modifySlide, generateId } from '../functions/presentation.js';
+import { addTextObject, addImageObject, addFigureObject } from '../functions/objects.js'; 
 import { Button } from './Button.js';
 import { TextInput } from './TextInput.js';
-import { addTextObject } from '../functions/objects.js'
+import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../functions/slide.js'
 import styles from './Toolbar.module.css';
 
 type ToolbarProps = {
     presentation: Presentation;
+    activeSlideId: string | null;
 };
 
-function Toolbar({ presentation }: ToolbarProps) {
+function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
+    const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0];
+    const currentColor = activeSlide?.background.type === 'color' ? activeSlide.background.color : '#ffffff';
+
     const onNameChange = (newName: string) => {
         dispatch(updatePresentationName, newName)
     }
@@ -23,6 +27,81 @@ function Toolbar({ presentation }: ToolbarProps) {
     const onStartPreview = () => {
         setPreviewMode(true)
     }
+
+    const onBackgroundColorChange = (newColor: string) => {
+        dispatch(modifySlide, {
+            slideId: activeSlide.id,
+            operation: setSlideBackgroundColor,
+            args: newColor
+        });
+    };
+
+    const onBackgroundImageChange = () => {
+        const url = prompt('Введите URL картинки для фона:', 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=1000');
+        if (url) {
+            dispatch(modifySlide, {
+                slideId: activeSlide.id,
+                operation: setSlideBackgroundImage,
+                args: url
+            });
+        }
+    };
+
+    const onBackgroundGradientChange = () => {
+        dispatch(modifySlide, {
+            slideId: activeSlide.id,
+            operation: setSlideBackgroundGradient,
+            args: { colors: ['#a18cd1', '#fbc2eb'], angle: 45 }
+        })
+    }
+
+
+    const onAddText = () => {
+        dispatch(modifySlide, {
+            slideId: activeSlide.id,
+            operation: addTextObject,
+            args: {
+                id: generateId(),
+                spans: [{ text: 'Новый текст', style: { fontSize: 24, fontColor: '#000', fontStyle: [] } }],
+                position: { x: 50, y: 50},
+                size: { width: 300, height: 50 },
+                textLayout: 'left'
+            }
+        })
+    }
+
+    const onAddImage = () => {
+        dispatch(modifySlide, {
+            slideId: activeSlide.id,
+            operation: addImageObject,
+            args: {
+                id: generateId(),
+                src: 'https://img02.rl0.ru/afisha/e750x-i/daily.afisha.ru/uploads/images/6/e5/6e5a713fb8d534791c6eed2e47be9640.jpg',
+                position: { x: 50, y: 50 },
+                size: { width: 750, height: 807 },
+                filters: [] 
+            }
+        })
+    }
+
+    const onAddFigure = () => {
+        dispatch(modifySlide, {
+            slideId: activeSlide.id,
+            operation: addFigureObject,
+            args: {
+                id: generateId(),
+                position: { x: 100, y: 100 },
+                size: { width: 100, height: 100 },
+                figureStyle: {
+                    shape: 'rectangle',
+                    fillcolor: 'red',
+                    strokeColor: 'blue',
+                    strokeWidth: 2
+                }
+            }
+        })
+    }
+
 
     return (
         <div className={styles.toolbar}>
@@ -37,9 +116,21 @@ function Toolbar({ presentation }: ToolbarProps) {
 
             <div className={styles.centerGroup}>
                 <Button text="+ Слайд" onClick={onAddSlide} />
-                <Button text="Текст" onClick={onAddSlide} />
-                <Button text="Картинка" onClick={onAddSlide} />
-                <Button text="Фигура" onClick={onAddSlide} />
+                <Button text="Текст" onClick={onAddText} />
+                <Button text="Картинка" onClick={onAddImage} />
+                <Button text="Фигура" onClick={onAddFigure} />
+
+                <div className={styles.colorPickerTool}>
+                    <span className={styles.toolLabel}>Фон:</span>
+                    <TextInput 
+                        type="color" 
+                        value={currentColor} 
+                        onChange={onBackgroundColorChange} 
+                        className={styles.colorInput}
+                    />
+                    <Button text="🖼️" onClick={onBackgroundImageChange} />
+                    <Button text="🌈" onClick={onBackgroundGradientChange} />
+                </div>
             </div>
 
             <div className={styles.rightGroup}>

@@ -120,7 +120,25 @@ function duplicateSlide(presentation: Presentation, slideId: string, duplicateSl
         ...presentation,
         slides: updatedSlides
     }
-} 
+}
+
+type ModifySlidePayload = {
+    slideId: string;
+    operation: (slide: Slide, args: any) => Slide
+    args: any
+};
+
+function modifySlide(presentation: Presentation, payload: ModifySlidePayload): Presentation
+{
+    return {
+        ...presentation,
+        slides: presentation.slides.map(slide =>
+            slide.id === payload.slideId
+                ? payload.operation(slide, payload.args)
+                : slide
+        )
+    }
+}
 
 export {
     updatePresentationName,
@@ -131,5 +149,6 @@ export {
     removeSlides,
     generateId,
     moveSlide,
-    duplicateSlide
+    duplicateSlide,
+    modifySlide
 }

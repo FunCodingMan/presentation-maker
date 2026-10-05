@@ -34,3 +34,36 @@
 .primaryButton:hover {
     background-color: #1565c0;
 }
+
+.colorPickerTool {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-color);
+}
+
+.toolLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-icon);
+}
+
+.colorInput {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.colorInput::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+.colorInput::-webkit-color-swatch {
+    border-radius: 4px;
+    border: none;
+}

@@ -57,7 +57,7 @@ describe('slide actions', () => {
     it ('sets background gradient', () => {
         const oldSlide = createTestSlide('1-slide')
 
-        const slideWithGradient = setSlideBackgroundGradient(oldSlide, ['red', 'blue', 'green'], 120)
+        const slideWithGradient = setSlideBackgroundGradient(oldSlide, { colors: ['red', 'blue', 'green'], angle: 120 })
 
         expect(slideWithGradient).toEqual({
             id: '1-slide',

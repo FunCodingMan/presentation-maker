@@ -56,7 +56,7 @@ function createTestPresentation(): Presentation {
     presentation = addSlide(presentation, { id: generateId(), slideName: 'Объекты' })
     let slide3 = presentation.slides[2];
 
-    slide3 = setSlideBackgroundGradient(slide3, ['#001251', '#952523'], 90);
+    slide3 = setSlideBackgroundGradient(slide3, { colors: ['#001251', '#952523'], angle: 90 });
 
     slide3 = addImageObject(slide3, {
         id: generateId(),

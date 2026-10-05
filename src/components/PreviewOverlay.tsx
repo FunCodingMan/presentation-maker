@@ -4,24 +4,32 @@ import { Button } from './Button.js';
 import styles from './PreviewOverlay.module.css';
 
 type PreviewOverlayProps = {
-    presentation: Presentation;
-    onClose: () => void;
+    presentation: Presentation
+    activeSlideId: string | null
+    onPrevSlide: () => void
+    onNextSlide: () => void
+    onClose: () => void
 };
 
-function PreviewOverlay({ presentation, onClose }: PreviewOverlayProps) {
-    const currentSlide = presentation.slides[0];
-    const currentIndex = 0;
+function PreviewOverlay({ presentation, activeSlideId, onClose, onNextSlide, onPrevSlide }: PreviewOverlayProps) {
+    let currentIndex = presentation.slides.findIndex(
+        (slide) => slide.id === activeSlideId
+    );
+    if (currentIndex === -1) {
+        currentIndex = 0
+    }
+    const currentSlide = presentation.slides[currentIndex];
 
     return (
         <div className={styles.overlay}>
             <div className={styles.controls}>
-                <Button text="Назад" onClick={() => console.log('Назад')} />
+                <Button text="Назад" onClick={onPrevSlide} />
                 
                 <span className={styles.counter}>
                     {currentIndex + 1} / {presentation.slides.length}
                 </span>
                 
-                <Button text="Далее" onClick={() => console.log('Вперед')} />
+                <Button text="Далее" onClick={onNextSlide} />
                 <Button text="✕ Закрыть" onClick={onClose} className={styles.closeBtn} />
             </div>
 
