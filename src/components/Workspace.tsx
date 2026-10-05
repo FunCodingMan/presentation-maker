@@ -13,7 +13,7 @@ function Workspace({ presentation, activeSlideId }: WorkspaceProps) {
         <div className={styles.workspace}>
             <div className={styles.canvasContainer}>
                 {activeSlide ? (
-                    <SlidePreview slide={activeSlide} />
+                    <SlidePreview slide={activeSlide} readonly={false} />
                 ) : (
                     <div className={styles.emptyState}>Нет слайдов</div>
                 )}

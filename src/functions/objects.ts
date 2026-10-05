@@ -1,5 +1,6 @@
 import type { Slide, Background } from "../types/slide.js";
 import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, TextSpan, SlideObject } from "../types/objects.js";
+import { SlideObjectComponent } from "../components/SlideObject.js";
 
 type TextObjectArgs = {
     id: string,
@@ -139,6 +140,30 @@ function updateFigureObjectStyle(slide: Slide, objectId: string, newFigureStyle:
     });   
 }
 
+type UpdateTextContentArgs = {
+    objectId: string
+    newText: string
+}
+
+function updateTextContent(slide: Slide, {objectId, newText} : UpdateTextContentArgs): Slide {
+    return {
+        ...slide,
+        objects: slide.objects.map(obj => {
+            if (obj.id === objectId && obj.type === 'text') {
+                const baseStyle = obj.spans[0]?.style || { fontSize: 24, fontColor: '#000000', fontStyle: [] };
+                return {
+                    ...obj,
+                    spans: [{ 
+                        text: newText, 
+                        style: baseStyle 
+                    }]
+                };
+            }
+            return obj;
+        })
+    }
+}
+
 export {
     addTextObject,
     addImageObject,
@@ -148,7 +173,8 @@ export {
     resizeObject,
     updateTextObjectStyle,
     updateImageObjectStyle,
-    updateFigureObjectStyle
+    updateFigureObjectStyle,
+    updateTextContent
 }
 
 export type {

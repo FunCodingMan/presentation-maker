@@ -25,7 +25,7 @@ function SlideList({ presentation, activeSlideId }: SlideListProps) {
                             className={`${styles.thumbnailContainer} ${isActive ? styles.activeSlide : ''}`}
                         >
                             <div className={styles.thumbnailScale}>
-                                <SlidePreview slide={slide} />
+                                <SlidePreview slide={slide} readonly={true}/>
                             </div>
                         </div>
                     </div>

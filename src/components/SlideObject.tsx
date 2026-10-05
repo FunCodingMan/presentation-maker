@@ -1,13 +1,21 @@
 import type { SlideObject, TextObject, ImageObject, FigureObject } from '../types/objects.js';
+import { TextInput } from './TextInput.js';
+import { dispatch } from '../editor.js';
+import { modifySlide } from '../functions/presentation.js';
+import { updateTextContent } from '../functions/objects.js';
 import styles from './SlideObject.module.css';
 
 type SlideObjectProps = {
     object: SlideObject;
+    slideId: string;
+    readonly?: boolean;
 };
 
 type TextObjectProps = {
     object: TextObject;
     dynamicStyle: React.CSSProperties;
+    slideId: string;
+    readonly?: boolean;
 };
 
 type ImageObjectProps = {
@@ -20,37 +28,40 @@ type FigureObjectProps = {
     dynamicStyle: React.CSSProperties;
 };
 
-function TextObjectComponent({ object, dynamicStyle }: TextObjectProps) {
+function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextObjectProps) {
+    const plainText = object.spans.map(span => span.text).join('');
+    const baseStyle = object.spans[0]?.style;
+    const styleArray = baseStyle?.fontStyle || [];
+
+    const textObjectStyle: React.CSSProperties = {
+        ...dynamicStyle,
+        textAlign: object.textLayout,
+        fontFamily: baseStyle?.fontFamily,
+        fontSize: `${baseStyle?.fontSize || 24}px`,
+        color: baseStyle?.fontColor || '#000000',
+        fontWeight: styleArray.includes('bold') ? 'bold' : 'normal',
+        fontStyle: styleArray.includes('italic') ? 'italic' : 'normal',
+        textDecoration: styleArray.includes('underline') ? 'underline' : 'none',
+    };
+    const handleTextChange = (newText: string) => {
+        dispatch(modifySlide, {
+            slideId: slideId,
+            operation: updateTextContent,
+            args: { objectId: object.id, newText: newText }
+        });
+    };
+
+
     return (
-        <div 
-            style={{...dynamicStyle, textAlign: object.textLayout}}
+        <TextInput 
+            value={plainText}
+            onChange={handleTextChange}
+            style={textObjectStyle}
+            readonly={readonly}
+            placeHolder="Введите текст"
             className={`${styles.baseObject} ${styles.textObject}`}
-        >
-            {object.spans.map((span, idx) => {
-                const styleArray = span.style.fontStyle || [];
-
-                const isBold = styleArray.includes('bold');
-                const isItalic = styleArray.includes('italic');
-                const isUnderline = styleArray.includes('underline');
-
-                return (
-                    <span 
-                        key={idx}
-                        style={{
-                            fontFamily: span.style.fontFamily,
-                            fontSize: `${span.style.fontSize}px`,
-                            color: span.style.fontColor,
-                            fontWeight: isBold ? 'bold' : 'normal',
-                            fontStyle: isItalic ? 'italic' : 'normal',
-                            textDecoration: isUnderline ? 'underline' : 'none',
-                        }}
-                    >
-                        {span.text}
-                    </span>
-                );
-            })}   
-        </div>
-    )
+        />
+    );
 }
 
 function ImageObjectComponent({ object, dynamicStyle }: ImageObjectProps) {
@@ -123,17 +134,21 @@ function FigureObjectComponent({ object, dynamicStyle }: FigureObjectProps) {
     )
 }
 
-function SlideObjectComponent({ object }: SlideObjectProps) {
+function SlideObjectComponent({ object, slideId, readonly }: SlideObjectProps) {
     const dynamicStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
+        position: 'absolute',
         width: `${object.size.width}px`,
-        height: `${object.size.height}px`,
+        ...(object.type === 'text' 
+            ? { minHeight: `${object.size.height}px`, height: 'auto' } 
+            : { height: `${object.size.height}px` }
+        )
     };
 
     switch (object.type) {
         case 'text':
-            return <TextObjectComponent object={object} dynamicStyle={dynamicStyle} />
+            return <TextObjectComponent object={object} dynamicStyle={dynamicStyle} slideId={slideId} readonly={readonly} />
         case 'image':
             return <ImageObjectComponent object={object} dynamicStyle={dynamicStyle} />
         case 'figure':

@@ -4,9 +4,10 @@ import { SlideObjectComponent } from './SlideObject.js';
 
 type SlidePreviewProps = {
     slide: Slide;
+    readonly?: boolean;
 };
 
-function SlidePreview({ slide }: SlidePreviewProps) {
+function SlidePreview({ slide, readonly = false }: SlidePreviewProps) {
     let backgroundStyles: React.CSSProperties = {};
 
     switch (slide.background.type) {
@@ -27,7 +28,7 @@ function SlidePreview({ slide }: SlidePreviewProps) {
     return (
         <div className={styles.slidePreview} style={backgroundStyles}>
             {slide.objects.map(obj => (
-                <SlideObjectComponent key={obj.id} object={obj} />
+                <SlideObjectComponent key={obj.id} object={obj} slideId={slide.id} readonly={readonly} />
             ))}
         </div>
     );

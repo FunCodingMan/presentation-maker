@@ -34,7 +34,7 @@ function PreviewOverlay({ presentation, activeSlideId, onClose, onNextSlide, onP
             </div>
 
             <div className={styles.slideContainer}>
-                {currentSlide && <SlidePreview slide={currentSlide} />}
+                {currentSlide && <SlidePreview slide={currentSlide} readonly={true} />}
             </div>
         </div>
     );

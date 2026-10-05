@@ -17,11 +17,11 @@ function setSlideBackgroundImage(slide: Slide, imageUrl: string): Slide {
     }
 }
 
-type GradientPayload = {
+type GradientArgs = {
     colors: string[], angle?: number
 };
 
-function setSlideBackgroundGradient(slide: Slide, {colors, angle}: GradientPayload): Slide {
+function setSlideBackgroundGradient(slide: Slide, {colors, angle}: GradientArgs): Slide {
     return {
         ...slide,
         background: {type: 'gradient', colors, angle}

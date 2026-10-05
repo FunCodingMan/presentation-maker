@@ -1,27 +1,47 @@
 import styles from './TextInput.module.css';
 
 type TextInputProps = {
-    value: string
+    value: string;
+    onChange: (value: string) => void;
+    className?: string;
     placeHolder?: string;
-    type?: 'text' | 'color' | 'number'
-    onChange?: (value: string) => void
-    className?: string
-}
+    style?: React.CSSProperties;
+    readonly?: boolean;
+};
 
-function TextInput({value, placeHolder, type = 'text', onChange, className = ''}: TextInputProps) {
+function TextInput({ value, onChange, className = '', placeHolder = '', style, readonly = false }: TextInputProps) {
+    const handleSave = (e: React.SyntheticEvent<HTMLDivElement>) => {
+        if (readonly) return
+        
+        const newText = e.currentTarget.textContent || '';
+        if (newText !== value) {
+            onChange(newText);
+        }
+    };
+
+
     return (
-        <input
-            type={type}
-            value={value}
-            placeholder={placeHolder}
-            className={`${styles.input} ${className}`}
-            onChange={(e) => {
-                if (onChange) {
-                    onChange(e.target.value)
+        <div
+            contentEditable={!readonly}
+            suppressContentEditableWarning={true}
+            className={`${styles.contentEditableDiv} ${className}`}
+            style={{
+                ...style,
+                cursor: readonly ? 'default' : 'text',
+            }}
+            data-placeholder={readonly ? '' : placeHolder}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+                if (readonly) return;
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                    e.preventDefault();
+                    e.currentTarget.blur(); 
                 }
             }}
-        />
-    )
+        >
+            {value}
+        </div>
+    );
 }
 
 export { TextInput }

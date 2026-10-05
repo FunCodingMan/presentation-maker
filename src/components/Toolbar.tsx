@@ -6,6 +6,7 @@ import { Button } from './Button.js';
 import { TextInput } from './TextInput.js';
 import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../functions/slide.js'
 import styles from './Toolbar.module.css';
+import { ColorPicker } from './ColorPicker.js';
 
 type ToolbarProps = {
     presentation: Presentation;
@@ -62,7 +63,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
             operation: addTextObject,
             args: {
                 id: generateId(),
-                spans: [{ text: 'Новый текст', style: { fontSize: 24, fontColor: '#000', fontStyle: [] } }],
+                spans: [{ text: '', style: { fontSize: 24, fontColor: '#000', fontStyle: [] } }],
                 position: { x: 50, y: 50},
                 size: { width: 300, height: 50 },
                 textLayout: 'left'
@@ -76,9 +77,9 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
             operation: addImageObject,
             args: {
                 id: generateId(),
-                src: 'https://img02.rl0.ru/afisha/e750x-i/daily.afisha.ru/uploads/images/6/e5/6e5a713fb8d534791c6eed2e47be9640.jpg',
+                url: 'https://i.pinimg.com/474x/1d/81/a3/1d81a30c542bada18ef5b89cb666cdb6.jpg',
                 position: { x: 50, y: 50 },
-                size: { width: 750, height: 807 },
+                size: { width: 474, height: 463 },
                 filters: [] 
             }
         })
@@ -122,11 +123,9 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
 
                 <div className={styles.colorPickerTool}>
                     <span className={styles.toolLabel}>Фон:</span>
-                    <TextInput 
-                        type="color" 
+                    <ColorPicker 
                         value={currentColor} 
-                        onChange={onBackgroundColorChange} 
-                        className={styles.colorInput}
+                        onChange={onBackgroundColorChange}
                     />
                     <Button text="🖼️" onClick={onBackgroundImageChange} />
                     <Button text="🌈" onClick={onBackgroundGradientChange} />
