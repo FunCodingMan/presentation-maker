@@ -1,6 +1,6 @@
-import type { Presentation } from '../types/presentation.js';
-import { SlidePreview } from './SlidePreview.js';
-import { setActiveSlideId } from '../editor.js';
+import type { Presentation } from '../../types/presentation.js';
+import { SlidePreview } from '../SlidePreview/SlidePreview.js';
+import { setActiveSlideId } from '../../editor.js';
 import styles from './SlideList.module.css';
 
 type SlideListProps = {

@@ -1,10 +1,10 @@
-import type { Presentation } from '../types/presentation.js';
-import { getPreviewMode, setPreviewMode } from '../editor.js';
-import { Toolbar } from './Toolbar.js';
-import { SlideList } from './SlideList.js';
-import { Workspace } from './Workspace.js';
-import { PreviewOverlay } from './PreviewOverlay.js';
-import { setActiveSlideId } from '../editor.js';
+import type { Presentation } from '../../types/presentation.js';
+import { getPreviewMode, setPreviewMode } from '../../editor.js';
+import { Toolbar } from '../Toolbar/Toolbar.js';
+import { SlideList } from '../SlideList/SlideList.js';
+import { Workspace } from '../Workspace/Workspace.js';
+import { PreviewOverlay } from '../PreviewOverlay/PreviewOverlay.js';
+import { setActiveSlideId } from '../../editor.js';
 import styles from './App.module.css';
 
 type AppProps = {

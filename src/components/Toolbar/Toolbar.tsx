@@ -1,13 +1,13 @@
-import type { Presentation } from '../types/presentation.js';
-import { dispatch, getActiveSlideId, setPreviewMode } from '../editor.js';
-import { updatePresentationName, addSlide, modifySlide, generateId } from '../functions/presentation.js';
-import { addTextObject, addImageObject, addFigureObject } from '../functions/objects.js'; 
-import { Button } from './Button.js';
-import { TextInput } from './TextInput.js';
-import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../functions/slide.js'
+import type { Presentation } from '../../types/presentation.js';
+import { dispatch, getActiveSlideId, setPreviewMode } from '../../editor.js';
+import { updatePresentationName, addSlide, modifySlide, generateId } from '../../functions/presentation.js';
+import { addTextObject, addImageObject, addFigureObject } from '../../functions/objects.js'; 
+import { Button } from '../Button/Button.js';
+import { TextInput } from '../TextInput/TextInput.js';
+import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../functions/slide.js'
 import styles from './Toolbar.module.css';
-import { ColorPicker } from './ColorPicker.js';
-import { ShapePicker } from './ShapePicket.js';
+import { ColorPicker } from '../ColorPicker/ColorPicker.js';
+import { ShapePicker } from '../ShapePicker/ShapePicket.js';
 
 type ToolbarProps = {
     presentation: Presentation;

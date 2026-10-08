@@ -1,5 +1,5 @@
-import type { Presentation } from '../types/presentation.js';
-import { SlidePreview } from './SlidePreview.js';
+import type { Presentation } from '../../types/presentation.js';
+import { SlidePreview } from '../SlidePreview/SlidePreview.js';
 import styles from './Workspace.module.css';
 
 type WorkspaceProps = {
