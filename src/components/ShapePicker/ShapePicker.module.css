@@ -1,6 +1,6 @@
 .shapeSelect {
     padding: 6px 8px;
-    border: 1px solid var(--border-color, #e4e7ec);
+    border: 1px solid var(--border-color, hsl(218, 17%, 91%));
     border-radius: 6px;
     background-color: transparent;
     color: var(--text-primary, #333);

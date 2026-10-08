@@ -7,11 +7,3 @@
     cursor: pointer;
     background-color: transparent;
 }
-
-.colorInput::-webkit-color-swatch-wrapper {
-    padding: 2px;
-}
-.colorInput::-webkit-color-swatch {
-    border-radius: 4px;
-    border: none;
-}

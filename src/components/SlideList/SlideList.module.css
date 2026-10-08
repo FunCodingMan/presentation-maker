@@ -24,8 +24,8 @@
 }
 
 .thumbnailContainer {
-    width: 160px;
-    height: 112px;
+    width: 216px;
+    height: 121.5px;
     position: relative;
     overflow: hidden;
     border: 2px solid #ccc;
@@ -43,10 +43,10 @@
 }
 
 .thumbnailScale {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: scale(0.2);
+    width: 1000px;
+    height: 562px;
+
+    transform: scale(0.216);
     transform-origin: top left;
     pointer-events: none;
 }
