@@ -1,15 +1,15 @@
-import type { Presentation } from './types/presentation.js';
-import { createPresentation, addSlide, generateId } from './functions/presentation.js';
+import type { Presentation } from './components/model/types/presentation.js';
+import { createPresentation, addSlide, generateId } from './components/model/functions/presentation.js';
 import { 
     setSlideBackgroundColor, 
     setSlideBackgroundImage, 
     setSlideBackgroundGradient 
-} from './functions/slide.js';
+} from './components/model/functions/slide.js';
 import { 
     addTextObject, 
     addImageObject, 
     addFigureObject 
-} from './functions/objects.js';
+} from './components/model/functions/objects.js';
 
 function createTestPresentation(): Presentation {
     let presentation = createPresentation(generateId(), "Test presentation")

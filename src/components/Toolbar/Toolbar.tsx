@@ -1,10 +1,10 @@
-import type { Presentation } from '../../types/presentation.js';
+import type { Presentation } from '../model/types/presentation.js';
 import { dispatch, getActiveSlideId, setPreviewMode } from '../../editor.js';
-import { updatePresentationName, addSlide, modifySlide, generateId } from '../../functions/presentation.js';
-import { addTextObject, addImageObject, addFigureObject } from '../../functions/objects.js'; 
+import { updatePresentationName, addSlide, modifySlide, generateId } from '../model/functions/presentation.js';
+import { addTextObject, addImageObject, addFigureObject } from '../model/functions/objects.js'; 
 import { Button } from '../Common/Button/Button.js';
 import { TextInput } from '../Common/TextInput/TextInput.js';
-import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../functions/slide.js'
+import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../model/functions/slide.js'
 import styles from './Toolbar.module.css';
 import { ColorPicker } from '../ColorPicker/ColorPicker.js';
 import { ShapePicker } from '../ShapePicker/ShapePicket.js';
