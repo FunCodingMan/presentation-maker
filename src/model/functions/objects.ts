@@ -1,6 +1,6 @@
 import type { Slide, Background } from "../types/slide.js";
 import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, TextSpan, SlideObject } from "../types/objects.js";
-import { SlideObjectComponent } from "../../SlideObject/SlideObject.js";
+import { SlideObjectComponent } from "../../components/SlideObject/SlideObject.js";
 
 type TextObjectArgs = {
     id: string,

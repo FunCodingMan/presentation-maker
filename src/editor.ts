@@ -1,4 +1,4 @@
-import type { Presentation } from './components/model/types/presentation.js'
+import type { Presentation } from './types/presentation.js'
 
 //TODO В отдельный обьект
 let currentPresentation: Presentation | null = null

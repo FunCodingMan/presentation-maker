@@ -1,4 +1,4 @@
-import type { Presentation } from '../model/types/presentation.js';
+import type { Presentation } from '../../types/presentation.js';
 import { SlidePreview } from '../SlidePreview/SlidePreview.js';
 import { Button } from '../Common/Button/Button.js';
 import styles from './PreviewOverlay.module.css';

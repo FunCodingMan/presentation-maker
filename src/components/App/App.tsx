@@ -1,4 +1,4 @@
-import type { Presentation } from '../model/types/presentation.js';
+import type { Presentation } from '../../types/presentation.js';
 import { getPreviewMode, setPreviewMode } from '../../editor.js';
 import { Toolbar } from '../Toolbar/Toolbar.js';
 import { SlideList } from '../SlideList/SlideList.js';

@@ -1,8 +1,8 @@
-import type { SlideObject, TextObject, ImageObject, FigureObject } from '../model/types/objects.js';
+import type { SlideObject, TextObject, ImageObject, FigureObject } from '../../types/objects.js';
 import { TextInput } from '../Common/TextInput/TextInput.js';
 import { dispatch } from '../../editor.js';
-import { modifySlide } from '../model/functions/presentation.js';
-import { updateTextContent } from '../model/functions/objects.js';
+import { modifySlide } from '../../functions/presentation.js';
+import { updateTextContent } from '../../functions/objects.js';
 import styles from './SlideObject.module.css';
 
 type SlideObjectProps = {
