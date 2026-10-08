@@ -114,7 +114,7 @@ function FigureObjectComponent({ object, dynamicStyle }: FigureObjectProps) {
                 {shape === 'circle' && (
                     <ellipse 
                         cx="50" cy="50" 
-                        rx="48" ry="48"
+                        rx="47" ry="47"
                         fill={fillColor}
                         stroke={strokeColor}
                         strokeWidth={strokeWidth}
