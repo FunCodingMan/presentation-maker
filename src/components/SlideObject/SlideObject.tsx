@@ -1,5 +1,5 @@
 import type { SlideObject, TextObject, ImageObject, FigureObject } from '../../types/objects.js';
-import { TextInput } from '../TextInput/TextInput.js';
+import { TextInput } from '../Common/TextInput/TextInput.js';
 import { dispatch } from '../../editor.js';
 import { modifySlide } from '../../functions/presentation.js';
 import { updateTextContent } from '../../functions/objects.js';
