@@ -24,7 +24,6 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
     return (
         <div
             contentEditable={!readonly}
-            suppressContentEditableWarning={true}
             className={`${styles.contentEditableDiv} ${className}`}
             style={{
                 ...style,

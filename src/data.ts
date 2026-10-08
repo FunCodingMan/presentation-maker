@@ -40,17 +40,17 @@ function createTestPresentation(): Presentation {
 
     slide2 = addFigureObject(slide2, {
         id: generateId(),
-        position: { x: 100, y: 100 },
+        position: { x: 175, y: 100 },
         size: { width: 600, height: 400 },
         figureStyle: { shape: 'rectangle', fillColor: 'rgba(255, 255, 255, 0.85)', strokeColor: '#000000', strokeWidth: 2 }
     });
 
     slide2 = addTextObject(slide2, {
         id: generateId(),
-        position: { x: 120, y: 120 },
+        position: { x: 200, y: 120 },
         size: { width: 560, height: 50 },
         textLayout: 'center',
-        spans: [{ text: 'Текст поверх полупрозрачной фигуры', style: { fontFamily: 'Arial', fontSize: 24, fontColor: '#000000', fontStyle: ['bold'] } }]
+        spans: [{ text: 'Текст поверх фигуры', style: { fontFamily: 'Arial', fontSize: 24, fontColor: '#000000', fontStyle: ['bold'] } }]
     });
 
     presentation = addSlide(presentation, { id: generateId(), slideName: 'Объекты' })
