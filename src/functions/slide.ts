@@ -7,7 +7,6 @@ function setSlideBackgroundColor(slide: Slide, color: string): Slide {
         background: {type: 'color', color}
     }
 }
-//TODO: Проверка на то, что старый файл не поменялся (только то поле которое меняем)
 
 function setSlideBackgroundImage(slide: Slide, imageUrl: string): Slide {
 

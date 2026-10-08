@@ -8,7 +8,6 @@ type Slide = {
 }
 
 type Background = BackgroundColor | BackGroundImage | BackgroundGradient;
-//TODO: Без bg
 type BackgroundColor = {
     type: 'color'
     color: string;

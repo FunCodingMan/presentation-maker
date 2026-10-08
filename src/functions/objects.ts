@@ -33,8 +33,6 @@ function modifyObject(slide: Slide, objectId: string, modifyFn: (obj: SlideObjec
     }
 }
 
-//TODO: Отдельный тип для параметров args
-//TODO Типы с большой буквы
 function addTextObject(slide: Slide, {id, spans, position, size, textLayout}: TextObjectArgs): Slide {
     return {
         ...slide,

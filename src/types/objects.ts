@@ -43,8 +43,6 @@ type FigureStyle = {
     strokeWidth: number
 }
 
-//TODO: TextStyle - для отделнных символов
-
 type TextStyle = {
     fontFamily: string
     fontSize: number
@@ -56,8 +54,6 @@ type TextSpan = {
     text: string;
     style: TextStyle;
 }
-//TODO: Переместить в функции
-
 
 type Size = {
     width: number

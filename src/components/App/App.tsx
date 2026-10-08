@@ -13,24 +13,26 @@ type AppProps = {
 };
 
 function App({ presentation, activeSlideId }: AppProps) {
-   
-    const ValidateIdx = (idx: number) => {
+    //TODO с маленькой буквы
+    const validateIdx = (idx: number) => {
         if (idx < 0) return 0;
         if (idx >= presentation.slides.length) return presentation.slides.length - 1
         return idx
     }
 
-    const ToPrevSlide = () => {
+    //TODO директория viewmodule
+
+    const toPrevSlide = () => {
         const idx = presentation.slides.findIndex(slide => slide.id === activeSlideId);
-        setActiveSlideId(presentation.slides[ValidateIdx(idx - 1)].id);
+        setActiveSlideId(presentation.slides[validateIdx(idx - 1)].id);
     }
 
-    const ToNextSlide = () => {
+    const toNextSlide = () => {
         const idx = presentation.slides.findIndex(slide => slide.id === activeSlideId);
-        setActiveSlideId(activeSlideId = presentation.slides[ValidateIdx(idx + 1)].id);
+        setActiveSlideId(activeSlideId = presentation.slides[validateIdx(idx + 1)].id);
     }
 
-    const ClosePreviewMode = () => {
+    const closePreviewMode = () => {
         document.exitFullscreen()
         setPreviewMode(false)
     }
@@ -39,9 +41,9 @@ function App({ presentation, activeSlideId }: AppProps) {
         return (
             <PreviewOverlay
                 presentation={presentation}
-                onClose={ClosePreviewMode}
-                onNextSlide={ToNextSlide}
-                onPrevSlide={ToPrevSlide}
+                onClose={closePreviewMode}
+                onNextSlide={toNextSlide}
+                onPrevSlide={toPrevSlide}
                 activeSlideId={activeSlideId}
             />
         );

@@ -12,7 +12,6 @@ import { updatePresentationName,
 import type { Presentation } from '../types/presentation.js'
 
 function createTestPresentation(name: string, slides: string[]): Presentation {
-    //TODO: аменить на метод reduce
     const presentation = createPresentation(generateId(), name)
 
     return slides.reduce((presentation, slide) => {

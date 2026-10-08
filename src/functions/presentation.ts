@@ -36,8 +36,6 @@ function loadPresentation(json: string): Presentation {
     return JSON.parse(json);
 }
 
-//TODO: Вставка по индексу
-
 function addSlide(presentation: Presentation, {id, slideName, insertIndex}: AddSlideArgs): Presentation {
     if (insertIndex !== undefined && (insertIndex < 0 || insertIndex > presentation.slides.length)) {
         return presentation;
@@ -59,8 +57,6 @@ function addSlide(presentation: Presentation, {id, slideName, insertIndex}: AddS
         ]
     }
 }
-
-//TODO: Убрать ?? []
 
 function removeSlides(presentation: Presentation, slideIds: string[]): Presentation {
     return {
@@ -96,7 +92,7 @@ function moveSlide(presentation: Presentation, slideId: string, newIndex: number
         slides: updatedSlides
     }
 }
-//TODO: Подмать об id обектах, сделать здесь, или при копировании давать
+
 function duplicateSlide(presentation: Presentation, slideId: string, duplicateSlideId: string): Presentation {
     if (!presentation.slides) return presentation;
 

@@ -1,5 +1,6 @@
 import type { Presentation } from './types/presentation.js'
 
+//TODO В отдельный обьект
 let currentPresentation: Presentation | null = null
 let editorChangeHandler: (() => void) | null = null
 let isPreviewMode = false
