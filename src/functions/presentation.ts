@@ -122,23 +122,23 @@ function duplicateSlide(presentation: Presentation, slideId: string, duplicateSl
     }
 }
 
-type ModifySlideArgs = {
-    slideId: string;
-    operation: (slide: Slide, args: any) => Slide
-    args: any
-};
+    type ModifySlideArgs = {
+        slideId: string;
+        operation: (slide: Slide, args: any) => Slide
+        args: any
+    };
 
-function modifySlide(presentation: Presentation, { slideId, operation, args }: ModifySlideArgs): Presentation
-{
-    return {
-        ...presentation,
-        slides: presentation.slides.map(slide =>
-            slide.id === slideId
-                ? operation(slide, args)
-                : slide
-        )
+    function modifySlide(presentation: Presentation, { slideId, operation, args }: ModifySlideArgs): Presentation
+    {
+        return {
+            ...presentation,
+            slides: presentation.slides.map(slide =>
+                slide.id === slideId
+                    ? operation(slide, args)
+                    : slide
+            )
+        }
     }
-}
 
 
 export {

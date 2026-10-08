@@ -29,11 +29,17 @@ function App({ presentation, activeSlideId }: AppProps) {
         const idx = presentation.slides.findIndex(slide => slide.id === activeSlideId);
         setActiveSlideId(activeSlideId = presentation.slides[ValidateIdx(idx + 1)].id);
     }
+
+    const ClosePreviewMode = () => {
+        document.exitFullscreen()
+        setPreviewMode(false)
+    }
+
     if (getPreviewMode()) {
         return (
             <PreviewOverlay
                 presentation={presentation}
-                onClose={() => setPreviewMode(false)}
+                onClose={ClosePreviewMode}
                 onNextSlide={ToNextSlide}
                 onPrevSlide={ToPrevSlide}
                 activeSlideId={activeSlideId}

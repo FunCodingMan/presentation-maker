@@ -28,6 +28,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
 
     const onStartPreview = () => {
         setPreviewMode(true)
+        document.documentElement.requestFullscreen()
     }
 
     const onBackgroundColorChange = (newColor: string) => {
