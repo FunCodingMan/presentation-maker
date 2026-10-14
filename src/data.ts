@@ -1,10 +1,10 @@
-import type { Presentation } from './types/presentation.js';
-import { createPresentation, addSlide, generateId } from './functions/presentation.js';
+import type { Presentation } from './model/types/presentation.js';
+import { createPresentation, addSlide, generateId } from './model/functions/presentation.js';
 import { 
     setSlideBackgroundColor, 
     setSlideBackgroundImage, 
     setSlideBackgroundGradient 
-} from './functions/slide.js';
+} from './model/functions/slide.js';
 import { 
     addTextObject, 
     addImageObject, 

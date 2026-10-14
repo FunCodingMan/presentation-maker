@@ -8,8 +8,8 @@ import { updatePresentationName,
          generateId,
          moveSlide,
          duplicateSlide
-        } from '../functions/presentation.js'
-import type { Presentation } from '../types/presentation.js'
+        } from '../model/functions/presentation.js'
+import type { Presentation } from '../model/types/presentation.js'
 
 function createTestPresentation(name: string, slides: string[]): Presentation {
     const presentation = createPresentation(generateId(), name)

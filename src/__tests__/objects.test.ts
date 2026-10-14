@@ -1,16 +1,16 @@
 import { describe, it, expect } from 'vitest'
-import type { Slide } from '../types/slide.js'
+import type { Slide } from '../model/types/slide.js'
 import {
     addTextObject, addImageObject, addFigureObject,
     removeObject, moveObject, resizeObject,
     updateTextObjectStyle, updateImageObjectStyle, updateFigureObjectStyle
-} from '../functions/objects.js'
+} from '../model/functions/objects.js'
 import type {
     TextObjectArgs, ImageObjectArgs, FigureObjectArgs
-} from '../functions/objects.js'
+} from '../model/functions/objects.js'
 import type {
     Point, Size, TextStyle, TextObject, ImageObject, FigureObject
-} from '../types/objects.js'
+} from '../model/types/objects.js'
 
 const defaultPosition: Point = { x: 100, y: 100 }
 const defaultSize: Size = { width: 20, height: 30 }

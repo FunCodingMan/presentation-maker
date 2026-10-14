@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { Slide
-        } from '../types/slide.js';
+        } from '../model/types/slide.js';
 import {setSlideBackgroundColor,
         setSlideBackgroundGradient, 
         setSlideBackgroundImage,
         clearSlideBackground
-        } from '../functions/slide.js'
+        } from '../model/functions/slide.js'
 
 function createTestSlide(slideName: string): Slide {
     return {
