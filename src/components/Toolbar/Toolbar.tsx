@@ -1,22 +1,23 @@
-import type { Presentation } from '../../model/types/presentation.js';
-import { dispatch, getActiveSlideId, setPreviewMode } from '../../editor.js';
-import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js';
-import { addTextObject, addImageObject, addFigureObject } from '../../model/functions/objects.js'; 
-import { Button } from '../Common/Button/Button.js';
-import { TextInput } from '../Common/TextInput/TextInput.js';
+import type { Presentation } from '../../model/types/presentation.js'
+import { dispatch, dispatchView } from '../../editor.js'
+import { setPreviewMode } from '../../viewmodel/functions/navigation.js'
+import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js'
+import { addTextObject, addImageObject, addFigureObject } from '../../model/functions/objects.js' 
+import { Button } from '../Common/Button/Button.js'
+import { TextInput } from '../Common/TextInput/TextInput.js'
 import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../model/functions/slide.js'
-import styles from './Toolbar.module.css';
-import { ColorPicker } from '../ColorPicker/ColorPicker.js';
-import { ShapePicker } from '../ShapePicker/ShapePicket.js';
+import styles from './Toolbar.module.css'
+import { ColorPicker } from '../ColorPicker/ColorPicker.js'
+import { ShapePicker } from '../ShapePicker/ShapePicker.js'
 
 type ToolbarProps = {
-    presentation: Presentation;
-    activeSlideId: string | null;
-};
+    presentation: Presentation
+    activeSlideId: string | null
+}
 
 function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
-    const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0];
-    const currentColor = activeSlide?.background.type === 'color' ? activeSlide.background.color : '#ffffff';
+    const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0]
+    const currentColor = activeSlide?.background.type === 'color' ? activeSlide.background.color : '#ffffff'
 
     const onNameChange = (newName: string) => {
         dispatch(updatePresentationName, newName)
@@ -27,7 +28,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
     }
 
     const onStartPreview = () => {
-        setPreviewMode(true)
+        dispatchView(setPreviewMode, true)
         document.documentElement.requestFullscreen()
     }
 
@@ -36,19 +37,19 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
             slideId: activeSlide.id,
             operation: setSlideBackgroundColor,
             args: newColor
-        });
-    };
+        })
+    }
 
     const onBackgroundImageChange = () => {
-        const url = prompt('Введите URL картинки для фона:', 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=1000');
+        const url = prompt('Введите URL картинки для фона:', 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=1000')
         if (url) {
             dispatch(modifySlide, {
                 slideId: activeSlide.id,
                 operation: setSlideBackgroundImage,
                 args: url
-            });
+            })
         }
-    };
+    }
 
     const onBackgroundGradientChange = () => {
         dispatch(modifySlide, {

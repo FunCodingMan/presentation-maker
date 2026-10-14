@@ -1,6 +1,7 @@
 import type { Presentation } from '../../model/types/presentation.js';
 import { SlidePreview } from '../SlidePreview/SlidePreview.js';
-import { setActiveSlideId } from '../../editor.js';
+import { dispatchView } from '../../editor.js';
+import { setActiveSlideId } from '../../viewmodel/functions/navigation.js';
 import styles from './SlideList.module.css';
 
 type SlideListProps = {
@@ -18,7 +19,7 @@ function SlideList({ presentation, activeSlideId }: SlideListProps) {
                     <div 
                         key={slide.id} 
                         className={styles.slideItem}
-                        onClick={() => setActiveSlideId(slide.id)}
+                        onClick={() => dispatchView(setActiveSlideId, slide.id)}
                     >
                         <span className={styles.slideNumber}>{index + 1}</span>
                         <div 

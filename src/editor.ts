@@ -1,21 +1,37 @@
 import type { Presentation } from './model/types/presentation.js'
+import type { ViewModel } from './viewmodel/types/view.js'
 
-//TODO В отдельный обьект
+
 let currentPresentation: Presentation | null = null
 let editorChangeHandler: (() => void) | null = null
-let isPreviewMode = false
 let modifierParams: any = null
-let activeSlideId: string | null = null
+//TODO В отдельный обьект
+let currentViewModel: ViewModel = {
+    activeSlideId: null,
+    selectedObjectIds: [],
+    isPreviewMode: false
+};
 
 function setInitialState(presentation: Presentation): void {
     currentPresentation = presentation
+    currentViewModel = {
+        activeSlideId: presentation.slides[0]?.id ?? null,
+        selectedObjectIds: [],
+        isPreviewMode: false
+    };
 }
 
 function getState(): Presentation | null {
   return currentPresentation
 }
 
+function getViewModel(): ViewModel
+{
+    return currentViewModel
+}
+
 type Modifier<P = any> = (model: Presentation, params: P) => Presentation
+type ViewModifier<P = any> = (view: ViewModel, params: P) => ViewModel
 
 function dispatch(modifier: Modifier, params: any = null): void {
     if(!currentPresentation) {
@@ -28,34 +44,26 @@ function dispatch(modifier: Modifier, params: any = null): void {
     currentPresentation = modifier(currentPresentation, params);
 
     if (editorChangeHandler) {
-        editorChangeHandler();
+        editorChangeHandler()
+    }
+}
+
+function dispatchView(modifier: ViewModifier, params: any = null): void {
+    currentViewModel = modifier(currentViewModel, params)
+    if (editorChangeHandler) {
+        editorChangeHandler()
     }
 }
 
 function addEditorChangeHandler(handler: () => void): void {
-  editorChangeHandler = handler;
+  editorChangeHandler = handler
 }
 
-function setPreviewMode(mode: boolean): void {
-    isPreviewMode = mode;
-    if (editorChangeHandler) {
-        editorChangeHandler();
-    }
+export {
+    setInitialState,
+    getState,
+    getViewModel,
+    dispatch,
+    dispatchView,
+    addEditorChangeHandler
 }
-
-function getPreviewMode(): boolean {
-    return isPreviewMode;
-}
-
-function setActiveSlideId(id: string): void {
-    activeSlideId = id;
-    if (editorChangeHandler) {
-        editorChangeHandler();
-    }
-}
-
-function getActiveSlideId(): string | null {
-    return activeSlideId;
-}
-
-export { setInitialState, getState, dispatch, addEditorChangeHandler, setPreviewMode, getPreviewMode, setActiveSlideId, getActiveSlideId }

@@ -1,61 +1,49 @@
 import type { Presentation } from '../../model/types/presentation.js';
-import { getPreviewMode, setPreviewMode } from '../../editor.js';
+import type { ViewModel } from '../../viewmodel/types/view.js';
+import { dispatchView } from '../../editor.js';
+import { setPreviewMode, goToNextSlide, goToPrevSlide } from '../../viewmodel/functions/navigation.js';
 import { Toolbar } from '../Toolbar/Toolbar.js';
 import { SlideList } from '../SlideList/SlideList.js';
 import { Workspace } from '../Workspace/Workspace.js';
 import { PreviewOverlay } from '../PreviewOverlay/PreviewOverlay.js';
-import { setActiveSlideId } from '../../editor.js';
 import styles from './App.module.css';
 
 type AppProps = {
     presentation: Presentation
-    activeSlideId: string | null
+    viewModel: ViewModel
 };
 
-function App({ presentation, activeSlideId }: AppProps) {
+function App({ presentation, viewModel }: AppProps) {
+    const handleClosePreview = () => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => console.error(err));
+        }
+        dispatchView(setPreviewMode, false);
+    };
     //TODO с маленькой буквы
-    const validateIdx = (idx: number) => {
-        if (idx < 0) return 0;
-        if (idx >= presentation.slides.length) return presentation.slides.length - 1
-        return idx
-    }
 
     //TODO директория viewmodule
 
-    const toPrevSlide = () => {
-        const idx = presentation.slides.findIndex(slide => slide.id === activeSlideId);
-        setActiveSlideId(presentation.slides[validateIdx(idx - 1)].id);
-    }
 
-    const toNextSlide = () => {
-        const idx = presentation.slides.findIndex(slide => slide.id === activeSlideId);
-        setActiveSlideId(activeSlideId = presentation.slides[validateIdx(idx + 1)].id);
-    }
-
-    const closePreviewMode = () => {
-        document.exitFullscreen()
-        setPreviewMode(false)
-    }
-
-    if (getPreviewMode()) {
+    if (viewModel.isPreviewMode) {
         return (
             <PreviewOverlay
                 presentation={presentation}
-                onClose={closePreviewMode}
-                onNextSlide={toNextSlide}
-                onPrevSlide={toPrevSlide}
-                activeSlideId={activeSlideId}
+                activeSlideId={viewModel.activeSlideId}
+                onClose={handleClosePreview}
+                onNextSlide={() => dispatchView(goToNextSlide, presentation.slides)}
+                onPrevSlide={() => dispatchView(goToPrevSlide, presentation.slides)}
             />
         );
     }
 
     return (
         <div className={styles.appContainer}>
-            <Toolbar presentation={presentation} activeSlideId={activeSlideId} />
+            <Toolbar presentation={presentation} activeSlideId={viewModel.activeSlideId} />
             
             <div className={styles.mainArea}>
-                <SlideList presentation={presentation} activeSlideId={activeSlideId} />
-                <Workspace presentation={presentation} activeSlideId={activeSlideId} />
+                <SlideList presentation={presentation} activeSlideId={viewModel.activeSlideId} />
+                <Workspace presentation={presentation} activeSlideId={viewModel.activeSlideId} />
             </div>
         </div>
     );
