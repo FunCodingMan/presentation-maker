@@ -41,20 +41,20 @@
     gap: 8px;
     margin-left: 12px;
     padding-left: 12px;
-    border-left: 1px solid var(--border-color);
+    border-left: 1px solid white;
 }
 
 .toolLabel {
     font-size: 13px;
     font-weight: 500;
-    color: var(--text-icon);
+    color: black;
 }
 
 .colorInput {
     width: 32px;
     height: 32px;
     padding: 0;
-    border: 1px solid var(--border-color);
+    border: 1px white;
     border-radius: 6px;
     cursor: pointer;
     background-color: transparent;

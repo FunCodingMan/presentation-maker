@@ -4,10 +4,10 @@
     justify-content: center;
     height: 36px;
     padding: 0 12px;
-    background-color: transparent;
+    background-color: black;
     border: none;
+    color: azure;
     border-radius: 6px;
-    color: var(--text-primary);
     font-family: inherit;
     font-size: 13px;
     font-weight: 500;
@@ -16,7 +16,7 @@
 }
 
 .button:hover {
-    background-color: var(--bg-main);
+    background-color:aqua;
 }
 
 .button:disabled {

@@ -1,9 +1,9 @@
 .shapeSelect {
     padding: 6px 8px;
-    border: 1px solid var(--border-color, hsl(218, 17%, 91%));
+    border: 1px solid hsl(218, 17%, 91%);
     border-radius: 6px;
     background-color: transparent;
-    color: var(--text-primary, #333);
+    color:#333;
     cursor: pointer;
     font-family: inherit;
     font-size: 13px;
