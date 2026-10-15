@@ -1,6 +1,5 @@
 import type { Presentation } from '../../model/types/presentation.js'
 import { dispatch } from '../../editor.js'
-// Объединил импорты из одного файла для чистоты:
 import { modifyPresentation, setPreviewMode } from '../../viewmodel/functions/navigation.js'
 import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js'
 import { addTextObject, addImageObject, addFigureObject } from '../../model/functions/objects.js' 

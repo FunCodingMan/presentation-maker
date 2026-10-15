@@ -1,24 +1,26 @@
 import type { Presentation } from '../../model/types/presentation.js';
 import { SlidePreview } from '../slidePreview/SlidePreview.js';
 import { Button } from '../common/button/Button.js';
+import { Slide } from '../../model/types/slide.js';
 import styles from './PreviewOverlay.module.css';
 
+
 type PreviewOverlayProps = {
-    presentation: Presentation
+    slides: Slide[];
     activeSlideId: string | null
     onPrevSlide: () => void
     onNextSlide: () => void
     onClose: () => void
 };
 
-function PreviewOverlay({ presentation, activeSlideId, onClose, onNextSlide, onPrevSlide }: PreviewOverlayProps) {
-    let currentIndex = presentation.slides.findIndex(
+function PreviewOverlay({ slides, activeSlideId, onClose, onNextSlide, onPrevSlide }: PreviewOverlayProps) {
+    let currentIndex = slides.findIndex(
         (slide) => slide.id === activeSlideId
     );
     if (currentIndex === -1) {
         currentIndex = 0
     }
-    const currentSlide = presentation.slides[currentIndex];
+    const currentSlide = slides[currentIndex];
 
     return (
         <div className={styles.overlay}>
@@ -26,7 +28,7 @@ function PreviewOverlay({ presentation, activeSlideId, onClose, onNextSlide, onP
                 <Button text="Назад" onClick={onPrevSlide} />
                 
                 <span className={styles.counter}>
-                    {currentIndex + 1} / {presentation.slides.length}
+                    {currentIndex + 1} / {slides.length}
                 </span>
                 
                 <Button text="Далее" onClick={onNextSlide} />

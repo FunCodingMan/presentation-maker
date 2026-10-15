@@ -28,7 +28,7 @@ function App({ presentation, viewModel }: AppProps) {
     if (viewModel.isPreviewMode) {
         return (
             <PreviewOverlay
-                presentation={presentation}
+                slides={presentation.slides}
                 activeSlideId={viewModel.activeSlideId}
                 onClose={handleClosePreview}
                 onNextSlide={() => dispatch(goToNextSlide, presentation.slides)}
