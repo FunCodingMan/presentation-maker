@@ -1,5 +1,17 @@
 import type { ViewModel } from '../types/view.js';
-import type { Slide } from '../../model/types/slide.js';
+import type { Presentation } from '../../model/types/presentation.js';
+
+type PresentationOperation<T = any> = {
+    operation: (presentation: Presentation, args: T) => Presentation;
+    args: T;
+};
+
+export function modifyPresentation(view: ViewModel, { operation, args }: PresentationOperation): ViewModel {
+    return {
+        ...view,
+        presentation: operation(view.presentation, args)
+    };
+}
 
 function validateSlideIndex(idx: number, maxIdx: number): number {
     if (idx < 0) return 0;
@@ -7,14 +19,14 @@ function validateSlideIndex(idx: number, maxIdx: number): number {
     return idx;
 }
 
-function setPreviewMode(view: ViewModel, mode: boolean): ViewModel {
+export function setPreviewMode(view: ViewModel, mode: boolean): ViewModel {
     return {
         ...view,
         isPreviewMode: mode
     };
 }
 
-function setActiveSlideId(view: ViewModel, id: string): ViewModel {
+export function setActiveSlideId(view: ViewModel, id: string): ViewModel {
     return {
         ...view,
         activeSlideId: id,
@@ -22,7 +34,8 @@ function setActiveSlideId(view: ViewModel, id: string): ViewModel {
     };
 }
 
-function goToNextSlide(view: ViewModel, slides: Slide[]): ViewModel {
+export function goToNextSlide(view: ViewModel): ViewModel {
+    const slides = view.presentation.slides;
     if (!view.activeSlideId || slides.length === 0) return view;
     
     const currentIdx = slides.findIndex(slide => slide.id === view.activeSlideId);
@@ -31,18 +44,12 @@ function goToNextSlide(view: ViewModel, slides: Slide[]): ViewModel {
     return setActiveSlideId(view, slides[nextIdx].id);
 }
 
-function goToPrevSlide(view: ViewModel, slides: Slide[]): ViewModel {
+export function goToPrevSlide(view: ViewModel): ViewModel {
+    const slides = view.presentation.slides;
     if (!view.activeSlideId || slides.length === 0) return view;
     
     const currentIdx = slides.findIndex(slide => slide.id === view.activeSlideId);
     const prevIdx = validateSlideIndex(currentIdx - 1, slides.length - 1);
     
     return setActiveSlideId(view, slides[prevIdx].id);
-}
-
-export {
-    setPreviewMode,
-    setActiveSlideId,
-    goToNextSlide,
-    goToPrevSlide
 }

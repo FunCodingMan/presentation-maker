@@ -4,6 +4,7 @@ import { dispatch } from '../../editor.js';
 import { modifySlide } from '../../model/functions/presentation.js';
 import { updateTextContent } from '../../model/functions/objects.js';
 import styles from './SlideObject.module.css';
+import { modifyPresentation } from '../../viewmodel/functions/navigation.js';
 
 type SlideObjectProps = {
     object: SlideObject;
@@ -44,11 +45,14 @@ function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextOb
         textDecoration: styleArray.includes('underline') ? 'underline' : 'none',
     };
     const handleTextChange = (newText: string) => {
-        dispatch(modifySlide, {
-            slideId: slideId,
-            operation: updateTextContent,
-            args: { objectId: object.id, newText: newText }
-        });
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: {
+                slideId: slideId,
+                operation: updateTextContent,
+                args: { objectId: object.id, newText: newText }
+            }
+        })
     };
 
 

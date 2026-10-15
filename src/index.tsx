@@ -9,11 +9,10 @@ setInitialState(initialData)
 const root = createRoot(document.getElementById('root')!)
 
 function renderApp(): void {
-  const presentation = getState();
-  const viewModel = getViewModel();
+  const viewModel = getState();
 
-  if (presentation) {
-    root.render(<App presentation={presentation} viewModel={viewModel} />)
+  if (viewModel) {
+    root.render(<App presentation={viewModel.presentation} viewModel={viewModel} />)
   }
 }
 

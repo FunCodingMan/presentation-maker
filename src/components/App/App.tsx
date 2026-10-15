@@ -1,6 +1,6 @@
 import type { Presentation } from '../../model/types/presentation.js';
 import type { ViewModel } from '../../viewmodel/types/view.js';
-import { dispatchView } from '../../editor.js';
+import { dispatch } from '../../editor.js';
 import { setPreviewMode, goToNextSlide, goToPrevSlide } from '../../viewmodel/functions/navigation.js';
 import { Toolbar } from '../Toolbar/Toolbar.js';
 import { SlideList } from '../SlideList/SlideList.js';
@@ -18,7 +18,7 @@ function App({ presentation, viewModel }: AppProps) {
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(err => console.error(err));
         }
-        dispatchView(setPreviewMode, false);
+        dispatch(setPreviewMode, false);
     };
     //TODO с маленькой буквы
 
@@ -31,8 +31,8 @@ function App({ presentation, viewModel }: AppProps) {
                 presentation={presentation}
                 activeSlideId={viewModel.activeSlideId}
                 onClose={handleClosePreview}
-                onNextSlide={() => dispatchView(goToNextSlide, presentation.slides)}
-                onPrevSlide={() => dispatchView(goToPrevSlide, presentation.slides)}
+                onNextSlide={() => dispatch(goToNextSlide, presentation.slides)}
+                onPrevSlide={() => dispatch(goToPrevSlide, presentation.slides)}
             />
         );
     }
