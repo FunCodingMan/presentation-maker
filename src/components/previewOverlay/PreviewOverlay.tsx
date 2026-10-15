@@ -1,5 +1,5 @@
 import type { Presentation } from '../../model/types/presentation.js';
-import { SlidePreview } from '../slidePreview/SlidePreview.js';
+import { SlidePreview } from '../slideView/SlideView.js';
 import { Button } from '../common/button/Button.js';
 import { Slide } from '../../model/types/slide.js';
 import styles from './PreviewOverlay.module.css';

@@ -158,7 +158,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
             </div>
 
             <div className={styles.rightGroup}>
-                <Button text="Слайд-шоу ▶" onClick={onStartPreview} className={styles.primaryButton} />
+                <Button text="Слайд-шоу" onClick={onStartPreview} className={styles.primaryButton} />
             </div>
         </div>
     )

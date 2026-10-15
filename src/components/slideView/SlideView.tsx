@@ -1,5 +1,5 @@
 import type { Slide } from '../../model/types/slide.js';
-import styles from './SlidePreview.module.css';
+import styles from './SlideView.module.css';
 import { SlideObjectComponent } from '../slideObject/SlideObject.js';
 
 type SlidePreviewProps = {
