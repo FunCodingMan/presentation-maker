@@ -4,12 +4,12 @@ import { dispatch } from '../../editor.js'
 import { modifyPresentation, setPreviewMode } from '../../viewmodel/functions/navigation.js'
 import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js'
 import { addTextObject, addImageObject, addFigureObject } from '../../model/functions/objects.js' 
-import { Button } from '../Common/Button/Button.js'
-import { TextInput } from '../Common/TextInput/TextInput.js'
+import { Button } from '../common/button/Button.js'
+import { TextInput } from '../common/textInput/TextInput.js'
 import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../model/functions/slide.js'
 import styles from './Toolbar.module.css'
-import { ColorPicker } from '../ColorPicker/ColorPicker.js'
-import { ShapePicker } from '../ShapePicker/ShapePicker.js'
+import { ColorPicker } from '../colorPicker/ColorPicker.js'
+import { ShapePicker } from '../shapePicker/ShapePicker.js'
 
 type ToolbarProps = {
     presentation: Presentation

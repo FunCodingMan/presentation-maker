@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
-import { App } from './components/App/App.js'
-import { addEditorChangeHandler, setInitialState, getState, getViewModel } from './editor.js'
+import { App } from './components/app/App.js'
+import { addEditorChangeHandler, setInitialState, getState } from './editor.js'
 import { createTestPresentation } from './data.js'
 
 const initialData = createTestPresentation()

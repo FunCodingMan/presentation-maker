@@ -1,19 +1,20 @@
 import type { Presentation } from '../../model/types/presentation.js';
-import { SlidePreview } from '../SlidePreview/SlidePreview.js';
+import { SlidePreview } from '../slidePreview/SlidePreview.js';
 import { dispatch } from '../../editor.js';
+import { Slide } from '../../model/types/slide.js';
 import { setActiveSlideId } from '../../viewmodel/functions/navigation.js';
 import styles from './SlideList.module.css';
 
 type SlideListProps = {
-    presentation: Presentation
+    slides: Slide[];
     activeSlideId: string | null
 };
-
-function SlideList({ presentation, activeSlideId }: SlideListProps) {
+//TODO: список слайдов в пропс
+function SlideList({ slides, activeSlideId }: SlideListProps) {
     return (
         <div className={styles.slideList}>
-            {presentation.slides.map((slide, index) => {
-                const isActive = slide.id === (activeSlideId || presentation.slides[0]?.id);
+            {slides.map((slide, index) => {
+                const isActive = slide.id === (activeSlideId || slides[0]?.id);
 
                 return (
                     <div 

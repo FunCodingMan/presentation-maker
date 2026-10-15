@@ -1,6 +1,6 @@
 import type { Presentation } from '../../model/types/presentation.js';
-import { SlidePreview } from '../SlidePreview/SlidePreview.js';
-import { Button } from '../Common/Button/Button.js';
+import { SlidePreview } from '../slidePreview/SlidePreview.js';
+import { Button } from '../common/button/Button.js';
 import styles from './PreviewOverlay.module.css';
 
 type PreviewOverlayProps = {

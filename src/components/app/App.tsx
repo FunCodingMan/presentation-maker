@@ -2,10 +2,10 @@ import type { Presentation } from '../../model/types/presentation.js';
 import type { ViewModel } from '../../viewmodel/types/view.js';
 import { dispatch } from '../../editor.js';
 import { setPreviewMode, goToNextSlide, goToPrevSlide } from '../../viewmodel/functions/navigation.js';
-import { Toolbar } from '../Toolbar/Toolbar.js';
-import { SlideList } from '../SlideList/SlideList.js';
-import { Workspace } from '../Workspace/Workspace.js';
-import { PreviewOverlay } from '../PreviewOverlay/PreviewOverlay.js';
+import { Toolbar } from '../toolbar/Toolbar.js';
+import { SlideList } from '../slideList/SlideList.js';
+import { Workspace } from '../workspace/Workspace.js';
+import { PreviewOverlay } from '../previewOverlay/PreviewOverlay.js';
 import styles from './App.module.css';
 
 type AppProps = {
@@ -42,8 +42,8 @@ function App({ presentation, viewModel }: AppProps) {
             <Toolbar presentation={presentation} activeSlideId={viewModel.activeSlideId} />
             
             <div className={styles.mainArea}>
-                <SlideList presentation={presentation} activeSlideId={viewModel.activeSlideId} />
-                <Workspace presentation={presentation} activeSlideId={viewModel.activeSlideId} />
+                <SlideList slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />
+                <Workspace slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />
             </div>
         </div>
     );
