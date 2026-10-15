@@ -8,7 +8,7 @@ import { TextInput } from '../common/textInput/TextInput.js'
 import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../model/functions/slide.js'
 import styles from './Toolbar.module.css'
 import { ColorPicker } from '../colorPicker/ColorPicker.js'
-import { ShapePicker } from '../shapePicker/ShapePicker.js'
+import { ShapePicker } from '../common/shapePicker/ShapePicker.js'
 
 type ToolbarProps = {
     presentation: Presentation
