@@ -24,7 +24,7 @@
 
 .contentEditableDiv:empty::before {
     content: attr(data-placeholder);
-    color: var(--text-secondary, #79808e);
+    color:#79808e;
     pointer-events: none;
     display: inline-block;
 }

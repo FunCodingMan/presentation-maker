@@ -35,7 +35,7 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
                 if (readonly) return;
                 if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
                     e.preventDefault();
-                    e.currentTarget.blur(); 
+                    e.currentTarget.blur();
                 }
             }}
         >
