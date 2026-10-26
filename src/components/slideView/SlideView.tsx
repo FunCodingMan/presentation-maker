@@ -5,9 +5,11 @@ import { SlideObjectComponent } from '../slideObject/SlideObject.js';
 type SlidePreviewProps = {
     slide: Slide;
     readonly?: boolean;
+    selectedObjectIds?: string[];
+    onObjectSelect?: (objectId: string, isShiftPressed: boolean) => void;
 };
 
-function SlidePreview({ slide, readonly = false }: SlidePreviewProps) {
+function SlidePreview({ slide, readonly = false, selectedObjectIds, onObjectSelect }: SlidePreviewProps) {
     let backgroundStyles: React.CSSProperties = {};
 
     switch (slide.background.type) {
@@ -28,7 +30,14 @@ function SlidePreview({ slide, readonly = false }: SlidePreviewProps) {
     return (
         <div className={styles.slidePreview} style={backgroundStyles}>
             {slide.objects.map(obj => (
-                <SlideObjectComponent key={obj.id} object={obj} slideId={slide.id} readonly={readonly} />
+                <SlideObjectComponent 
+                    key={obj.id} 
+                    object={obj} 
+                    slideId={slide.id} 
+                    readonly={readonly}
+                    isSelected={selectedObjectIds?.includes(obj.id)}
+                    onSelect={onObjectSelect}
+                />
             ))}
         </div>
     );

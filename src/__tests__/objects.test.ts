@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { Slide } from '../model/types/slide.js'
 import {
     addTextObject, addImageObject, addFigureObject,
-    removeObject, moveObject, resizeObject,
+    removeObjects, moveObject, resizeObject,
     updateTextObjectStyle, updateImageObjectStyle, updateFigureObjectStyle
 } from '../model/functions/objects.js'
 import type {
@@ -145,7 +145,7 @@ describe('object actions', () => {
 
     it('removes object from slide with one object', () => {
         const oldSlide = createTestSlideWithObject()
-        const res = removeObject(oldSlide, '1-text')
+        const res = removeObjects(oldSlide, {objectIds: ['1-text']})
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects).toHaveLength(1)
@@ -154,7 +154,7 @@ describe('object actions', () => {
 
     it('removes object from slide with few objects', () => {
         const oldSlide = createTestSlideWithFewObjects('1-slide', ['1-text', '2-text'])
-        const res = removeObject(oldSlide, '1-text')
+        const res = removeObjects(oldSlide, {objectIds: ['1-text']})
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects).toHaveLength(2)
@@ -164,10 +164,20 @@ describe('object actions', () => {
 
     it('removes object from empty slide', () => {
         const oldSlide = createTestSlide()
-        const res = removeObject(oldSlide, '1-slide')
+        const res = removeObjects(oldSlide, {objectIds: ['1-slide']})
         
         expect(res).not.toBe(oldSlide)
         expect(res.objects).toHaveLength(0)
+    })
+
+    it('removes few objects from slide', () => {
+        const oldSlide = createTestSlideWithFewObjects('1-slide', ['1-text', '2-text', '3-text'])
+        const res = removeObjects(oldSlide, {objectIds: ['1-text', '3-text']})
+
+        expect(res).not.toBe(oldSlide)
+        expect(oldSlide.objects).toHaveLength(3)
+        expect(res.objects).toHaveLength(1)
+        expect(res.objects[0].id).toBe('2-text')
     })
 
     it('moves object from slide with one object', () => {

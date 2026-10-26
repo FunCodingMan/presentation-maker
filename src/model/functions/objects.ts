@@ -74,10 +74,14 @@ function addFigureObject(slide: Slide, {id, position, size, figureStyle}: Figure
     }
 }
 
-function removeObject(slide: Slide, objectId: string): Slide {
+type RemoveObjectsArgs = {
+    objectIds: string[];
+}
+
+function removeObjects(slide: Slide, { objectIds }: RemoveObjectsArgs): Slide {
     return {
         ...slide,
-        objects: slide.objects.filter(obj => obj.id !== objectId)
+        objects: slide.objects.filter(obj => !objectIds.includes(obj.id))
     }
 }
 
@@ -168,7 +172,7 @@ export {
     addTextObject,
     addImageObject,
     addFigureObject,
-    removeObject,
+    removeObjects,
     moveObject,
     resizeObject,
     updateTextObjectStyle,

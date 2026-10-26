@@ -10,6 +10,8 @@ type SlideObjectProps = {
     object: SlideObject;
     slideId: string;
     readonly?: boolean;
+    isSelected?: boolean;
+    onSelect?: (objectId: string, isShiftPressed: boolean) => void;
 };
 
 type TextObjectProps = {
@@ -138,28 +140,33 @@ function FigureObjectComponent({ object, dynamicStyle }: FigureObjectProps) {
     )
 }
 
-function SlideObjectComponent({ object, slideId, readonly }: SlideObjectProps) {
+function SlideObjectComponent({ object, slideId, readonly, isSelected, onSelect }: SlideObjectProps) {
+    const handleSelect = (e: React.MouseEvent) => {
+        if (readonly || !onSelect) {
+            return
+        }
+        e.stopPropagation()
+        onSelect(object.id, e.shiftKey)
+    }
     const dynamicStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
         position: 'absolute',
         width: `${object.size.width}px`,
+        outline: isSelected ? '2px solid #0b57d0' : 'none',
         ...(object.type === 'text' 
             ? { minHeight: `${object.size.height}px`, height: 'auto' } 
             : { height: `${object.size.height}px` }
         )
     };
 
-    switch (object.type) {
-        case 'text':
-            return <TextObjectComponent object={object} dynamicStyle={dynamicStyle} slideId={slideId} readonly={readonly} />
-        case 'image':
-            return <ImageObjectComponent object={object} dynamicStyle={dynamicStyle} />
-        case 'figure':
-            return <FigureObjectComponent object={object} dynamicStyle={dynamicStyle} />
-        default:
-            return null
-    }
+    return (
+        <div onClick={handleSelect} style={{ position: 'absolute' }}>
+            {object.type === 'text' && <TextObjectComponent object={object} dynamicStyle={dynamicStyle} slideId={slideId} readonly={readonly} />}
+            {object.type === 'image' && <ImageObjectComponent object={object} dynamicStyle={dynamicStyle} />}
+            {object.type === 'figure' && <FigureObjectComponent object={object} dynamicStyle={dynamicStyle} />}
+        </div>
+    );
 }
 
 export{ SlideObjectComponent }

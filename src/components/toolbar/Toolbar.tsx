@@ -1,6 +1,6 @@
 import type { Presentation } from '../../model/types/presentation.js'
 import { dispatch } from '../../editor.js'
-import { modifyPresentation, setPreviewMode } from '../../viewmodel/functions/navigation.js'
+import { modifyPresentation, setPreviewMode, removeActiveSlide } from '../../viewmodel/functions/navigation.js'
 import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js'
 import { addTextObject, addImageObject, addFigureObject } from '../../model/functions/objects.js' 
 import { Button } from '../common/button/Button.js'
@@ -47,6 +47,10 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 args: newColor
             }
         });
+    }
+
+    const onRemoveSlide = () => {
+        dispatch(removeActiveSlide);
     }
 
     const onBackgroundImageChange = () => {
@@ -142,6 +146,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
 
             <div className={styles.centerGroup}>
                 <Button text="+ Слайд" onClick={onAddSlide} />
+                <Button text="Удалить слайд" onClick={onRemoveSlide} />
                 <Button text="Текст" onClick={onAddText} />
                 <Button text="Картинка" onClick={onAddImage} />
                 <ShapePicker onChange={onAddFigure} />

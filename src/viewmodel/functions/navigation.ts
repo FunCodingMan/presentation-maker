@@ -1,5 +1,6 @@
 import type { ViewModel } from '../types/view.js';
 import type { Presentation } from '../../model/types/presentation.js';
+import { removeSlides } from '../../model/functions/presentation.js';
 
 type PresentationOperation<T = any> = {
     operation: (presentation: Presentation, args: T) => Presentation;
@@ -52,4 +53,23 @@ export function goToPrevSlide(view: ViewModel): ViewModel {
     const prevIdx = validateSlideIndex(currentIdx - 1, slides.length - 1);
     
     return setActiveSlideId(view, slides[prevIdx].id);
+}
+
+export function removeActiveSlide(view: ViewModel): ViewModel {
+    if (!view.activeSlideId || view.presentation.slides.length <= 1) {
+        return view; 
+    }
+    
+    const currentIndex = view.presentation.slides.findIndex(s => s.id === view.activeSlideId);
+    const updatedPresentation = removeSlides(view.presentation, [view.activeSlideId]);
+
+    const newIndex = Math.min(currentIndex, updatedPresentation.slides.length - 1);
+    const newActiveSlideId = updatedPresentation.slides[newIndex].id;
+
+    return {
+        ...view,
+        presentation: updatedPresentation,
+        activeSlideId: newActiveSlideId,
+        selectedObjectIds: []
+    };
 }
