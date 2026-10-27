@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from 'react';
 import styles from './TextInput.module.css';
 
 type TextInputProps = {
@@ -10,6 +11,15 @@ type TextInputProps = {
 };
 
 function TextInput({ value, onChange, className = '', placeHolder = '', style, readonly = false }: TextInputProps) {
+    const divRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const element = divRef.current;
+        if (element && document.activeElement !== element && element.innerText !== value) {
+            element.innerText = value;
+        }
+    }, [value]);
+
     const handleSave = (e: React.SyntheticEvent<HTMLDivElement>) => {
         if (readonly) return
         
@@ -23,6 +33,7 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
 
     return (
         <div
+            ref={divRef}
             contentEditable={!readonly}
             className={`${styles.contentEditableDiv} ${className}`}
             style={{
@@ -33,7 +44,13 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
             onBlur={handleSave}
             onKeyDown={(e) => {
                 if (readonly) return;
-                if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    if (divRef.current) {
+                        divRef.current.innerText = value;
+                    }
+                    e.currentTarget.blur();
+                } else if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     e.currentTarget.blur();
                 }

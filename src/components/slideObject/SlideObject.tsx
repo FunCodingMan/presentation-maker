@@ -153,7 +153,7 @@ function SlideObjectComponent({ object, slideId, readonly, isSelected, onSelect 
         top: `${object.position.y}px`,
         position: 'absolute',
         width: `${object.size.width}px`,
-        outline: isSelected ? '2px solid #0b57d0' : 'none',
+        outline: isSelected ? '8px solid #0b57d0' : 'none',
         ...(object.type === 'text' 
             ? { minHeight: `${object.size.height}px`, height: 'auto' } 
             : { height: `${object.size.height}px` }
