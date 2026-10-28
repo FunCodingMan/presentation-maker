@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 export function useSelection(activeSlideId: string | null) {
-    const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
+    const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([])
 
     useEffect(() => {
-        setSelectedObjectIds([]);
-    }, [activeSlideId]);
+        setSelectedObjectIds([])
+    }, [activeSlideId])
 
     const handleSelect = (objectId: string, isShiftPressed: boolean) => {
         if (isShiftPressed) {
@@ -13,22 +13,22 @@ export function useSelection(activeSlideId: string | null) {
                 prev.includes(objectId)
                     ? prev.filter(id => id !== objectId)
                     : [...prev, objectId]
-            );
+            )
         } else {
-            setSelectedObjectIds([objectId]);
+            setSelectedObjectIds([objectId])
         }
-    };
+    }
 
     const clearSelection = () => {
         if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
+            document.activeElement.blur()
         }
-        setSelectedObjectIds([]);
-    };
+        setSelectedObjectIds([])
+    }
 
     return {
         selectedObjectIds,
         handleSelect,
         clearSelection
-    };
+    }
 }
