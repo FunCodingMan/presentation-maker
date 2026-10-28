@@ -1,10 +1,10 @@
-import type { Presentation } from './model/types/presentation.js';
-import type { ViewModel } from './viewmodel/types/view.js';
+import type { Presentation } from './model/types/presentation.js'
+import type { ViewModel } from './viewmodel/types/view.js'
 
-let currentViewModel: ViewModel | null = null;
-let editorChangeHandler: (() => void) | null = null;
+let currentViewModel: ViewModel | null = null
+let editorChangeHandler: (() => void) | null = null
 
-type Modifier<P = any> = (view: ViewModel, params: P) => ViewModel;
+type Modifier<P = any> = (view: ViewModel, params: P) => ViewModel
 
 function setInitialState(presentation: Presentation): void {
     currentViewModel = {
@@ -12,28 +12,28 @@ function setInitialState(presentation: Presentation): void {
         activeSlideId: presentation.slides[0]?.id ?? null,
         selectedObjectIds: [],
         isPreviewMode: false
-    };
+    }
 }
 
 function getState(): ViewModel | null {
-    return currentViewModel;
+    return currentViewModel
 }
 
 function dispatch(modifier: Modifier, params: any = null): void {
     if (!currentViewModel) {
-        console.error('State is not initialized! Call setInitialState first.');
-        return;
+        console.error('State is not initialized! Call setInitialState first.')
+        return
     }
 
-    currentViewModel = modifier(currentViewModel, params);
+    currentViewModel = modifier(currentViewModel, params)
 
     if (editorChangeHandler) {
-        editorChangeHandler();
+        editorChangeHandler()
     }
 }
 
 function addEditorChangeHandler(handler: () => void): void {
-    editorChangeHandler = handler;
+    editorChangeHandler = handler
 }
 
 export {
@@ -41,4 +41,4 @@ export {
     getState,
     dispatch,
     addEditorChangeHandler
-};
+}

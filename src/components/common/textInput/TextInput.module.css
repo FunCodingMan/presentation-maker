@@ -28,3 +28,16 @@
     pointer-events: none;
     display: inline-block;
 }
+
+.canvasMode {
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    outline: none !important;
+}
+
+.canvasMode:hover,
+.canvasMode:focus {
+    outline: none !important;
+    background-color: transparent;
+}

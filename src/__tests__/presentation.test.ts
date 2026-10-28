@@ -66,11 +66,11 @@ describe('presentation actions', () => {
         expect(presentationWithTwoSlides).not.toBe(presentationWithOneSlide)
     })
     it('inserts slide at specific index', () => {
-        const presentation = createTestPresentation('test', ['s-1', 's-2']);
-        const res = addSlide(presentation, {id: 's-new', slideName: 'New Slide', insertIndex: 1});
-        expect(res.slides.map(s => s.id)).toEqual(['s-1', 's-new', 's-2']);
-        expect(res).not.toBe(presentation);
-    });    
+        const presentation = createTestPresentation('test', ['s-1', 's-2'])
+        const res = addSlide(presentation, {id: 's-new', slideName: 'New Slide', insertIndex: 1})
+        expect(res.slides.map(s => s.id)).toEqual(['s-1', 's-new', 's-2'])
+        expect(res).not.toBe(presentation)
+    })    
 
     it('removes one presentation slide', () => {
         const oldPresentation = createPresentation('id', 'old presentation')

@@ -1,10 +1,10 @@
-import styles from './ColorPicker.module.css';
+import styles from './ColorPicker.module.css'
 
 type ColorPickerProps = {
-    value: string;
-    onChange: (value: string) => void;
-    className?: string;
-};
+    value: string
+    onChange: (value: string) => void
+    className?: string
+}
 
 function ColorPicker({ value, onChange, className = '' }: ColorPickerProps) {
     return (
@@ -14,7 +14,7 @@ function ColorPicker({ value, onChange, className = '' }: ColorPickerProps) {
             onChange={(e) => onChange(e.target.value)}
             className={`${styles.colorInput} ${className}`}
         />
-    );
+    )
 }
 
-export { ColorPicker };
+export { ColorPicker }

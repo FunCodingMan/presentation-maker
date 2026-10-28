@@ -1,4 +1,4 @@
-import { Slide } from "../types/slide.js";
+import { Slide } from "../types/slide.js"
 
 
 function setSlideBackgroundColor(slide: Slide, color: string): Slide {
@@ -18,7 +18,7 @@ function setSlideBackgroundImage(slide: Slide, imageUrl: string): Slide {
 
 type GradientArgs = {
     colors: string[], angle?: number
-};
+}
 
 function setSlideBackgroundGradient(slide: Slide, {colors, angle}: GradientArgs): Slide {
     return {

@@ -1,5 +1,5 @@
-import type { Presentation } from "../types/presentation.js";
-import type { Slide } from "../types/slide.js";
+import type { Presentation } from "../types/presentation.js"
+import type { Slide } from "../types/slide.js"
 
 type AddSlideArgs = {
     id: string,
@@ -8,9 +8,9 @@ type AddSlideArgs = {
 }
 
 function generateId(): string {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 8);
-  return `${timestamp}-${randomPart}`;
+  const timestamp = Date.now().toString(36)
+  const randomPart = Math.random().toString(36).substring(2, 8)
+  return `${timestamp}-${randomPart}`
 }
 
 function createPresentation(id: string, name: string): Presentation {
@@ -29,18 +29,18 @@ function updatePresentationName(presentation: Presentation, name: string): Prese
 }
 
 function savePresentation(presentation: Presentation): string {
-    return JSON.stringify(presentation);
+    return JSON.stringify(presentation)
 }
 
 function loadPresentation(json: string): Presentation {
-    return JSON.parse(json);
+    return JSON.parse(json)
 }
 
 function addSlide(presentation: Presentation, {id, slideName, insertIndex}: AddSlideArgs): Presentation {
     if (insertIndex !== undefined && (insertIndex < 0 || insertIndex > presentation.slides.length)) {
-        return presentation;
+        return presentation
     }
-    const idx = insertIndex ?? presentation.slides.length;
+    const idx = insertIndex ?? presentation.slides.length
     const slide: Slide = {
         id: id,
         name: slideName,
@@ -72,7 +72,7 @@ function moveSlide(presentation: Presentation, slideId: string, newIndex: number
 
     const oldIndex = presentation.slides?.findIndex(slide => slide.id === slideId)
 
-    if (oldIndex === -1) return presentation;
+    if (oldIndex === -1) return presentation
 
     const slide = presentation.slides[oldIndex]
 
@@ -94,17 +94,17 @@ function moveSlide(presentation: Presentation, slideId: string, newIndex: number
 }
 
 function duplicateSlide(presentation: Presentation, slideId: string, duplicateSlideId: string): Presentation {
-    if (!presentation.slides) return presentation;
+    if (!presentation.slides) return presentation
 
     const slideIndex = presentation.slides.findIndex(slide => slide.id === slideId)
 
-    if (slideIndex === -1) return presentation;
+    if (slideIndex === -1) return presentation
 
     const slide = presentation.slides[slideIndex]
 
     const clonedSlide = structuredClone(slide)
 
-    clonedSlide.id = duplicateSlideId;
+    clonedSlide.id = duplicateSlideId
 
     const updatedSlides = [
         ...presentation.slides.slice(0, slideIndex + 1),
@@ -119,10 +119,10 @@ function duplicateSlide(presentation: Presentation, slideId: string, duplicateSl
 }
 
     type ModifySlideArgs = {
-        slideId: string;
+        slideId: string
         operation: (slide: Slide, args: any) => Slide
         args: any
-    };
+    }
 
     function modifySlide(presentation: Presentation, { slideId, operation, args }: ModifySlideArgs): Presentation
     {

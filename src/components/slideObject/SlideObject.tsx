@@ -1,43 +1,40 @@
-import type { SlideObject, TextObject, ImageObject, FigureObject } from '../../model/types/objects.js';
-import { TextInput } from '../common/textInput/TextInput.js';
-import { dispatch } from '../../editor.js';
-import { modifySlide } from '../../model/functions/presentation.js';
-import { updateTextContent } from '../../model/functions/objects.js';
-import styles from './SlideObject.module.css';
-import { modifyPresentation } from '../../viewmodel/functions/navigation.js';
+import type { SlideObject, TextObject, ImageObject, FigureObject } from '../../model/types/objects.js'
+import { TextInput } from '../common/textInput/TextInput.js'
+import { dispatch } from '../../editor.js'
+import { modifySlide } from '../../model/functions/presentation.js'
+import { updateTextContent } from '../../model/functions/objects.js'
+import styles from './SlideObject.module.css'
+import { modifyPresentation } from '../../viewmodel/functions/navigation.js'
 
 type SlideObjectProps = {
-    object: SlideObject;
-    slideId: string;
-    readonly?: boolean;
-    isSelected?: boolean;
-    onSelect?: (objectId: string, isShiftPressed: boolean) => void;
-};
+    object: SlideObject
+    slideId: string
+    readonly?: boolean
+    isSelected?: boolean
+    onSelect?: (objectId: string, isShiftPressed: boolean) => void
+    onMouseDown?: (e: React.MouseEvent, objectId: string) => void
+}
 
 type TextObjectProps = {
-    object: TextObject;
-    dynamicStyle: React.CSSProperties;
-    slideId: string;
-    readonly?: boolean;
-};
+    object: TextObject
+    slideId: string
+    readonly?: boolean
+}
 
 type ImageObjectProps = {
-    object: ImageObject;
-    dynamicStyle: React.CSSProperties;
-};
+    object: ImageObject
+}
 
 type FigureObjectProps = {
-    object: FigureObject;
-    dynamicStyle: React.CSSProperties;
-};
+    object: FigureObject
+}
 
-function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextObjectProps) {
-    const plainText = object.spans.map(span => span.text).join('');
-    const baseStyle = object.spans[0]?.style;
-    const styleArray = baseStyle?.fontStyle || [];
+function TextObjectComponent({ object, slideId, readonly }: TextObjectProps) {
+    const plainText = object.spans.map(span => span.text).join('')
+    const baseStyle = object.spans[0]?.style
+    const styleArray = baseStyle?.fontStyle || []
 
     const textObjectStyle: React.CSSProperties = {
-        ...dynamicStyle,
         textAlign: object.textLayout,
         fontFamily: baseStyle?.fontFamily,
         fontSize: `${baseStyle?.fontSize || 24}px`,
@@ -45,7 +42,8 @@ function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextOb
         fontWeight: styleArray.includes('bold') ? 'bold' : 'normal',
         fontStyle: styleArray.includes('italic') ? 'italic' : 'normal',
         textDecoration: styleArray.includes('underline') ? 'underline' : 'none',
-    };
+    }
+
     const handleTextChange = (newText: string) => {
         dispatch(modifyPresentation, {
             operation: modifySlide,
@@ -55,8 +53,7 @@ function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextOb
                 args: { objectId: object.id, newText: newText }
             }
         })
-    };
-
+    }
 
     return (
         <TextInput 
@@ -65,13 +62,14 @@ function TextObjectComponent({ object, dynamicStyle, slideId, readonly }: TextOb
             style={textObjectStyle}
             readonly={readonly}
             placeHolder="Введите текст"
-            className={`${styles.baseObject} ${styles.textObject}`}
+            className={styles.textObject}
+            canvasMode={true}
         />
-    );
+    )
 }
 
-function ImageObjectComponent({ object, dynamicStyle }: ImageObjectProps) {
-    let filterStr = 'none';
+function ImageObjectComponent({ object }: ImageObjectProps) {
+    let filterStr = 'none'
     if (object.filters) {
         const blur = object.filters.blur ? `blur(${object.filters.blur}px)` : ''
         const brightness = object.filters.brightness !== undefined ? `brightness(${object.filters.brightness}%)` : ''
@@ -79,94 +77,83 @@ function ImageObjectComponent({ object, dynamicStyle }: ImageObjectProps) {
     }
 
     return (
-        <div
-            style={dynamicStyle}
-            className={`${styles.baseObject} ${styles.imageObject}`}
-        >
-            <img 
-                src={object.src}
-                alt='Image'
-                style={{ filter: filterStr }}
-                className={styles.image}
-            />
-        </div>
+        <img 
+            src={object.src}
+            alt='Image'
+            style={{ filter: filterStr }}
+            className={styles.imageObject}
+            draggable={false}
+        />
     )
 }
 
-function FigureObjectComponent({ object, dynamicStyle }: FigureObjectProps) {
-    const { shape, fillColor, strokeColor, strokeWidth } = object.figureStyle;
+function FigureObjectComponent({ object }: FigureObjectProps) {
+    const { shape, fillColor, strokeColor, strokeWidth } = object.figureStyle
 
     return (
-        <div
-            style={dynamicStyle}
-            className={`${styles.baseObject} ${styles.figureObject}`}
+        <svg
+            className={styles.figureObject}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
         >
-            <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-            >
-                {shape === 'rectangle' && (
-                    <rect
-                        width="100"
-                        height="100"
-                        fill={fillColor}
-                        stroke={strokeColor}
-                        strokeWidth={strokeWidth}
-                    />
-                )}
-
-                {shape === 'circle' && (
-                    <ellipse 
-                        cx="50" cy="50" 
-                        rx="47" ry="47"
-                        fill={fillColor}
-                        stroke={strokeColor}
-                        strokeWidth={strokeWidth}
-                    />
-                )}
-
-                {shape === 'triangle' && (
-                    <polygon 
-                        points="50,0 100,100 0,100" 
-                        fill={fillColor} 
-                        stroke={strokeColor} 
-                        strokeWidth={strokeWidth} 
-                    />
-                )}
-            </svg>
-        </div>
+            {shape === 'rectangle' && (
+                <rect width="100" height="100" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+            {shape === 'circle' && (
+                <ellipse cx="50" cy="50" rx="47" ry="47" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+            {shape === 'triangle' && (
+                <polygon points="50,0 100,100 0,100" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+        </svg>
     )
 }
 
-function SlideObjectComponent({ object, slideId, readonly, isSelected, onSelect }: SlideObjectProps) {
-    const handleSelect = (e: React.MouseEvent) => {
-        if (readonly || !onSelect) {
-            return
+function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseDown }: SlideObjectProps) {
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (readonly) return
+        
+        if (onSelect && !isSelected) {
+            onSelect(object.id, e.shiftKey)
         }
-        e.stopPropagation()
-        onSelect(object.id, e.shiftKey)
+
+        const target = e.target as HTMLElement;
+        const isClickInsideText = target.closest('[contenteditable="true"]') !== null;
+
+        if (onMouseDown) {
+            if (!isClickInsideText || !isSelected) {
+                onMouseDown(e, object.id)
+            }
+        }
     }
-    const dynamicStyle: React.CSSProperties = {
+    
+    const handleClick = (e: React.MouseEvent) => {
+        if (readonly) return
+        e.stopPropagation() 
+        if (onSelect && isSelected && !e.shiftKey) {
+            onSelect(object.id, false)
+        }
+    }
+    
+    const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
-        position: 'absolute',
         width: `${object.size.width}px`,
-        outline: isSelected ? '8px solid #0b57d0' : 'none',
         ...(object.type === 'text' 
             ? { minHeight: `${object.size.height}px`, height: 'auto' } 
             : { height: `${object.size.height}px` }
         )
     };
 
+    const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`;
+
     return (
-        <div onClick={handleSelect} style={{ position: 'absolute' }}>
-            {object.type === 'text' && <TextObjectComponent object={object} dynamicStyle={dynamicStyle} slideId={slideId} readonly={readonly} />}
-            {object.type === 'image' && <ImageObjectComponent object={object} dynamicStyle={dynamicStyle} />}
-            {object.type === 'figure' && <FigureObjectComponent object={object} dynamicStyle={dynamicStyle} />}
+        <div onMouseDown={handleMouseDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
+            {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
+            {object.type === 'image' && <ImageObjectComponent object={object} />}
+            {object.type === 'figure' && <FigureObjectComponent object={object} />}
         </div>
     );
 }
 
-export{ SlideObjectComponent }
+export{ SlideObject }

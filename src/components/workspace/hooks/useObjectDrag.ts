@@ -38,12 +38,15 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
 
         e.stopPropagation()
 
-        const startX = e.clientX
-        const startY = e.clientY
-
-        const idsToMove = selectedObjectIds.includes(objectId) 
-            ? selectedObjectIds 
-            : [...selectedObjectIds, objectId]
+        let idsToMove: string[] = [];
+        
+        if (selectedObjectIds.includes(objectId)) {
+            idsToMove = selectedObjectIds;
+        } else if (e.shiftKey) {
+            idsToMove = [...selectedObjectIds, objectId];
+        } else {
+            idsToMove = [objectId];
+        }
 
         const initialPositions = new Map<string, Point>()
         objects.forEach(obj => {
@@ -54,8 +57,8 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
 
         dragRef.current = {
             isDragging: true,
-            startX,
-            startY,
+            startX: e.clientX,
+            startY: e.clientY,
             initialPositions,
         }
     }, [selectedObjectIds, activeSlideId, objects])

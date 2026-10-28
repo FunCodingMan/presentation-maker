@@ -1,4 +1,4 @@
-type SlideObject = TextObject | ImageObject | FigureObject;
+type SlideObject = TextObject | ImageObject | FigureObject
 
 type TextObject = BaseObject & {
     type: 'text'
@@ -9,7 +9,7 @@ type TextObject = BaseObject & {
 type ImageObject = BaseObject & {
     type: 'image'
     src: string
-    filters?: Filter;
+    filters?: Filter
 }
 
 type FigureObject = BaseObject & {
@@ -22,7 +22,7 @@ type BaseObject = {
     position: Point
     size: Size
     type: 'figure' | 'image' | 'text'
-    animation?: Animation;
+    animation?: Animation
 }
 
 type Animation = {
@@ -47,12 +47,12 @@ type TextStyle = {
     fontFamily: string
     fontSize: number
     fontColor: string
-    fontStyle: Array<'bold' | 'italic' | 'underline' | 'strikethrough'>;
+    fontStyle: Array<'bold' | 'italic' | 'underline' | 'strikethrough'>
 }
 
 type TextSpan = {
-    text: string;
-    style: TextStyle;
+    text: string
+    style: TextStyle
 }
 
 type Size = {

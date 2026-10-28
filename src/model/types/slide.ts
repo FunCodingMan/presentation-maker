@@ -1,4 +1,4 @@
-import type { SlideObject } from "./objects.js";
+import type { SlideObject } from "./objects.js"
 
 type Slide = {
     id: string
@@ -7,10 +7,10 @@ type Slide = {
     objects: SlideObject[]
 }
 
-type Background = BackgroundColor | BackGroundImage | BackgroundGradient;
+type Background = BackgroundColor | BackGroundImage | BackgroundGradient
 type BackgroundColor = {
     type: 'color'
-    color: string;
+    color: string
 }
 
 type BackGroundImage = {

@@ -23,19 +23,19 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
         dispatch(modifyPresentation, {
             operation: updatePresentationName,
             args: newName
-        });
+        })
     }
 
     const onAddSlide = () => {
         dispatch(modifyPresentation, {
             operation: addSlide,
             args: { id: generateId(), slidename: `Слайд ${presentation.slides.length + 1}` }
-        });
+        })
     }
 
     const onStartPreview = () => {
-        dispatch(setPreviewMode, true);
-        document.documentElement.requestFullscreen().catch(e => console.log(e));
+        dispatch(setPreviewMode, true)
+        document.documentElement.requestFullscreen().catch(e => console.log(e))
     }
 
     const onBackgroundColorChange = (newColor: string) => {
@@ -46,11 +46,11 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 operation: setSlideBackgroundColor,
                 args: newColor
             }
-        });
+        })
     }
 
     const onRemoveSlide = () => {
-        dispatch(removeActiveSlide);
+        dispatch(removeActiveSlide)
     }
 
     const onBackgroundImageChange = () => {
@@ -63,7 +63,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                     operation: setSlideBackgroundImage,
                     args: url
                 }
-            });
+            })  
         }
     }
 
@@ -75,7 +75,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 operation: setSlideBackgroundGradient,
                 args: { colors: ['#a18cd1', '#fbc2eb'], angle: 45 }
             }
-        });
+        })
     }
 
     const onAddText = () => {
@@ -92,7 +92,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                     textLayout: 'left'
                 }
             }
-        });
+        })
     }
 
     const onAddImage = () => {
@@ -109,7 +109,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                     filters: [] 
                 }
             }
-        });
+        })
     }
 
     const onAddFigure = (shapeType: 'rectangle' | 'circle' | 'triangle') => {
@@ -130,7 +130,7 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                     }
                 }
             }
-        });
+        })
     }
 
     return (

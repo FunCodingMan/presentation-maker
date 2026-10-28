@@ -1,41 +1,55 @@
-import React, { useRef, useEffect } from 'react';
-import styles from './TextInput.module.css';
+import React, { useRef, useEffect } from 'react'
+import styles from './TextInput.module.css'
 
 type TextInputProps = {
-    value: string;
-    onChange: (value: string) => void;
-    className?: string;
-    placeHolder?: string;
-    style?: React.CSSProperties;
-    readonly?: boolean;
-};
+    value: string
+    onChange: (value: string) => void
+    className?: string
+    placeHolder?: string
+    style?: React.CSSProperties
+    readonly?: boolean
+    canvasMode?: boolean 
+}
 
-function TextInput({ value, onChange, className = '', placeHolder = '', style, readonly = false }: TextInputProps) {
-    const divRef = useRef<HTMLDivElement>(null);
+function TextInput({ 
+    value, 
+    onChange, 
+    className = '', 
+    placeHolder = '', 
+    style, 
+    readonly = false,
+    canvasMode = false
+}: TextInputProps) {
+    const divRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        const element = divRef.current;
+        const element = divRef.current
         if (element && document.activeElement !== element && element.innerText !== value) {
-            element.innerText = value;
+            element.innerText = value
         }
-    }, [value]);
+    }, [value])
 
     const handleSave = (e: React.SyntheticEvent<HTMLDivElement>) => {
         if (readonly) return
         
-        const newText = (e.currentTarget as HTMLElement).innerText || '';
+        const newText = (e.currentTarget as HTMLElement).innerText || ''
 
         if (newText !== value) {
-            onChange(newText);
+            onChange(newText)
         }
-    };
+    }
 
+    const combinedClassName = [
+        styles.contentEditableDiv,
+        canvasMode ? styles.canvasMode : '',
+        className
+    ].filter(Boolean).join(' ')
 
     return (
         <div
             ref={divRef}
             contentEditable={!readonly}
-            className={`${styles.contentEditableDiv} ${className}`}
+            className={combinedClassName}
             style={{
                 ...style,
                 cursor: readonly ? 'default' : 'text',
@@ -43,22 +57,22 @@ function TextInput({ value, onChange, className = '', placeHolder = '', style, r
             data-placeholder={readonly ? '' : placeHolder}
             onBlur={handleSave}
             onKeyDown={(e) => {
-                if (readonly) return;
+                if (readonly) return
                 if (e.key === 'Escape') {
-                    e.preventDefault();
+                    e.preventDefault()
                     if (divRef.current) {
-                        divRef.current.innerText = value;
+                        divRef.current.innerText = value
                     }
-                    e.currentTarget.blur();
+                    e.currentTarget.blur()
                 } else if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    e.currentTarget.blur();
+                    e.preventDefault()
+                    e.currentTarget.blur()
                 }
             }}
         >
             {value}
         </div>
-    );
+    )
 }
 
 export { TextInput }

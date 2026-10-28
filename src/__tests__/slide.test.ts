@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest'
 import { Slide
-        } from '../model/types/slide.js';
+        } from '../model/types/slide.js'
 import {setSlideBackgroundColor,
         setSlideBackgroundGradient, 
         setSlideBackgroundImage,

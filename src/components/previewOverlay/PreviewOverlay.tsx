@@ -1,26 +1,26 @@
-import type { Presentation } from '../../model/types/presentation.js';
-import { SlidePreview } from '../slideView/SlideView.js';
-import { Button } from '../common/button/Button.js';
-import { Slide } from '../../model/types/slide.js';
-import styles from './PreviewOverlay.module.css';
+import type { Presentation } from '../../model/types/presentation.js'
+import { SlideView } from '../slideView/SlideView.js'
+import { Button } from '../common/button/Button.js'
+import { Slide } from '../../model/types/slide.js'
+import styles from './PreviewOverlay.module.css'
 
 
 type PreviewOverlayProps = {
-    slides: Slide[];
+    slides: Slide[]
     activeSlideId: string | null
     onPrevSlide: () => void
     onNextSlide: () => void
     onClose: () => void
-};
+}
 
 function PreviewOverlay({ slides, activeSlideId, onClose, onNextSlide, onPrevSlide }: PreviewOverlayProps) {
     let currentIndex = slides.findIndex(
         (slide) => slide.id === activeSlideId
-    );
+    )
     if (currentIndex === -1) {
         currentIndex = 0
     }
-    const currentSlide = slides[currentIndex];
+    const currentSlide = slides[currentIndex]
 
     return (
         <div className={styles.overlay}>
@@ -37,11 +37,11 @@ function PreviewOverlay({ slides, activeSlideId, onClose, onNextSlide, onPrevSli
 
             <div className={styles.slideContainer}>
                 <div className={styles.scaleWrapper}>
-                    {currentSlide && <SlidePreview slide={currentSlide} readonly={true} />}
+                    {currentSlide && <SlideView slide={currentSlide} readonly={true} />}
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-export { PreviewOverlay };
+export { PreviewOverlay }

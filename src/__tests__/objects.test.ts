@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { Slide } from '../model/types/slide.js'
 import {
     addTextObject, addImageObject, addFigureObject,
-    removeObjects, moveObject, resizeObject,
+    removeObjects, moveObjects, resizeObject,
     updateTextObjectStyle, updateImageObjectStyle, updateFigureObjectStyle
 } from '../model/functions/objects.js'
 import type {
@@ -180,9 +180,11 @@ describe('object actions', () => {
         expect(res.objects[0].id).toBe('2-text')
     })
 
-    it('moves object from slide with one object', () => {
+it('moves object from slide with one object', () => {
         const oldSlide = createTestSlideWithObject()
-        const res = moveObject(oldSlide, '1-text', { x: 55, y: 56 })
+        const res = moveObjects(oldSlide, {
+            updates: [{ objectId: '1-text', position: { x: 55, y: 56 } }]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects[0].position).toEqual(defaultPosition)
@@ -191,7 +193,9 @@ describe('object actions', () => {
 
     it('moves object from slide with few object', () => {
         const oldSlide = createTestSlideWithFewObjects('1-slide', ['1-text', '2-text'])
-        const res = moveObject(oldSlide, '2-text', { x: 99, y: 57 })
+        const res = moveObjects(oldSlide, {
+            updates: [{ objectId: '2-text', position: { x: 99, y: 57 } }]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects[1].position).toEqual(defaultPosition)
@@ -201,7 +205,9 @@ describe('object actions', () => {
 
     it('moves object from empty slide', () => {
         const oldSlide = createTestSlide()
-        const res = moveObject(oldSlide, '1-text', { x: 20, y: 30 })
+        const res = moveObjects(oldSlide, {
+            updates: [{ objectId: '1-text', position: { x: 20, y: 30 } }]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(res.objects).toHaveLength(0)

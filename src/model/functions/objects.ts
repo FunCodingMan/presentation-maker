@@ -1,13 +1,12 @@
-import type { Slide, Background } from "../types/slide.js";
-import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, TextSpan, SlideObject } from "../types/objects.js";
-import { SlideObjectComponent } from "../../components/slideObject/SlideObject.js";
+import type { Slide, Background } from "../types/slide.js"
+import type { Filter, Animation, Size, Point, TextStyle, FigureStyle, TextSpan, SlideObject } from "../types/objects.js"
 
 type TextObjectArgs = {
     id: string,
-    spans: TextSpan[];
+    spans: TextSpan[]
     position: Point,
     size: Size,
-    textLayout: 'left' | 'center' | 'right';
+    textLayout: 'left' | 'center' | 'right'
 }
 type ImageObjectArgs = {
     id: string,
@@ -75,7 +74,7 @@ function addFigureObject(slide: Slide, {id, position, size, figureStyle}: Figure
 }
 
 type RemoveObjectsArgs = {
-    objectIds: string[];
+    objectIds: string[]
 }
 
 function removeObjects(slide: Slide, { objectIds }: RemoveObjectsArgs): Slide {
@@ -85,22 +84,38 @@ function removeObjects(slide: Slide, { objectIds }: RemoveObjectsArgs): Slide {
     }
 }
 
-function moveObject(slide: Slide, objectId: string, newPosition: Point): Slide {
-    return modifyObject(slide, objectId, obj => ({
-        ...obj,
-        position: newPosition
-    }));
+type ObjectPositionUpdate = {
+    objectId: string
+    position: Point
+}
+
+type MoveObjectsArgs = {
+    updates: ObjectPositionUpdate[]
+}
+
+function moveObjects(slide: Slide, { updates }: MoveObjectsArgs): Slide {
+    const updateMap = new Map(updates.map(u => [u.objectId, u.position]))
+
+    return {
+        ...slide,
+        objects: slide.objects.map(obj => {
+            const newPos = updateMap.get(obj.id)
+            return newPos 
+                ? { ...obj, position: newPos }
+                : obj
+        })
+    }
 }
 
 function resizeObject(slide: Slide, objectId: string, newSize: Size): Slide {
     if (newSize.width <= 0 || newSize.height <= 0) {
-        return slide;
+        return slide
     }
 
     return modifyObject(slide, objectId, obj => ({
         ...obj,
         size: newSize
-    }));
+    }))
 }
 
 function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: TextStyle): Slide {
@@ -112,10 +127,10 @@ function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: Tex
                     ...span,
                     style: newTextStyle
                 }))
-            };
+            }
         }
-        return obj;
-    });
+        return obj
+    })
 }
 
 function updateImageObjectStyle(slide: Slide, objectId: string, newFilter: Filter){
@@ -124,10 +139,10 @@ function updateImageObjectStyle(slide: Slide, objectId: string, newFilter: Filte
             return {
                 ...obj,
                 filters: newFilter
-            };
+            }
         }
-        return obj;
-    });
+        return obj
+    })
 }
 
 function updateFigureObjectStyle(slide: Slide, objectId: string, newFigureStyle: FigureStyle) {
@@ -136,10 +151,10 @@ function updateFigureObjectStyle(slide: Slide, objectId: string, newFigureStyle:
             return {
                 ...obj,
                 figureStyle: newFigureStyle
-            };
+            }
         }
-        return obj;
-    });   
+        return obj
+    })   
 }
 
 type UpdateTextContentArgs = {
@@ -152,8 +167,8 @@ function updateTextContent(slide: Slide, {objectId, newText} : UpdateTextContent
         ...slide,
         objects: slide.objects.map(obj => {
             if (obj.id === objectId && obj.type === 'text') {
-                const baseStyle = obj.spans[0]?.style || { fontSize: 24, fontColor: '#000000', fontStyle: [] };
-                const lines = newText.split('\n');
+                const baseStyle = obj.spans[0]?.style || { fontSize: 24, fontColor: '#000000', fontStyle: [] }
+                const lines = newText.split('\n')
                 const newSpans = lines.map((line, idx) => ({
                     text: idx    === lines.length - 1 ? line : line + '\n',
                     style: {...baseStyle}
@@ -161,9 +176,9 @@ function updateTextContent(slide: Slide, {objectId, newText} : UpdateTextContent
                 return {
                     ...obj,
                     spans: newSpans
-                };
+                }
             }
-            return obj;
+            return obj
         })
     }
 }
@@ -173,7 +188,7 @@ export {
     addImageObject,
     addFigureObject,
     removeObjects,
-    moveObject,
+    moveObjects,
     resizeObject,
     updateTextObjectStyle,
     updateImageObjectStyle,
