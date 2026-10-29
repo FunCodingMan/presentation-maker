@@ -29,7 +29,7 @@ function createTestPresentation(): Presentation {
             { text: 'в редактор!', style: { fontFamily: 'Georgia', fontSize: 48, fontColor: '#1976d2', fontStyle: ['italic'] } }
         ],
         position: {x: 50, y: 50},
-        size: {width: 100, height: 50},
+        size: {width: 300, height: 50},
         textLayout: 'center'
     })
 

@@ -1,8 +1,8 @@
 import { SlideView } from '../slideView/SlideView.js'
 import { Slide } from '../../model/types/slide.js'
 import styles from './Workspace.module.css'
-import { useSelection } from './hooks/useSelection.js'
-import { useWorkspaceShortcuts } from './hooks/useWorkspaceShortcuts.js'
+import { useSelection } from './customHooks/useSelection.js'
+import { useWorkspaceShortcuts } from './customHooks/useWorkspaceShortcuts.js'
 
 type WorkspaceProps = {
     slides: Slide[]

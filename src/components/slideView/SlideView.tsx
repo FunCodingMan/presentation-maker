@@ -1,7 +1,7 @@
 import type { Slide } from '../../model/types/slide.js'
 import styles from './SlideView.module.css'
 import { SlideObject } from '../slideObject/SlideObject.js'
-import { useObjectDrag } from '../workspace/hooks/useObjectDrag.js'
+import { useObjectDrag } from '../workspace/customHooks/useObjectDrag.js'
 
 type SlideViewProps = {
     slide: Slide
