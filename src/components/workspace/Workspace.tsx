@@ -11,19 +11,29 @@ type WorkspaceProps = {
 
 function Workspace({ slides, activeSlideId }: WorkspaceProps) {
     const activeSlide = slides.find(slide => slide.id === activeSlideId) || slides[0]
-    const selection = useSelection(activeSlideId)
+    const { selectedObjectIds, handleSelect, clearSelection } = useSelection(activeSlideId)
 
     useWorkspaceShortcuts({
+        selectedObjectIds,
         activeSlideId: activeSlide?.id ?? null,
-        getSelectedIds: selection.getSelectedIds,
-        onDelete: selection.clearSelection,
+        onDelete: clearSelection,
     })
 
+    const handleWorkspaceMouseDown = (e: React.MouseEvent) => {
+        if (e.defaultPrevented) return
+        clearSelection()
+    }
+
     return (
-        <div className={styles.workspace} onMouseDown={selection.clearSelection}>
+        <div className={styles.workspace} onMouseDown={handleWorkspaceMouseDown}>
             <div className={styles.canvasContainer}>
                 {activeSlide ? (
-                    <SlideView slide={activeSlide} readonly={false} selection={selection} />
+                    <SlideView
+                        slide={activeSlide}
+                        readonly={false}
+                        selectedObjectIds={selectedObjectIds}
+                        onObjectSelect={handleSelect}
+                    />
                 ) : (
                     <div className={styles.emptyState}>Нет слайдов</div>
                 )}

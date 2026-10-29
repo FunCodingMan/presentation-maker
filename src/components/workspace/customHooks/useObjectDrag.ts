@@ -9,12 +9,12 @@ type Point = { x: number, y: number }
 type ObjectPositionUpdate = { objectId: string; position: Point }
 
 type UseObjectDragProps = {
+    selectedObjectIds: string[]
     activeSlideId: string | null
     objects: SlideObject[]
-    getSelectedIds: () => string[]
 }
 
-export function useObjectDrag({ activeSlideId, objects, getSelectedIds }: UseObjectDragProps) {
+export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
     const dragRef = useRef<{
         isDragging: boolean
         startX: number
@@ -30,15 +30,12 @@ export function useObjectDrag({ activeSlideId, objects, getSelectedIds }: UseObj
     const handleMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
         if (e.button !== 0 || !activeSlideId) return
 
-        e.stopPropagation()
-
-        const currentSelectedIds = getSelectedIds()
         let idsToMove: string[]
 
-        if (currentSelectedIds.includes(objectId)) {
-            idsToMove = currentSelectedIds
+        if (selectedObjectIds.includes(objectId)) {
+            idsToMove = selectedObjectIds
         } else if (e.shiftKey) {
-            idsToMove = [...currentSelectedIds, objectId]
+            idsToMove = [...selectedObjectIds, objectId]
         } else {
             idsToMove = [objectId]
         }
@@ -56,7 +53,7 @@ export function useObjectDrag({ activeSlideId, objects, getSelectedIds }: UseObj
             startY: e.clientY,
             initialPositions,
         }
-    }, [activeSlideId, objects, getSelectedIds])
+    }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {

@@ -97,6 +97,12 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseD
     const handleMouseDown = (e: React.MouseEvent) => {
         if (readonly) return
 
+         if (e.shiftKey && isSelected) {
+            e.preventDefault()
+            onSelect?.(object.id, true)
+            return
+        }
+
         if (onSelect && !isSelected) {
             onSelect(object.id, e.shiftKey)
         }
@@ -104,16 +110,15 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseD
         const target = e.target as HTMLElement
         const isClickInsideText = target.closest('[contenteditable="true"]') !== null
 
-        if (onMouseDown) {
-            if (!isClickInsideText || !isSelected) {
-                onMouseDown(e, object.id)
-            }
+        if (onMouseDown && (!isClickInsideText || !isSelected)) {
+            e.preventDefault()
+            onMouseDown(e, object.id)
         }
     }
 
+    // Лучше default чем e.stopPropagation() через флаг
     const handleClick = (e: React.MouseEvent) => {
         if (readonly) return
-        e.stopPropagation()
         if (onSelect && isSelected && !e.shiftKey) {
             onSelect(object.id, false)
         }

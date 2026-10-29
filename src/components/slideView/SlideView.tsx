@@ -2,22 +2,25 @@ import type { Slide } from '../../model/types/slide.js'
 import styles from './SlideView.module.css'
 import { SlideObject } from '../slideObject/SlideObject.js'
 import { useObjectDrag } from '../workspace/customHooks/useObjectDrag.js'
-import type { SelectionReturn } from '../workspace/customHooks/useSelection.js'
+
 
 type SlideViewProps = {
     slide: Slide
     readonly?: boolean
-    selection?: SelectionReturn
+    selectedObjectIds?: string[]
+    onObjectSelect?: (objectId: string, isShiftPressed: boolean) => void
 }
 
-const EMPTY_GET_IDS = () => [] as string[]
-
-function SlideView({ slide, readonly = false, selection }: SlideViewProps) {
-    const getSelectedIds = selection?.select ? selection.getSelectedIds : EMPTY_GET_IDS
+function SlideView({
+    slide,
+    readonly = false,
+    selectedObjectIds = [],
+    onObjectSelect,
+}: SlideViewProps) {
     const { handleMouseDown } = useObjectDrag({
+        selectedObjectIds,
         activeSlideId: slide.id,
         objects: slide.objects,
-        getSelectedIds: getSelectedIds ,
     })
 
     let backgroundStyles: React.CSSProperties = {}
@@ -46,8 +49,8 @@ function SlideView({ slide, readonly = false, selection }: SlideViewProps) {
                     object={obj}
                     slideId={slide.id}
                     readonly={readonly}
-                    isSelected={selection?.isSelected(obj.id) ?? false}
-                    onSelect={selection?.select}
+                    isSelected={selectedObjectIds.includes(obj.id)}
+                    onSelect={onObjectSelect}
                     onMouseDown={handleMouseDown}
                 />
             ))}
