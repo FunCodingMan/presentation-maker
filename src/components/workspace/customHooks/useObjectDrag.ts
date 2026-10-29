@@ -6,19 +6,15 @@ import { moveObjects } from '../../../model/functions/objects.js'
 import { SlideObject } from '../../../model/types/objects.js'
 
 type Point = { x: number, y: number }
-
-type ObjectPositionUpdate = {
-    objectId: string
-    position: Point
-}
+type ObjectPositionUpdate = { objectId: string; position: Point }
 
 type UseObjectDragProps = {
-    selectedObjectIds: string[]
     activeSlideId: string | null
     objects: SlideObject[]
+    getSelectedIds: () => string[]
 }
 
-export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
+export function useObjectDrag({ activeSlideId, objects, getSelectedIds }: UseObjectDragProps) {
     const dragRef = useRef<{
         isDragging: boolean
         startX: number
@@ -32,20 +28,19 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
     })
 
     const handleMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
-        if (e.button !== 0 || !activeSlideId) {
-            return
-        }
+        if (e.button !== 0 || !activeSlideId) return
 
         e.stopPropagation()
 
-        let idsToMove: string[] = [];
-        
-        if (selectedObjectIds.includes(objectId)) {
-            idsToMove = selectedObjectIds;
+        const currentSelectedIds = getSelectedIds()
+        let idsToMove: string[]
+
+        if (currentSelectedIds.includes(objectId)) {
+            idsToMove = currentSelectedIds
         } else if (e.shiftKey) {
-            idsToMove = [...selectedObjectIds, objectId];
+            idsToMove = [...currentSelectedIds, objectId]
         } else {
-            idsToMove = [objectId];
+            idsToMove = [objectId]
         }
 
         const initialPositions = new Map<string, Point>()
@@ -61,7 +56,7 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
             startY: e.clientY,
             initialPositions,
         }
-    }, [selectedObjectIds, activeSlideId, objects])
+    }, [activeSlideId, objects, getSelectedIds])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -69,18 +64,13 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
 
             const dx = e.clientX - dragRef.current.startX
             const dy = e.clientY - dragRef.current.startY
-
             if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return
 
             const updates: ObjectPositionUpdate[] = []
-
             dragRef.current.initialPositions.forEach((pos, objectId) => {
                 updates.push({
                     objectId,
-                    position: {
-                        x: pos.x + dx,
-                        y: pos.y + dy,
-                    }
+                    position: { x: pos.x + dx, y: pos.y + dy },
                 })
             })
 
@@ -89,20 +79,17 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
                 args: {
                     slideId: activeSlideId,
                     operation: moveObjects,
-                    args: { updates }
-                }
+                    args: { updates },
+                },
             })
         }
 
         const handleMouseUp = () => {
-            if (dragRef.current.isDragging) {
-                dragRef.current.isDragging = false
-            }
+            if (dragRef.current.isDragging) dragRef.current.isDragging = false
         }
 
         document.addEventListener('mousemove', handleMouseMove)
         document.addEventListener('mouseup', handleMouseUp)
-
         return () => {
             document.removeEventListener('mousemove', handleMouseMove)
             document.removeEventListener('mouseup', handleMouseUp)
