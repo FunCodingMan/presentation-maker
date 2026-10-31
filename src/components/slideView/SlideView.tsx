@@ -17,7 +17,7 @@ function SlideView({
     selectedObjectIds = [],
     onObjectSelect,
 }: SlideViewProps) {
-    const { handleMouseDown } = useObjectDrag({
+    const { handleMouseDown, dragOffset } = useObjectDrag({
         selectedObjectIds,
         activeSlideId: slide.id,
         objects: slide.objects,
@@ -43,17 +43,21 @@ function SlideView({
 
     return (
         <div className={styles.slidePreview} style={backgroundStyles}>
-            {slide.objects.map(obj => (
-                <SlideObject
-                    key={obj.id}
-                    object={obj}
-                    slideId={slide.id}
-                    readonly={readonly}
-                    isSelected={selectedObjectIds.includes(obj.id)}
-                    onSelect={onObjectSelect}
-                    onMouseDown={handleMouseDown}
-                />
-            ))}
+            {slide.objects.map(obj => {
+                const isSelected = selectedObjectIds.includes(obj.id)
+                return (
+                    <SlideObject
+                        key={obj.id}
+                        object={obj}
+                        slideId={slide.id}
+                        readonly={readonly}
+                        isSelected={isSelected}
+                        onSelect={onObjectSelect}
+                        onMouseDown={handleMouseDown}
+                        dragOffset={isSelected ? dragOffset : undefined} 
+                    />
+                )
+            })}
         </div>
     )
 }

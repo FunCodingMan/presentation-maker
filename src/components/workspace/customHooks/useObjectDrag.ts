@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { dispatch } from '../../../editor.js'
 import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
 import { modifySlide } from '../../../model/functions/presentation.js'
@@ -15,15 +15,20 @@ type UseObjectDragProps = {
 }
 
 export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
+    const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number }>({ dx: 0, dy: 0 })
     const dragRef = useRef<{
         isDragging: boolean
         startX: number
         startY: number
+        currentDx: number
+        currentDy: number
         initialPositions: Map<string, Point>
     }>({
         isDragging: false,
         startX: 0,
         startY: 0,
+        currentDx: 0,
+        currentDy: 0,
         initialPositions: new Map(),
     })
 
@@ -51,8 +56,12 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
             isDragging: true,
             startX: e.clientX,
             startY: e.clientY,
+            currentDx: 0,
+            currentDy: 0,
             initialPositions,
         }
+
+        setDragOffset({ dx: 0, dy: 0 })
     }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
@@ -61,28 +70,39 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
 
             const dx = e.clientX - dragRef.current.startX
             const dy = e.clientY - dragRef.current.startY
-            if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return
-
-            const updates: ObjectPositionUpdate[] = []
-            dragRef.current.initialPositions.forEach((pos, objectId) => {
-                updates.push({
-                    objectId,
-                    position: { x: pos.x + dx, y: pos.y + dy },
-                })
-            })
-
-            dispatch(modifyPresentation, {
-                operation: modifySlide,
-                args: {
-                    slideId: activeSlideId,
-                    operation: moveObjects,
-                    args: { updates },
-                },
-            })
+            
+            dragRef.current.currentDx = dx
+            dragRef.current.currentDy = dy
+            setDragOffset({ dx, dy })
         }
 
         const handleMouseUp = () => {
-            if (dragRef.current.isDragging) dragRef.current.isDragging = false
+            const { isDragging, currentDx, currentDy, initialPositions } = dragRef.current
+            
+            if (isDragging) {
+                if (Math.abs(currentDx) >= 2 || Math.abs(currentDy) >= 2) {
+                    const updates: ObjectPositionUpdate[] = []
+                    
+                    initialPositions.forEach((pos, objectId) => {
+                        updates.push({
+                            objectId,
+                            position: { x: pos.x + currentDx, y: pos.y + currentDy },
+                        })
+                    })
+
+                    dispatch(modifyPresentation, {
+                        operation: modifySlide,
+                        args: {
+                            slideId: activeSlideId,
+                            operation: moveObjects,
+                            args: { updates },
+                        },
+                    })
+                }
+
+                dragRef.current.isDragging = false
+                setDragOffset({ dx: 0, dy: 0 })
+            }
         }
 
         document.addEventListener('mousemove', handleMouseMove)
@@ -93,5 +113,5 @@ export function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: Use
         }
     }, [activeSlideId])
 
-    return { handleMouseDown }
+    return { handleMouseDown, dragOffset }
 }

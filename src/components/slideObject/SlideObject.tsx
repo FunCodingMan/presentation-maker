@@ -13,6 +13,7 @@ type SlideObjectProps = {
     isSelected?: boolean
     onSelect?: (objectId: string, isShiftPressed: boolean) => void
     onMouseDown?: (e: React.MouseEvent, objectId: string) => void
+    dragOffset?: {dx: number; dy: number }
 }
 
 type TextObjectProps = { object: TextObject; slideId: string; readonly?: boolean }
@@ -93,7 +94,7 @@ function FigureObjectComponent({ object }: FigureObjectProps) {
     )
 }
 
-function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseDown }: SlideObjectProps) {
+function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseDown, dragOffset = { dx: 0, dy: 0 } }: SlideObjectProps) {
     const handleMouseDown = (e: React.MouseEvent) => {
         if (readonly) return
 
@@ -128,11 +129,14 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseD
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
         width: `${object.size.width}px`,
-        ...(object.type === 'text'
-            ? { minHeight: `${object.size.height}px`, height: 'auto' }
-            : { height: `${object.size.height}px` }),
-    }
-
+        transform: (dragOffset.dx !== 0 || dragOffset.dy !== 0) 
+            ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` 
+            : 'none',
+        ...(object.type === 'text' 
+            ? { minHeight: `${object.size.height}px`, height: 'auto' } 
+            : { height: `${object.size.height}px` }
+        )
+    };
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
     return (
