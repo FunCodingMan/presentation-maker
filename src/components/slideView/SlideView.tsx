@@ -2,6 +2,7 @@ import type { Slide } from '../../model/types/slide.js'
 import styles from './SlideView.module.css'
 import { SlideObject } from '../slideObject/SlideObject.js'
 import { useObjectDrag } from '../workspace/customHooks/useObjectDrag.js'
+import { useObjectResize } from '../workspace/customHooks/useObjectResize.js'
 
 
 type SlideViewProps = {
@@ -17,11 +18,18 @@ function SlideView({
     selectedObjectIds = [],
     onObjectSelect,
 }: SlideViewProps) {
-    const { handleMouseDown, dragOffset } = useObjectDrag({
+    const { handleDragMouseDown, dragOffset } = useObjectDrag({
         selectedObjectIds,
         activeSlideId: slide.id,
         objects: slide.objects,
     })
+
+    const { handleResizeMouseDown, resizeOffset } = useObjectResize({
+        selectedObjectIds,
+        activeSlideId: slide.id,
+        objects: slide.objects,
+    })
+    
 
     let backgroundStyles: React.CSSProperties = {}
 
@@ -53,8 +61,10 @@ function SlideView({
                         readonly={readonly}
                         isSelected={isSelected}
                         onSelect={onObjectSelect}
-                        onMouseDown={handleMouseDown}
-                        dragOffset={isSelected ? dragOffset : undefined} 
+                        onDragMouseDown={handleDragMouseDown}
+                        dragOffset={isSelected ? dragOffset : undefined}
+                        onResizeMouseDown={handleResizeMouseDown}
+                        resizeOffset={isSelected ? resizeOffset : undefined}
                     />
                 )
             })}

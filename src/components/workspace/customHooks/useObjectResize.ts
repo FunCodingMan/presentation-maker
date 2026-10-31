@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Size, SlideObject } from "../../../model/types/objects"
-import { moveObjects, ObjectSizeUpdate } from "../../../model/functions/objects"
+import { moveObjects, ObjectSizeUpdate, resizeObjects } from "../../../model/functions/objects"
 import { dispatch } from "../../../editor"
 import { modifyPresentation } from "../../../viewmodel/functions/navigation"
 import { modifySlide } from "../../../model/functions/presentation"
@@ -31,7 +31,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
         initialSizes: new Map()
     })
     
-    const handleMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
+    const handleResizeMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
         e.preventDefault()
 
         if (e.button !== 0 || !activeSlideId) return
@@ -62,8 +62,18 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
         const handleMouseMove = (e: MouseEvent) => {
             if (!resizeRef.current.isResizing || !activeSlideId) return
 
-            const dw = e.clientX - resizeRef.current.startMouseX
-            const dh = e.clientY - resizeRef.current.startMouseY
+            let dw = e.clientX - resizeRef.current.startMouseX
+            let dh = e.clientY - resizeRef.current.startMouseY
+
+            resizeRef.current.initialSizes.forEach((oldSize) => {
+                if (oldSize.width + dw < 30) {
+                    dw = 30 - oldSize.width;
+                }
+                if (oldSize.height + dh < 30) {
+                    dh = 30 - oldSize.height;
+                }
+            })
+
 
             resizeRef.current.currentDw = dw;
             resizeRef.current.currentDh = dh;
@@ -72,7 +82,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
 
         const handleMouseUp = () => {
             const { isResizing, currentDw, currentDh, initialSizes } = resizeRef.current
-            if(!resizeRef.current.isResizing || !activeSlideId) return
+            if(!isResizing || !activeSlideId) return
 
             const updates: ObjectSizeUpdate[] = []
 
@@ -87,7 +97,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
                 operation: modifySlide,
                 args: {
                     slideId: activeSlideId,
-                    operation: moveObjects,
+                    operation: resizeObjects,
                     args: { updates }
                 }
             })
@@ -105,7 +115,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
         }
     }, [activeSlideId])
 
-    return { handleMouseDown, resizeOffset }
+    return { handleResizeMouseDown, resizeOffset }
 }
 
 export {

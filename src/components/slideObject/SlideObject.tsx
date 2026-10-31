@@ -12,8 +12,10 @@ type SlideObjectProps = {
     readonly?: boolean
     isSelected?: boolean
     onSelect?: (objectId: string, isShiftPressed: boolean) => void
-    onMouseDown?: (e: React.MouseEvent, objectId: string) => void
+    onDragMouseDown?: (e: React.MouseEvent, objectId: string) => void
     dragOffset?: {dx: number; dy: number }
+    onResizeMouseDown?: (e: React.MouseEvent, objectId: string) => void
+    resizeOffset?: {dw: number; dh: number }
 }
 
 type TextObjectProps = { object: TextObject; slideId: string; readonly?: boolean }
@@ -94,8 +96,10 @@ function FigureObjectComponent({ object }: FigureObjectProps) {
     )
 }
 
-function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseDown, dragOffset = { dx: 0, dy: 0 } }: SlideObjectProps) {
+function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMouseDown: onMouseDown, dragOffset = { dx: 0, dy: 0 }, onResizeMouseDown, resizeOffset = { dw: 0, dh: 0 } }: SlideObjectProps) {
     const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.defaultPrevented) return
+
         if (readonly) return
 
          if (e.shiftKey && isSelected) {
@@ -128,13 +132,13 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseD
     const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
-        width: `${object.size.width}px`,
+        width: `${object.size.width + resizeOffset.dw}px`,
         transform: (dragOffset.dx !== 0 || dragOffset.dy !== 0) 
             ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` 
             : 'none',
         ...(object.type === 'text' 
-            ? { minHeight: `${object.size.height}px`, height: 'auto' } 
-            : { height: `${object.size.height}px` }
+            ? { minHeight: `${object.size.height + resizeOffset.dh }px`} 
+            : { height: `${object.size.height + resizeOffset.dh }px` }
         )
     };
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
@@ -144,6 +148,13 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onMouseD
             {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
             {object.type === 'image' && <ImageObjectComponent object={object} />}
             {object.type === 'figure' && <FigureObjectComponent object={object} />}
+
+            {isSelected && !readonly && (
+                <div
+                    className={styles.resizeHandle}
+                    onMouseDown={(e) => onResizeMouseDown?.(e, object.id)}
+                />
+            )}
         </div>
     )
 }

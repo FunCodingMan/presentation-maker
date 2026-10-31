@@ -32,7 +32,7 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
         initialPositions: new Map(),
     })
 
-    const handleMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
+    const handleDragMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
         if (e.button !== 0 || !activeSlideId) return
 
         let idsToMove: string[]
@@ -112,7 +112,7 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
         }
     }, [activeSlideId])
 
-    return { handleMouseDown, dragOffset }
+    return { handleDragMouseDown, dragOffset }
 }
 
 export {
