@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { Slide } from '../model/types/slide.js'
 import {
     addTextObject, addImageObject, addFigureObject,
-    removeObjects, moveObjects, resizeObject,
+    removeObjects, moveObjects, resizeObjects,
     updateTextObjectStyle, updateImageObjectStyle, updateFigureObjectStyle
 } from '../model/functions/objects.js'
 import type {
@@ -215,7 +215,9 @@ it('moves object from slide with one object', () => {
 
     it('resizes object from slide with one object', () => {
         const oldSlide = createTestSlideWithObject()
-        const res = resizeObject(oldSlide, '1-text', { width: 11, height: 12 })
+        const res = resizeObjects(oldSlide, {
+            updates: [{objectId: '1-text', size: { width: 11, height: 12 }}]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects[0].size).toEqual(defaultSize)
@@ -224,7 +226,9 @@ it('moves object from slide with one object', () => {
 
     it('resizes slide from slide with few object', () => {
         const oldSlide = createTestSlideWithFewObjects('1-slide', ['1-text', '2-text'])
-        const res = resizeObject(oldSlide, '1-text', { width: 12, height: 52 })
+        const res = resizeObjects(oldSlide, {
+            updates: [{objectId: '1-text', size: { width: 12, height: 52 }}]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(oldSlide.objects[0].size).toEqual(defaultSize)
@@ -234,7 +238,9 @@ it('moves object from slide with one object', () => {
 
     it('resizes object from empty slide', () => {
         const oldSlide = createTestSlide()
-        const res = resizeObject(oldSlide, '1-text', { width: 12, height: 52 })
+        const res = resizeObjects(oldSlide, {
+            updates: [{objectId: '1-text', size: { width: 12, height: 52 }}]
+        })
         
         expect(res).not.toBe(oldSlide)
         expect(res.objects).toHaveLength(0)
@@ -242,7 +248,9 @@ it('moves object from slide with one object', () => {
 
     it('resizes object with size less then zero', () => {
         const oldSlide = createTestSlideWithObject()
-        const res = resizeObject(oldSlide, '1-text', { width: -11, height: 12 })
+        const res = resizeObjects(oldSlide, {
+            updates: [{objectId: '1-text', size: { width: -11, height: 12 }}]
+        })
         
         expect(oldSlide.objects[0].size).toEqual(defaultSize)
         expect(res.objects[0].size).toEqual(defaultSize)

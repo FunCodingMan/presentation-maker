@@ -89,11 +89,11 @@ type ObjectPositionUpdate = {
     position: Point
 }
 
-type MoveObjectsArgs = {
+type MoveObjectsProps = {
     updates: ObjectPositionUpdate[]
 }
 
-function moveObjects(slide: Slide, { updates }: MoveObjectsArgs): Slide {
+function moveObjects(slide: Slide, { updates }: MoveObjectsProps): Slide {
     const updateMap = new Map(updates.map(u => [u.objectId, u.position]))
 
     return {
@@ -107,15 +107,28 @@ function moveObjects(slide: Slide, { updates }: MoveObjectsArgs): Slide {
     }
 }
 
-function resizeObject(slide: Slide, objectId: string, newSize: Size): Slide {
-    if (newSize.width <= 0 || newSize.height <= 0) {
-        return slide
-    }
+type ObjectSizeUpdate = {
+    objectId: string;
+    size: Size
+}
 
-    return modifyObject(slide, objectId, obj => ({
-        ...obj,
-        size: newSize
-    }))
+type ResizeObjectsProps = {
+    updates: ObjectSizeUpdate[]
+}
+
+function resizeObjects(slide: Slide, { updates }: ResizeObjectsProps): Slide {
+    const updateMap = new Map(updates.map(u => [u.objectId, u.size]))
+    
+    return {
+        ...slide,
+        objects: slide.objects.map(obj => {
+            const newSize = updateMap.get(obj.id)
+            if (newSize && newSize.width > 0 && newSize.height > 0) {
+                return {...obj, size: newSize}
+            }
+            return obj
+        })
+    }
 }
 
 function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: TextStyle): Slide {
@@ -189,7 +202,7 @@ export {
     addFigureObject,
     removeObjects,
     moveObjects,
-    resizeObject,
+    resizeObjects,
     updateTextObjectStyle,
     updateImageObjectStyle,
     updateFigureObjectStyle,
@@ -199,5 +212,6 @@ export {
 export type {
     TextObjectArgs,
     ImageObjectArgs,
-    FigureObjectArgs
+    FigureObjectArgs,
+    ObjectSizeUpdate
 }
