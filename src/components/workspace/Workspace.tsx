@@ -1,6 +1,7 @@
 import { SlideView } from '../slideView/SlideView.js'
 import { Slide } from '../../model/types/slide.js'
 import { TextStylePanel } from '../textStylePanel/TextStylePanel.js'
+import { BackgroundPanel } from '../backgroundPanel/BackgroundPanel.js'
 import styles from './Workspace.module.css'
 import { useSelection } from './customHooks/useSelection.js'
 import { useWorkspaceShortcuts } from './customHooks/useWorkspaceShortcuts.js'
@@ -25,6 +26,8 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
         clearSelection()
     }
 
+    const showBackgroundPanel = selectedObjectIds.length === 0
+
     return (
         <div className={styles.workspace} onMouseDown={handleWorkspaceMouseDown}>
             <div className={styles.canvasContainer}>
@@ -39,6 +42,13 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
                     <div className={styles.emptyState}>Нет слайдов</div>
                 )}
             </div>
+
+            {activeSlide && showBackgroundPanel && (
+                <BackgroundPanel 
+                    activeSlideId={activeSlide.id} 
+                    background={activeSlide.background} 
+                />
+            )}
 
             {activeSlide && (
                 <TextStylePanel

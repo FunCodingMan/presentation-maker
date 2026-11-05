@@ -42,11 +42,20 @@ function SlideView({
             backgroundStyles.backgroundSize = 'cover'
             backgroundStyles.backgroundPosition = 'center'
             break
-        case 'gradient': {
-            const angle = slide.background.angle || 90
-            backgroundStyles.background = `linear-gradient(${angle}deg, ${slide.background.colors.join(', ')})`
+        case 'gradient':
+            const angle = slide.background.angle ?? 90
+            const colorsStr = slide.background.colors.join(', ')
+            
+            if (slide.background.gradientType === 'radial') {
+                backgroundStyles.background = `radial-gradient(circle, ${colorsStr})`
+            } else {
+                backgroundStyles.background = `linear-gradient(${angle}deg, ${colorsStr})`
+            }
             break
-        }
+        case 'none':
+        default:
+            backgroundStyles.backgroundColor = '#ffffff'
+            break            
     }
 
     return (

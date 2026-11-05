@@ -7,7 +7,12 @@ type Slide = {
     objects: SlideObject[]
 }
 
-type Background = BackgroundColor | BackGroundImage | BackgroundGradient
+type Background = BackgroundNone | BackgroundColor | BackGroundImage | BackgroundGradient
+
+type BackgroundNone = {
+    type: 'none'
+}
+
 type BackgroundColor = {
     type: 'color'
     color: string
@@ -22,11 +27,13 @@ type BackgroundGradient = {
     type: 'gradient'
     colors: string[]
     angle?: number
+    gradientType?: 'linear' | 'radial'
 }
 
 export type {
     Slide, 
     Background,
+    BackgroundNone,
     BackgroundColor,
     BackGroundImage,
     BackgroundGradient,

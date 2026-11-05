@@ -43,44 +43,8 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
         document.documentElement.requestFullscreen().catch(e => console.log(e))
     }
 
-    const onBackgroundColorChange = (newColor: string) => {
-        dispatch(modifyPresentation, {
-            operation: modifySlide,
-            args: {
-                slideId: activeSlide.id,
-                operation: setSlideBackgroundColor,
-                args: newColor
-            }
-        })
-    }
-
     const onRemoveSlide = () => {
         dispatch(removeActiveSlide)
-    }
-
-    const onBackgroundImageChange = () => {
-        const url = prompt('Введите URL картинки для фона:', 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=1000')
-        if (url) {
-            dispatch(modifyPresentation, {
-                operation: modifySlide,
-                args: {
-                    slideId: activeSlide.id,
-                    operation: setSlideBackgroundImage,
-                    args: url
-                }
-            })  
-        }
-    }
-
-    const onBackgroundGradientChange = () => {
-        dispatch(modifyPresentation, {
-            operation: modifySlide,
-            args: {
-                slideId: activeSlide.id,
-                operation: setSlideBackgroundGradient,
-                args: { colors: ['#a18cd1', '#fbc2eb'], angle: 45 }
-            }
-        })
     }
 
     const onAddText = () => {
@@ -139,16 +103,6 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
                 <Button text="Картинка" onClick={chooseFile} />
 
                 <ShapePicker onChange={onAddFigure} />
-
-                <div className={styles.colorPickerTool}>
-                    <span className={styles.toolLabel}>Фон:</span>
-                    <ColorPicker 
-                        value={currentColor} 
-                        onChange={onBackgroundColorChange}
-                    />
-                    <Button text="🖼️" onClick={onBackgroundImageChange} />
-                    <Button text="🌈" onClick={onBackgroundGradientChange} />
-                </div>
             </div>
 
             <div className={styles.rightGroup}>
