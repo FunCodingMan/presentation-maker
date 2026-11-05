@@ -132,7 +132,7 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
             onSelect(object.id, false)
         }
     }
-
+    //TODO: transform scale вместо width height
     const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,

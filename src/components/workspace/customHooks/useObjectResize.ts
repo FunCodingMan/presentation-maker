@@ -12,7 +12,7 @@ type UseObjectResizeProps = {
 }
 
 type InitialSizesMap = Map<string, Size>
- 
+
 function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectResizeProps) {
     const [resizeOffset, setResizeOffset] = useState<{dw: number, dh: number}>({dw: 0, dh: 0})
     const resizeRef = useRef<{

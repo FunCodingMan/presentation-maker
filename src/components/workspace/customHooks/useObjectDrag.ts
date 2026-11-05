@@ -13,6 +13,8 @@ type UseObjectDragProps = {
     activeSlideId: string | null
     objects: SlideObject[]
 }
+// TODO: Приоритет расположение объектов реализовать
+// TODO: Сделать правильное отображение курсора drag и resize при перемещении (чтобы при выходе за границы объекта он не менялся на default)
 
 function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
     const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number }>({ dx: 0, dy: 0 })
