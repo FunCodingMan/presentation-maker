@@ -6,6 +6,8 @@ import { Toolbar } from '../toolbar/Toolbar.js'
 import { SlideList } from '../slideList/SlideList.js'
 import { Workspace } from '../workspace/Workspace.js'
 import { PreviewOverlay } from '../previewOverlay/PreviewOverlay.js'
+import { useHistoryUI } from './customHooks/useHistoryUI.js'
+import { useHistoryShortcuts } from './customHooks/useHistoryShortcuts.js'
 import styles from './App.module.css'
 
 type AppProps = {
@@ -14,16 +16,16 @@ type AppProps = {
 }
 
 function App({ presentation, viewModel }: AppProps) {
+    const { canUndo, canRedo, onUndo, onRedo } = useHistoryUI()
+
+    useHistoryShortcuts()
+
     const handleClosePreview = () => {
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(err => console.error(err))
         }
         dispatch(setPreviewMode, false)
     }
-    //TODO с маленькой буквы
-
-    //TODO директория viewmodule
-
 
     if (viewModel.isPreviewMode) {
         return (
@@ -39,8 +41,15 @@ function App({ presentation, viewModel }: AppProps) {
 
     return (
         <div className={styles.appContainer}>
-            <Toolbar presentation={presentation} activeSlideId={viewModel.activeSlideId} />
-            
+            <Toolbar
+                presentation={presentation}
+                activeSlideId={viewModel.activeSlideId}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={onUndo}
+                onRedo={onRedo}
+            />
+
             <div className={styles.mainArea}>
                 <SlideList slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />
                 <Workspace slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />

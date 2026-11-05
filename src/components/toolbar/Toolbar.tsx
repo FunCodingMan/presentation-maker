@@ -14,9 +14,20 @@ import { useImageUpload } from './customHooks/useImageUpload.js'
 type ToolbarProps = {
     presentation: Presentation
     activeSlideId: string | null
+    canUndo: boolean
+    canRedo: boolean
+    onUndo: () => void
+    onRedo: () => void
 }
 
-function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
+function Toolbar({
+    presentation,
+    activeSlideId,
+    canUndo,
+    canRedo,
+    onUndo,
+    onRedo,
+}: ToolbarProps) {
     const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0]
     const currentColor = activeSlide?.background.type === 'color' ? activeSlide.background.color : '#ffffff'
 
@@ -97,6 +108,17 @@ function Toolbar({ presentation, activeSlideId }: ToolbarProps) {
             </div>
 
             <div className={styles.centerGroup}>
+                <Button
+                    text="↩"
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                />
+                <Button
+                    text="↪"
+                    onClick={onRedo}
+                    disabled={!canRedo}
+                />
+
                 <Button text="+ Слайд" onClick={onAddSlide} />
                 <Button text="Удалить слайд" onClick={onRemoveSlide} />
                 <Button text="Текст" onClick={onAddText} />
