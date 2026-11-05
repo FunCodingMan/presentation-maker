@@ -264,7 +264,7 @@ it('moves object from slide with one object', () => {
             fontStyle: ['bold'] 
         }
         
-        const res = updateTextObjectStyle(oldSlide, '1-text', newStyle)
+        const res = updateTextObjectStyle(oldSlide, {objectId: '1-text', newTextStyle: newStyle})
         
         expect(res).not.toBe(oldSlide)
         expect((oldSlide.objects[0] as TextObject).spans[0].style).toEqual(defaultTextStyle)
@@ -273,7 +273,7 @@ it('moves object from slide with one object', () => {
 
     it('updates image object style', () => {
         const baseSlide = createTestImage(createTestSlideWithObject())
-        const res = updateImageObjectStyle(baseSlide, '1-image', { blur: 1, brightness: 69 })
+        const res = updateImageObjectStyle(baseSlide, {objectId: '1-image',  newFilter: { blur: 1, brightness: 69 }})
         
         expect(res).not.toBe(baseSlide)
         expect((baseSlide.objects[1] as ImageObject).filters).toEqual({ blur: 10, brightness: 20 })
@@ -282,9 +282,9 @@ it('moves object from slide with one object', () => {
 
     it('updates figure object style', () => {
         const baseSlide = createTestFigure(createTestSlideWithObject())
-        const res = updateFigureObjectStyle(baseSlide, '1-figure', {
+        const res = updateFigureObjectStyle(baseSlide, {objectId: '1-figure', newFigureStyle: {
             shape: 'circle', fillColor: 'yellow', strokeColor: 'red', strokeWidth: 3
-        })
+        }})
         
         expect(res).not.toBe(baseSlide)
         expect((baseSlide.objects[1] as FigureObject).figureStyle.fillColor).toBe('red')

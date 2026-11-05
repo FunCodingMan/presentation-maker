@@ -131,7 +131,12 @@ function resizeObjects(slide: Slide, { updates }: ResizeObjectsProps): Slide {
     }
 }
 
-function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: TextStyle): Slide {
+type UpdateTextStyleArgs = {
+    objectId: string
+    newTextStyle: TextStyle
+}
+
+function updateTextObjectStyle(slide: Slide, { objectId, newTextStyle }: UpdateTextStyleArgs): Slide {
     return modifyObject(slide, objectId, obj => {
         if (obj.type === 'text') {
             return {
@@ -146,7 +151,13 @@ function updateTextObjectStyle(slide: Slide, objectId: string, newTextStyle: Tex
     })
 }
 
-function updateImageObjectStyle(slide: Slide, objectId: string, newFilter: Filter){
+
+type UpdateImageStyleArgs = {
+    objectId: string
+    newFilter: Filter
+}
+
+function updateImageObjectStyle(slide: Slide, { objectId, newFilter }: UpdateImageStyleArgs): Slide {
     return modifyObject(slide, objectId, obj => {
         if (obj.type === 'image') {
             return {
@@ -158,7 +169,12 @@ function updateImageObjectStyle(slide: Slide, objectId: string, newFilter: Filte
     })
 }
 
-function updateFigureObjectStyle(slide: Slide, objectId: string, newFigureStyle: FigureStyle) {
+type UpdateFigureStyleArgs = {
+    objectId: string
+    newFigureStyle: FigureStyle
+}
+
+function updateFigureObjectStyle(slide: Slide, { objectId, newFigureStyle }: UpdateFigureStyleArgs): Slide {
     return modifyObject(slide, objectId, obj => {
         if (obj.type === 'figure') {
             return {
@@ -167,7 +183,7 @@ function updateFigureObjectStyle(slide: Slide, objectId: string, newFigureStyle:
             }
         }
         return obj
-    })   
+    })
 }
 
 type UpdateTextContentArgs = {
@@ -213,5 +229,8 @@ export type {
     TextObjectArgs,
     ImageObjectArgs,
     FigureObjectArgs,
-    ObjectSizeUpdate
+    ObjectSizeUpdate,
+    UpdateTextStyleArgs,
+    UpdateImageStyleArgs,
+    UpdateFigureStyleArgs,
 }

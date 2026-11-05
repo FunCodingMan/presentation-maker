@@ -1,5 +1,6 @@
 import { SlideView } from '../slideView/SlideView.js'
 import { Slide } from '../../model/types/slide.js'
+import { TextStylePanel } from '../textStylePanel/TextStylePanel.js'
 import styles from './Workspace.module.css'
 import { useSelection } from './customHooks/useSelection.js'
 import { useWorkspaceShortcuts } from './customHooks/useWorkspaceShortcuts.js'
@@ -38,6 +39,14 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
                     <div className={styles.emptyState}>Нет слайдов</div>
                 )}
             </div>
+
+            {activeSlide && (
+                <TextStylePanel
+                    activeSlideId={activeSlide.id}
+                    selectedObjectIds={selectedObjectIds}
+                    objects={activeSlide.objects}
+                />
+            )}
         </div>
     )
 }
