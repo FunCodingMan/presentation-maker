@@ -1,5 +1,5 @@
 import { useTextStylePanel } from '../workspace/customHooks/useTextStylePanel.js'
-import type { SlideObject } from '../../model/types/objects.js'
+import type { TextStyle, SlideObject } from '../../model/types/objects.js'
 import styles from './TextStylePanel.module.css'
 
 type TextStylePanelProps = {
@@ -9,16 +9,42 @@ type TextStylePanelProps = {
 }
 
 const FONT_FAMILIES = [
-    'Arial',
-    'Helvetica',
-    'Times New Roman',
-    'Georgia',
-    'Courier New',
-    'Verdana',
-    'Tahoma',
-    'Trebuchet MS',
-    'Comic Sans MS',
-    'Impact',
+    'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Courier New',
+    'Verdana', 'Tahoma', 'Trebuchet MS', 'Comic Sans MS', 'Impact',
+]
+
+type StyleButtonDef = {
+    key: TextStyle['fontStyle'][number]
+    label: string
+    title: string
+    iconStyle: React.CSSProperties
+}
+
+const STYLE_BUTTONS: StyleButtonDef[] = [
+    {
+        key: 'bold',
+        label: 'B',
+        title: 'Жирный',
+        iconStyle: { fontWeight: 700 },
+    },
+    {
+        key: 'italic',
+        label: 'I',
+        title: 'Курсив',
+        iconStyle: { fontStyle: 'italic', fontFamily: 'Georgia, serif' },
+    },
+    {
+        key: 'underline',
+        label: 'U',
+        title: 'Подчёркнутый',
+        iconStyle: { textDecoration: 'underline' },
+    },
+    {
+        key: 'strikethrough',
+        label: 'S',
+        title: 'Зачёркнутый',
+        iconStyle: { textDecoration: 'line-through' },
+    },
 ]
 
 function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStylePanelProps) {
@@ -27,11 +53,13 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
         fontFamily,
         fontSizeInput,
         fontColor,
+        fontStyle,
         handleFontFamilyChange,
         handleFontSizeInputChange,
         handleFontSizeBlur,
         handleFontSizeStep,
         handleFontColorChange,
+        handleFontStyleToggle,
     } = useTextStylePanel({ selectedObjectIds, activeSlideId, objects })
 
     if (!isVisible) return null
@@ -41,8 +69,8 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
         : [fontFamily, ...FONT_FAMILIES]
 
     return (
-        <div
-            className={styles.panel}
+        <div 
+            className={styles.panel} 
             onMouseDown={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
         >
@@ -69,9 +97,7 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
                         className={styles.stepButton}
                         onClick={() => handleFontSizeStep(-1)}
                         aria-label="Уменьшить размер"
-                    >
-                        -
-                    </button>
+                    >−</button>
                     <input
                         type="number"
                         className={styles.numberInput}
@@ -86,9 +112,28 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
                         className={styles.stepButton}
                         onClick={() => handleFontSizeStep(1)}
                         aria-label="Увеличить размер"
-                    >
-                        +
-                    </button>
+                    >+</button>
+                </div>
+            </div>
+
+            <div className={styles.field}>
+                <label className={styles.label}>Начертание</label>
+                <div className={styles.styleRow}>
+                    {STYLE_BUTTONS.map(({ key, label, title, iconStyle }) => {
+                        const isActive = fontStyle.includes(key)
+                        return (
+                            <button
+                                key={key}
+                                type="button"
+                                className={`${styles.styleButton} ${isActive ? styles.styleButtonActive : ''}`}
+                                onClick={() => handleFontStyleToggle(key)}
+                                title={title}
+                                aria-pressed={isActive}
+                            >
+                                <span style={iconStyle}>{label}</span>
+                            </button>
+                        )
+                    })}
                 </div>
             </div>
 

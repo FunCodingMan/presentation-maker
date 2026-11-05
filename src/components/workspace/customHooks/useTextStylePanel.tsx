@@ -15,6 +15,8 @@ const DEFAULT_STYLE: TextStyle = {
 const MIN_FONT_SIZE = 8
 const MAX_FONT_SIZE = 200
 
+type FontStyle = TextStyle['fontStyle'][number]
+
 type UseTextStylePanelProps = {
     selectedObjectIds: string[]
     activeSlideId: string | null
@@ -36,6 +38,7 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
     const [fontSize, setFontSize] = useState<number>(baseStyle.fontSize)
     const [fontSizeInput, setFontSizeInput] = useState<string>(String(baseStyle.fontSize))
     const [fontColor, setFontColor] = useState(baseStyle.fontColor)
+    const [fontStyle, setFontStyle] = useState<FontStyle[]>(baseStyle.fontStyle)
 
     useEffect(() => {
         if (!selectedTextObject) return
@@ -44,6 +47,7 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
         setFontSize(style.fontSize)
         setFontSizeInput(String(style.fontSize))
         setFontColor(style.fontColor)
+        setFontStyle(style.fontStyle)
     }, [selectedObjectId])
 
     const applyStyle = (updates: Partial<TextStyle>) => {
@@ -53,6 +57,7 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
             fontFamily,
             fontSize,
             fontColor,
+            fontStyle,
             ...updates,
         }
         dispatch(modifyPresentation, {
@@ -104,17 +109,29 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
         applyStyle({ fontColor: value })
     }
 
+    const handleFontStyleToggle = (styleToToggle: FontStyle) => {
+        const newFontStyle = fontStyle.includes(styleToToggle)
+            ? fontStyle.filter(s => s !== styleToToggle)
+            : [...fontStyle, styleToToggle]
+        
+        setFontStyle(newFontStyle)
+        applyStyle({ fontStyle: newFontStyle })
+    }
+
     return {
         isVisible: selectedTextObject !== null,
         fontFamily,
         fontSizeInput,
         fontColor,
+        fontStyle,
         handleFontFamilyChange,
         handleFontSizeInputChange,
         handleFontSizeBlur,
         handleFontSizeStep,
         handleFontColorChange,
+        handleFontStyleToggle,
     }
 }
 
 export { useTextStylePanel, MIN_FONT_SIZE, MAX_FONT_SIZE }
+export type { FontStyle }

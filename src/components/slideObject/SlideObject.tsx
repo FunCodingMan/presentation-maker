@@ -27,6 +27,10 @@ function TextObjectComponent({ object, slideId, readonly }: TextObjectProps) {
     const baseStyle = object.spans[0]?.style
     const styleArray = baseStyle?.fontStyle || []
 
+    const decorations: string[] = []
+    if (styleArray.includes('underline')) decorations.push('underline')
+    if (styleArray.includes('strikethrough')) decorations.push('line-through')
+
     const textObjectStyle: React.CSSProperties = {
         textAlign: object.textLayout,
         fontFamily: baseStyle?.fontFamily,
@@ -34,7 +38,7 @@ function TextObjectComponent({ object, slideId, readonly }: TextObjectProps) {
         color: baseStyle?.fontColor || '#000000',
         fontWeight: styleArray.includes('bold') ? 'bold' : 'normal',
         fontStyle: styleArray.includes('italic') ? 'italic' : 'normal',
-        textDecoration: styleArray.includes('underline') ? 'underline' : 'none',
+        textDecorationLine: decorations.length > 0 ? decorations.join(' ') : 'none',
     }
 
     const handleTextChange = (newText: string) => {
