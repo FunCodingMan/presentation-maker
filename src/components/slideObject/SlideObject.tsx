@@ -131,7 +131,7 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
             onSelect(object.id, false)
         }
     }
-
+    //TODO: сделать изменение размера через scale transform
     const scaleX = object.size.width > 0 ? (object.size.width + resizeOffset.dw) / object.size.width : 1
     const scaleY = object.size.height > 0 ? (object.size.height + resizeOffset.dh) / object.size.height : 1
 
