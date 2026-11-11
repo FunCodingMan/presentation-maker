@@ -64,6 +64,8 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
         }
 
         setDragOffset({ dx: 0, dy: 0 })
+
+        document.body.style.cursor = 'move'
     }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
@@ -80,7 +82,11 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
 
         const handleMouseUp = () => {
             const { isDragging, currentDx, currentDy, initialPositions } = dragRef.current
+
+            document.body.style.cursor = ''
+            
             if (!isDragging || !activeSlideId) return;
+            
 
             if (Math.abs(currentDx) >= 2 || Math.abs(currentDy) >= 2) {
                 const updates: ObjectPositionUpdate[] = []

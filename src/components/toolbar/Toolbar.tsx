@@ -5,11 +5,10 @@ import { updatePresentationName, addSlide, modifySlide, generateId } from '../..
 import { addTextObject, addFigureObject } from '../../model/functions/objects.js' 
 import { Button } from '../common/button/Button.js'
 import { TextInput } from '../common/textInput/TextInput.js'
-import { setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient } from '../../model/functions/slide.js'
 import styles from './Toolbar.module.css'
-import { ColorPicker } from '../colorPicker/ColorPicker.js'
 import { ShapePicker } from '../common/shapePicker/ShapePicker.js'
 import { useImageUpload } from './customHooks/useImageUpload.js'
+import { usePdfExport } from './customHooks/usePdfExport.js'
 
 type ToolbarProps = {
     presentation: Presentation
@@ -29,11 +28,12 @@ function Toolbar({
     onRedo,
 }: ToolbarProps) {
     const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0]
-    const currentColor = activeSlide?.background.type === 'color' ? activeSlide.background.color : '#ffffff'
 
     const { fileInputRef, handleFileChange, chooseFile } = useImageUpload({
         activeSlideId: activeSlide?.id ?? null,
     })
+
+    const { exportToPdf, isExporting } = usePdfExport()
 
     const onNameChange = (newName: string) => {
         dispatch(modifyPresentation, {
@@ -125,6 +125,12 @@ function Toolbar({
                 <Button text="Картинка" onClick={chooseFile} />
 
                 <ShapePicker onChange={onAddFigure} />
+                
+                <Button 
+                    text={isExporting ? "Экспорт в PDF..." : "Экспорт PDF"} 
+                    onClick={() => exportToPdf(presentation)}
+                    disabled={isExporting} 
+                />
             </div>
 
             <div className={styles.rightGroup}>

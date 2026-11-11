@@ -56,6 +56,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
             currentDh: 0,
             initialSizes: initialSizes
         }
+        document.body.style.cursor = 'nwse-resize'
     }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
@@ -82,6 +83,7 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
 
         const handleMouseUp = () => {
             const { isResizing, currentDw, currentDh, initialSizes } = resizeRef.current
+            document.body.style.cursor = ''
             if(!isResizing || !activeSlideId) return
 
             const updates: ObjectSizeUpdate[] = []
