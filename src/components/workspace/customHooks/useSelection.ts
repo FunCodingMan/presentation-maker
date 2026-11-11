@@ -3,10 +3,9 @@ import { SlideObject } from '../../../model/types/objects'
 
 type UseSelectionProps = {
     activeSlideId: string | null,
-    objects: SlideObject[]
 }
 
-function useSelection({activeSlideId, objects}: UseSelectionProps) {
+function useSelection({ activeSlideId }: UseSelectionProps) {
     const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([])
 
     useEffect(() => {
@@ -22,15 +21,6 @@ function useSelection({activeSlideId, objects}: UseSelectionProps) {
             )
         } else {
             setSelectedObjectIds([objectId])
-            const selectedObject = objects.filter(obj => obj.id == objectId)[0]
-            const otherObjects = objects.filter(obj => obj.id != objectId)
-
-            objects = [
-                selectedObject,
-                ...otherObjects,
-            ]
-
-            console.log(objects)
         }
     }
 

@@ -212,6 +212,36 @@ function updateTextContent(slide: Slide, {objectId, newText} : UpdateTextContent
     }
 }
 
+type ReorderObjectArgs = {
+    objectId: string
+}
+
+function bringToFront(slide: Slide, { objectId }: ReorderObjectArgs): Slide {
+    const objectIndex = slide.objects.findIndex(obj => obj.id === objectId)
+    if (objectIndex === -1 || objectIndex === slide.objects.length - 1) return slide
+
+    const objectToMove = slide.objects[objectIndex]
+    const otherObjects = slide.objects.filter(obj => obj.id !== objectId)
+
+    return {
+        ...slide,
+        objects: [...otherObjects, objectToMove]
+    }
+}
+
+function sendToBack(slide: Slide, { objectId }: ReorderObjectArgs): Slide {
+    const objectIndex = slide.objects.findIndex(obj => obj.id === objectId)
+    if (objectIndex <= 0) return slide
+
+    const objectToMove = slide.objects[objectIndex]
+    const otherObjects = slide.objects.filter(obj => obj.id !== objectId)
+
+    return {
+        ...slide,
+        objects: [objectToMove, ...otherObjects]
+    }
+}
+
 export {
     addTextObject,
     addImageObject,
@@ -222,7 +252,9 @@ export {
     updateTextObjectStyle,
     updateImageObjectStyle,
     updateFigureObjectStyle,
-    updateTextContent
+    updateTextContent,
+    bringToFront,
+    sendToBack
 }
 
 export type {
@@ -233,4 +265,5 @@ export type {
     UpdateTextStyleArgs,
     UpdateImageStyleArgs,
     UpdateFigureStyleArgs,
+    ReorderObjectArgs
 }

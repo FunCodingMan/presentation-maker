@@ -15,7 +15,6 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
     const activeSlide = slides.find(slide => slide.id === activeSlideId) || slides[0]
     const { selectedObjectIds, handleSelect, clearSelection } = useSelection({
         activeSlideId,
-        objects: activeSlide.objects
     })
 
     useWorkspaceShortcuts({
