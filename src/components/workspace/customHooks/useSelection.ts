@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react'
+import { SlideObject } from '../../../model/types/objects'
 
-export function useSelection(activeSlideId: string | null) {
+type UseSelectionProps = {
+    activeSlideId: string | null,
+    objects: SlideObject[]
+}
+
+function useSelection({activeSlideId, objects}: UseSelectionProps) {
     const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([])
 
     useEffect(() => {
         setSelectedObjectIds([])
     }, [activeSlideId])
-    //Не работает filter 
-    const handleSelect = (objectId: string, isShiftPressed: boolean) => {
+     
+    const handleSelect = (objectId: string, isShiftPressed: boolean, ) => {
         if (isShiftPressed) {
             setSelectedObjectIds(prev =>
                 prev.includes(objectId)
@@ -16,6 +22,15 @@ export function useSelection(activeSlideId: string | null) {
             )
         } else {
             setSelectedObjectIds([objectId])
+            const selectedObject = objects.filter(obj => obj.id == objectId)[0]
+            const otherObjects = objects.filter(obj => obj.id != objectId)
+
+            objects = [
+                selectedObject,
+                ...otherObjects,
+            ]
+
+            console.log(objects)
         }
     }
 
@@ -27,4 +42,8 @@ export function useSelection(activeSlideId: string | null) {
     }
 
     return { selectedObjectIds, handleSelect, clearSelection }
+}
+
+export {
+    useSelection
 }
