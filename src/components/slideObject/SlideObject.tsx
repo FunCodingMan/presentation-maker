@@ -125,26 +125,36 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
         }
     }
 
-    // Лучше default чем e.stopPropagation() через флаг
     const handleClick = (e: React.MouseEvent) => {
         if (readonly) return
         if (onSelect && isSelected && !e.shiftKey) {
             onSelect(object.id, false)
         }
     }
-    //TODO: transform scale вместо width height
+    //TODO: сделать изменение размера через scale transform
+    const scaleX = object.size.width > 0 ? (object.size.width + resizeOffset.dw) / object.size.width : 1
+    const scaleY = object.size.height > 0 ? (object.size.height + resizeOffset.dh) / object.size.height : 1
+
+    const transforms: string[] = []
+    if (dragOffset.dx !== 0 || dragOffset.dy !== 0) {
+        transforms.push(`translate(${dragOffset.dx}px, ${dragOffset.dy}px)`)
+    }
+    if (scaleX !== 1 || scaleY !== 1) {
+        transforms.push(`scale(${scaleX}, ${scaleY})`)
+    }
+
     const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
-        width: `${object.size.width + resizeOffset.dw}px`,
-        transform: (dragOffset.dx !== 0 || dragOffset.dy !== 0) 
-            ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` 
-            : 'none',
+        width: `${object.size.width}px`,
+        transform: transforms.length > 0 ? transforms.join(' ') : 'none',
+        transformOrigin: 'top left',
         ...(object.type === 'text' 
-            ? { minHeight: `${object.size.height + resizeOffset.dh }px`} 
-            : { height: `${object.size.height + resizeOffset.dh }px` }
+            ? { minHeight: `${object.size.height}px`} 
+            : { height: `${object.size.height}px` }
         )
     };
+    
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
     return (
