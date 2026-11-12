@@ -36,8 +36,6 @@ function createTestPresentation(): Presentation {
     presentation = addSlide(presentation, { id: generateId(), slideName: 'Фон-картинка' })
     let slide2 = presentation.slides[1]
 
-    slide2 = setSlideBackgroundImage(slide2, 'https://img.magnific.com/free-vector/hand-drawn-abstract-shapes-background_23-2149086857.jpg?semt=ais_hybrid&w=740&q=80')
-
     slide2 = addFigureObject(slide2, {
         id: generateId(),
         position: { x: 175, y: 100 },
@@ -58,13 +56,6 @@ function createTestPresentation(): Presentation {
 
     slide3 = setSlideBackgroundGradient(slide3, { colors: ['#001251', '#952523'], angle: 90 })
 
-    slide3 = addImageObject(slide3, {
-        id: generateId(),
-        url: 'https://i.pinimg.com/236x/08/35/d9/0835d99a022ed4d72074a518bd7b451d.jpg',
-        position: { x: 50, y: 50 },
-        size: { width: 236, height: 236 },
-        filters: { blur: 0, brightness: 110 }
-    })
 
     slide3 = addFigureObject(slide3, {
         id: generateId(),

@@ -38,7 +38,7 @@ export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundP
         }
     }, [background])
 
-    const updateBg = (operation: any, args: any) => {
+    const updateBg = (operation: any, args?: any) => {
         if (!activeSlideId) return
         dispatch(modifyPresentation, {
             operation: modifySlide,
@@ -55,7 +55,7 @@ export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundP
     }
 
     const handleClear = () => {
-        updateBg(clearSlideBackground, undefined)
+        updateBg(clearSlideBackground)
     }
 
     const handleGradientChange = () => {
