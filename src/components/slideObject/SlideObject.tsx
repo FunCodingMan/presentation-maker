@@ -139,21 +139,26 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
     if (dragOffset.dx !== 0 || dragOffset.dy !== 0) {
         transforms.push(`translate(${dragOffset.dx}px, ${dragOffset.dy}px)`)
     }
-    if (scaleX !== 1 || scaleY !== 1) {
+
+    const isText = object.type === 'text'
+    
+    if (!isText && (scaleX !== 1 || scaleY !== 1)) {
         transforms.push(`scale(${scaleX}, ${scaleY})`)
     }
 
     const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
-        width: `${object.size.width}px`,
+        width: isText
+            ? `${object.size.width + resizeOffset.dw}px`
+            : `${object.size.width}px`,
         transform: transforms.length > 0 ? transforms.join(' ') : 'none',
         transformOrigin: 'top left',
-        ...(object.type === 'text' 
-            ? { minHeight: `${object.size.height}px`} 
+        ...(isText
+            ? { minHeight: `${object.size.height + resizeOffset.dh}px` }
             : { height: `${object.size.height}px` }
-        )
-    };
+        ),
+    }
     
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
