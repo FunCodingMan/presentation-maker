@@ -13,8 +13,6 @@ type UseObjectDragProps = {
     activeSlideId: string | null
     objects: SlideObject[]
 }
-// TODO: Приоритет расположение объектов реализовать
-// TODO: Сделать правильное отображение курсора drag и resize при перемещении (чтобы при выходе за границы объекта он не менялся на default)
 
 function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
     const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number }>({ dx: 0, dy: 0 })
@@ -34,7 +32,7 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
         initialPositions: new Map(),
     })
 
-    const handleDragMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
+    const handleDragPointerDown = useCallback((e: React.PointerEvent, objectId: string) => {
         if (e.button !== 0 || !activeSlideId) return
 
         let idsToMove: string[]
@@ -64,12 +62,10 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
         }
 
         setDragOffset({ dx: 0, dy: 0 })
-
-        document.body.style.cursor = 'move'
     }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
+        const handlePointerMove = (e: PointerEvent) => {
             if (!dragRef.current.isDragging || !activeSlideId) return
 
             const dx = e.clientX - dragRef.current.startMouseX
@@ -80,13 +76,10 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
             setDragOffset({ dx, dy })
         }
 
-        const handleMouseUp = () => {
+        const handlePointerUp = () => {
             const { isDragging, currentDx, currentDy, initialPositions } = dragRef.current
 
-            document.body.style.cursor = ''
-            
             if (!isDragging || !activeSlideId) return;
-            
 
             if (Math.abs(currentDx) >= 2 || Math.abs(currentDy) >= 2) {
                 const updates: ObjectPositionUpdate[] = []
@@ -112,17 +105,15 @@ function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectD
             setDragOffset({ dx: 0, dy: 0 })
         }
 
-        document.addEventListener('mousemove', handleMouseMove)
-        document.addEventListener('mouseup', handleMouseUp)
+        document.addEventListener('pointermove', handlePointerMove)
+        document.addEventListener('pointerup', handlePointerUp)
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
-            document.removeEventListener('mouseup', handleMouseUp)
+            document.removeEventListener('pointermove', handlePointerMove)
+            document.removeEventListener('pointerup', handlePointerUp)
         }
     }, [activeSlideId])
 
-    return { handleDragMouseDown, dragOffset }
+    return { handleDragPointerDown, dragOffset }
 }
 
-export {
-    useObjectDrag
-}
+export { useObjectDrag }

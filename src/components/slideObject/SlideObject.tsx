@@ -5,6 +5,7 @@ import { modifySlide } from '../../model/functions/presentation.js'
 import { updateTextContent } from '../../model/functions/objects.js'
 import styles from './SlideObject.module.css'
 import { modifyPresentation } from '../../viewmodel/functions/navigation.js'
+import React from 'react'
 
 type SlideObjectProps = {
     object: SlideObject
@@ -12,10 +13,10 @@ type SlideObjectProps = {
     readonly?: boolean
     isSelected?: boolean
     onSelect?: (objectId: string, isShiftPressed: boolean) => void
-    onDragMouseDown?: (e: React.MouseEvent, objectId: string) => void
-    dragOffset?: {dx: number; dy: number }
-    onResizeMouseDown?: (e: React.MouseEvent, objectId: string) => void
-    resizeOffset?: {dw: number; dh: number }
+    onDragPointerDown?: (e: React.PointerEvent, objectId: string) => void
+    dragOffset?: { dx: number; dy: number }
+    onResizePointerDown?: (e: React.PointerEvent, objectId: string) => void
+    resizeOffset?: { dw: number; dh: number }
 }
 
 type TextObjectProps = { object: TextObject; slideId: string; readonly?: boolean }
@@ -100,13 +101,13 @@ function FigureObjectComponent({ object }: FigureObjectProps) {
     )
 }
 
-function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMouseDown: onMouseDown, dragOffset = { dx: 0, dy: 0 }, onResizeMouseDown, resizeOffset = { dw: 0, dh: 0 } }: SlideObjectProps) {
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (e.defaultPrevented) return
+function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragPointerDown, dragOffset = { dx: 0, dy: 0 }, onResizePointerDown, resizeOffset = { dw: 0, dh: 0 } }: SlideObjectProps) {
+    const handlePointerDown = (e: React.PointerEvent) => {
+        if (e.defaultPrevented || readonly) return
 
-        if (readonly) return
+        e.currentTarget.setPointerCapture(e.pointerId)
 
-         if (e.shiftKey && isSelected) {
+        if (e.shiftKey && isSelected) {
             e.preventDefault()
             onSelect?.(object.id, true)
             return
@@ -119,9 +120,9 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
         const target = e.target as HTMLElement
         const isClickInsideText = target.closest('[contenteditable="true"]') !== null
 
-        if (onMouseDown && (!isClickInsideText || !isSelected)) {
+        if (onDragPointerDown && (!isClickInsideText || !isSelected)) {
             e.preventDefault()
-            onMouseDown(e, object.id)
+            onDragPointerDown(e, object.id)
         }
     }
 
@@ -163,7 +164,7 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
     return (
-        <div onMouseDown={handleMouseDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
+        <div onPointerDown={handlePointerDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
             {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
             {object.type === 'image' && <ImageObjectComponent object={object} />}
             {object.type === 'figure' && <FigureObjectComponent object={object} />}
@@ -171,7 +172,12 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragMo
             {isSelected && !readonly && (
                 <div
                     className={styles.resizeHandle}
-                    onMouseDown={(e) => onResizeMouseDown?.(e, object.id)}
+                    onPointerDown={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        e.currentTarget.setPointerCapture(e.pointerId)
+                        onResizePointerDown?.(e, object.id)
+                    }}
                 />
             )}
         </div>

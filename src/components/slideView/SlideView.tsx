@@ -18,13 +18,13 @@ function SlideView({
     selectedObjectIds = [],
     onObjectSelect,
 }: SlideViewProps) {
-    const { handleDragMouseDown, dragOffset } = useObjectDrag({
+    const { handleDragPointerDown, dragOffset } = useObjectDrag({
         selectedObjectIds,
         activeSlideId: slide.id,
         objects: slide.objects,
     })
 
-    const { handleResizeMouseDown, resizeOffset } = useObjectResize({
+    const { handleResizePointerDown, resizeOffset } = useObjectResize({
         selectedObjectIds,
         activeSlideId: slide.id,
         objects: slide.objects,
@@ -70,9 +70,9 @@ function SlideView({
                         readonly={readonly}
                         isSelected={isSelected}
                         onSelect={onObjectSelect}
-                        onDragMouseDown={handleDragMouseDown}
+                        onDragPointerDown={handleDragPointerDown}
                         dragOffset={isSelected ? dragOffset : undefined}
-                        onResizeMouseDown={handleResizeMouseDown}
+                        onResizePointerDown={handleResizePointerDown}
                         resizeOffset={isSelected ? resizeOffset : undefined}
                     />
                 )

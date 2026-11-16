@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Size, SlideObject } from "../../../model/types/objects"
-import { moveObjects, ObjectSizeUpdate, resizeObjects } from "../../../model/functions/objects"
+import { ObjectSizeUpdate, resizeObjects } from "../../../model/functions/objects"
 import { dispatch } from "../../../editor"
 import { modifyPresentation } from "../../../viewmodel/functions/navigation"
 import { modifySlide } from "../../../model/functions/presentation"
@@ -31,13 +31,10 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
         initialSizes: new Map()
     })
     
-    const handleResizeMouseDown = useCallback((e: React.MouseEvent, objectId: string) => {
-        e.preventDefault()
-
+    const handleResizePointerDown = useCallback((e: React.PointerEvent, objectId: string) => {
         if (e.button !== 0 || !activeSlideId) return
 
         const idsToMove = selectedObjectIds.includes(objectId) ? selectedObjectIds: [objectId]
-
         const initialSizes: InitialSizesMap = new Map();
 
         objects.forEach(obj => {
@@ -56,11 +53,10 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
             currentDh: 0,
             initialSizes: initialSizes
         }
-        document.body.style.cursor = 'nwse-resize'
     }, [selectedObjectIds, activeSlideId, objects])
 
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
+        const handlePointerMove = (e: PointerEvent) => {
             if (!resizeRef.current.isResizing || !activeSlideId) return
 
             let dw = e.clientX - resizeRef.current.startMouseX
@@ -75,15 +71,13 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
                 }
             })
 
-
             resizeRef.current.currentDw = dw;
             resizeRef.current.currentDh = dh;
             setResizeOffset({ dw, dh })
         }
 
-        const handleMouseUp = () => {
+        const handlePointerUp = () => {
             const { isResizing, currentDw, currentDh, initialSizes } = resizeRef.current
-            document.body.style.cursor = ''
             if(!isResizing || !activeSlideId) return
 
             const updates: ObjectSizeUpdate[] = []
@@ -108,18 +102,15 @@ function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectR
             setResizeOffset({dw: 0, dh: 0})
         }
 
-
-        document.addEventListener('mousemove', handleMouseMove)
-        document.addEventListener('mouseup', handleMouseUp)
+        document.addEventListener('pointermove', handlePointerMove)
+        document.addEventListener('pointerup', handlePointerUp)
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
-            document.removeEventListener('mouseup', handleMouseUp)
+            document.removeEventListener('pointermove', handlePointerMove)
+            document.removeEventListener('pointerup', handlePointerUp)
         }
     }, [activeSlideId])
 
-    return { handleResizeMouseDown, resizeOffset }
+    return { handleResizePointerDown, resizeOffset }
 }
 
-export {
-    useObjectResize
-}
+export { useObjectResize }

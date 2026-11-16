@@ -24,13 +24,10 @@ function PreviewOverlay({ slides, activeSlideId, onClose, onNextSlide, onPrevSli
     usePreviewNavigation({ onNextSlide, onPrevSlide, onClose })
 
     return (
-        // По клику на черный фон или сам слайд — переключаем вперед
         <div className={styles.overlay} onClick={onNextSlide}>
             
-            {/* Обертка-ловушка для наведения курсора внизу экрана */}
             <div className={styles.controlsArea}>
                 
-                {/* Остановка всплытия клика, чтобы при нажатии на кнопки слайд не переключался */}
                 <div className={styles.controls} onClick={(e) => e.stopPropagation()}>
                     <Button text="◄ Назад" onClick={onPrevSlide} />
                     
