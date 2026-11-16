@@ -10,6 +10,7 @@ type SlideViewProps = {
     readonly?: boolean
     selectedObjectIds?: string[]
     onObjectSelect?: (objectId: string, isShiftPressed: boolean) => void
+    id?: string
 }
 
 function SlideView({
@@ -17,6 +18,7 @@ function SlideView({
     readonly = false,
     selectedObjectIds = [],
     onObjectSelect,
+    id,
 }: SlideViewProps) {
     const { handleDragPointerDown, dragOffset } = useObjectDrag({
         selectedObjectIds,
@@ -59,7 +61,7 @@ function SlideView({
     }
 
     return (
-        <div className={styles.slidePreview} style={backgroundStyles}>
+        <div className={styles.slidePreview} style={backgroundStyles} id={id}>
             {slide.objects.map(obj => {
                 const isSelected = selectedObjectIds.includes(obj.id)
                 return (

@@ -35,6 +35,7 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
             <div className={styles.canvasContainer}>
                 {activeSlide ? (
                     <SlideView
+                        id="workspace-slide-view"
                         slide={activeSlide}
                         readonly={false}
                         selectedObjectIds={selectedObjectIds}

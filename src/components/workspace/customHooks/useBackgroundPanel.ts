@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { dispatch } from '../../../editor.js'
 import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
 import { modifySlide } from '../../../model/functions/presentation.js'
@@ -16,6 +16,11 @@ type UseBackgroundPanelProps = {
 }
 
 export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundPanelProps) {
+    const colorInputRef = useRef<HTMLInputElement>(null)
+    const [localColor, setLocalColor] = useState(
+        background.type === 'color' ? background.color : '#ffffff'
+    )
+    
     const [gradType, setGradType] = useState<'linear' | 'radial'>(
         background.type === 'gradient' ? (background.gradientType || 'linear') : 'linear'
     )
@@ -30,6 +35,7 @@ export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundP
     )
 
     useEffect(() => {
+        if (background.type === 'color') setLocalColor(background.color)
         if (background.type === 'gradient') {
             setGradType(background.gradientType || 'linear')
             setGradColor1(background.colors[0] || '#a18cd1')
@@ -42,21 +48,41 @@ export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundP
         if (!activeSlideId) return
         dispatch(modifyPresentation, {
             operation: modifySlide,
-            args: {
-                slideId: activeSlideId,
-                operation,
-                args
-            }
+            args: { slideId: activeSlideId, operation, args }
         })
     }
 
     const handleColorChange = (color: string) => {
-        updateBg(setSlideBackgroundColor, color)
+        setLocalColor(color)
+        
+        const slideView = document.getElementById('workspace-slide-view')
+        if (slideView) {
+            slideView.style.backgroundImage = 'none'
+            slideView.style.backgroundColor = color
+        }
     }
 
-    const handleClear = () => {
-        updateBg(clearSlideBackground)
-    }
+    useEffect(() => {
+        const input = colorInputRef.current
+        if (!input) return
+
+        const handleNativeChange = (e: Event) => {
+            const finalColor = (e.target as HTMLInputElement).value
+            
+            const slideView = document.getElementById('workspace-slide-view')
+            if (slideView) {
+                slideView.style.backgroundImage = ''
+                slideView.style.backgroundColor = ''
+            }
+            
+            updateBg(setSlideBackgroundColor, finalColor)
+        }
+
+        input.addEventListener('change', handleNativeChange)
+        return () => input.removeEventListener('change', handleNativeChange)
+    }, [activeSlideId])
+
+    const handleClear = () => updateBg(clearSlideBackground)
 
     const handleGradientChange = () => {
         updateBg(setSlideBackgroundGradient, { 
@@ -73,15 +99,15 @@ export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundP
         const reader = new FileReader()
         reader.onload = (event) => {
             const src = event.target?.result as string
-            if (src) {
-                updateBg(setSlideBackgroundImage, src)
-            }
+            if (src) updateBg(setSlideBackgroundImage, src)
         }
         reader.readAsDataURL(file)
         e.target.value = ''
     }, [activeSlideId])
 
     return {
+        colorInputRef,
+        localColor,
         handleColorChange,
         handleClear,
         handleImageUpload,

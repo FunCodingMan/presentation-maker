@@ -9,6 +9,8 @@ type BackgroundPanelProps = {
 
 export function BackgroundPanel({ activeSlideId, background }: BackgroundPanelProps) {
     const {
+        colorInputRef,
+        localColor,
         handleColorChange,
         handleClear,
         handleImageUpload,
@@ -18,18 +20,17 @@ export function BackgroundPanel({ activeSlideId, background }: BackgroundPanelPr
         gradAngle, setGradAngle,
         handleGradientChange
     } = useBackgroundPanel({ activeSlideId, background })
-
-    const currentColor = background.type === 'color' ? background.color : '#ffffff'
-
+    //TODO: изменени цвета должно отображаться только в css, а в модели меняться только при сохранении
     return (
-        <div className={styles.panel} onMouseDown={(e) => e.stopPropagation()}>
+        <div className={styles.panel} data-panel="true">
             <h3 className={styles.title}>Фон слайда</h3>
             
             <div className={styles.section}>
                 <label className={styles.label}>Сплошной цвет</label>
                 <input 
                     type="color" 
-                    value={currentColor} 
+                    ref={colorInputRef} 
+                    value={localColor} 
                     onChange={(e) => handleColorChange(e.target.value)}
                     className={styles.colorInput}
                 />
