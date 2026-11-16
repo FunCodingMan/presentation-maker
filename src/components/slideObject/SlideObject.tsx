@@ -133,52 +133,53 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragPo
         }
     }
     //TODO: сделать изменение размера через scale transform
+    //TODO: синяя кайма не должна увеличиваться вместе с объектом
+    const isText = object.type === 'text'
     const scaleX = object.size.width > 0 ? (object.size.width + resizeOffset.dw) / object.size.width : 1
     const scaleY = object.size.height > 0 ? (object.size.height + resizeOffset.dh) / object.size.height : 1
-
-    const transforms: string[] = []
-    if (dragOffset.dx !== 0 || dragOffset.dy !== 0) {
-        transforms.push(`translate(${dragOffset.dx}px, ${dragOffset.dy}px)`)
-    }
-
-    const isText = object.type === 'text'
-    
-    if (!isText && (scaleX !== 1 || scaleY !== 1)) {
-        transforms.push(`scale(${scaleX}, ${scaleY})`)
-    }
 
     const dynamicWrapperStyle: React.CSSProperties = {
         left: `${object.position.x}px`,
         top: `${object.position.y}px`,
-        width: isText
-            ? `${object.size.width + resizeOffset.dw}px`
-            : `${object.size.width}px`,
-        transform: transforms.length > 0 ? transforms.join(' ') : 'none',
+        width: isText ? `${object.size.width + resizeOffset.dw}px` : `${object.size.width}px`,
+        transform: (dragOffset.dx !== 0 || dragOffset.dy !== 0) ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` : 'none',
+        ...(isText ? { minHeight: `${object.size.height + resizeOffset.dh}px` } : { height: `${object.size.height}px` }),
+    }
+
+    const contentScaleStyle: React.CSSProperties = {
+        width: '100%',
+        height: '100%',
         transformOrigin: 'top left',
-        ...(isText
-            ? { minHeight: `${object.size.height + resizeOffset.dh}px` }
-            : { height: `${object.size.height}px` }
-        ),
+        transform: (!isText && (scaleX !== 1 || scaleY !== 1)) ? `scale(${scaleX}, ${scaleY})` : 'none',
+    }
+
+    const selectionBoxStyle: React.CSSProperties = {
+        width: isText ? '100%' : `${object.size.width + resizeOffset.dw}px`,
+        height: isText ? '100%' : `${object.size.height + resizeOffset.dh}px`,
     }
     
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
     return (
         <div onPointerDown={handlePointerDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
-            {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
-            {object.type === 'image' && <ImageObjectComponent object={object} />}
-            {object.type === 'figure' && <FigureObjectComponent object={object} />}
+            <div style={contentScaleStyle}>
+                {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
+                {object.type === 'image' && <ImageObjectComponent object={object} />}
+                {object.type === 'figure' && <FigureObjectComponent object={object} />}
+            </div>
 
             {isSelected && !readonly && (
-                <div
-                    className={styles.resizeHandle}
-                    onPointerDown={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        e.currentTarget.setPointerCapture(e.pointerId)
-                        onResizePointerDown?.(e, object.id)
-                    }}
-                />
+                <div className={styles.selectionBox} style={selectionBoxStyle}>
+                    <div
+                        className={styles.resizeHandle}
+                        onPointerDown={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            e.currentTarget.setPointerCapture(e.pointerId)
+                            onResizePointerDown?.(e, object.id)
+                        }}
+                    />
+                </div>
             )}
         </div>
     )
