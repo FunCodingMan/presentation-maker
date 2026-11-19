@@ -13,14 +13,14 @@ const FONT_FAMILIES = [
     'Verdana', 'Tahoma', 'Trebuchet MS', 'Comic Sans MS', 'Impact',
 ]
 
-type StyleButtonDef = {
+type StyleButton = {
     key: TextStyle['fontStyle'][number]
     label: string
     title: string
     iconStyle: React.CSSProperties
 }
 
-const STYLE_BUTTONS: StyleButtonDef[] = [
+const STYLE_BUTTONS: StyleButton[] = [
     {
         key: 'bold',
         label: 'B',
@@ -31,7 +31,7 @@ const STYLE_BUTTONS: StyleButtonDef[] = [
         key: 'italic',
         label: 'I',
         title: 'Курсив',
-        iconStyle: { fontStyle: 'italic', fontFamily: 'Georgia, serif' },
+        iconStyle: { fontStyle: 'italic' },
     },
     {
         key: 'underline',

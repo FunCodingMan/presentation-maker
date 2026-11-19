@@ -16,7 +16,7 @@
 }
 
 .button:hover {
-    background-color:aqua;
+    background-color: rgb(88, 88, 88);
 }
 
 .button:disabled {

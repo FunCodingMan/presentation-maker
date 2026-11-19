@@ -1,14 +1,9 @@
 import type { Presentation } from './model/types/presentation.js'
 import type { ViewModel } from './viewmodel/types/view.js'
 
-type HistoryEntry = {
-    presentation: Presentation
-    activeSlideId: string | null
-}
-
 let currentViewModel: ViewModel | null = null
-let past: HistoryEntry[] = []
-let future: HistoryEntry[] = []
+let past: Presentation[] = []
+let future: Presentation[] = []
 
 const editorChangeHandlers = new Set<() => void>()
 
@@ -50,13 +45,7 @@ function dispatch(modifier: Modifier, params: any = null): void {
     const nextViewModel = modifier(currentViewModel, params)
 
     if (nextViewModel.presentation !== currentViewModel.presentation) {
-        past = [
-            ...past,
-            {
-                presentation: currentViewModel.presentation,
-                activeSlideId: currentViewModel.activeSlideId,
-            },
-        ]
+        past = [...past, currentViewModel.presentation]
         future = []
     }
 
@@ -66,21 +55,15 @@ function dispatch(modifier: Modifier, params: any = null): void {
 
 function undo(): void {
     if (past.length === 0 || !currentViewModel) return
-    const prevEntry = past[past.length - 1]
+    const prevPresentation = past[past.length - 1]
 
-    future = [
-        {
-            presentation: currentViewModel.presentation,
-            activeSlideId: currentViewModel.activeSlideId,
-        },
-        ...future,
-    ]
+    future = [currentViewModel.presentation, ...future]
     past = past.slice(0, -1)
 
     currentViewModel = {
         ...currentViewModel,
-        presentation: prevEntry.presentation,
-        activeSlideId: prevEntry.activeSlideId,
+        presentation: prevPresentation,
+        activeSlideId: currentViewModel.activeSlideId,
         selectedObjectIds: []
     }
     notifyChange()
@@ -88,21 +71,15 @@ function undo(): void {
 
 function redo(): void {
     if (future.length === 0 || !currentViewModel) return
-    const nextEntry = future[0]
+    const nextPresentation = future[0]
 
-    past = [
-        ...past,
-        {
-            presentation: currentViewModel.presentation,
-            activeSlideId: currentViewModel.activeSlideId,
-        },
-    ]
+    past = [...past, currentViewModel.presentation]
     future = future.slice(1)
 
     currentViewModel = {
         ...currentViewModel,
-        presentation: nextEntry.presentation,
-        activeSlideId: nextEntry.activeSlideId,
+        presentation: nextPresentation,
+        activeSlideId: currentViewModel.activeSlideId,
         selectedObjectIds: []
     }
     notifyChange()
