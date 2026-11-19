@@ -36,7 +36,7 @@ function TextObjectComponent({ object, slideId, readonly }: TextObjectProps) {
         textAlign: object.textLayout,
         fontFamily: baseStyle?.fontFamily,
         fontSize: `${baseStyle?.fontSize || 24}px`,
-        color: baseStyle?.fontColor || '#000000',
+        color: `var(--preview-font-color, ${baseStyle?.fontColor || '#000000'})`,
         fontWeight: styleArray.includes('bold') ? 'bold' : 'normal',
         fontStyle: styleArray.includes('italic') ? 'italic' : 'normal',
         textDecorationLine: decorations.length > 0 ? decorations.join(' ') : 'none',
@@ -161,7 +161,13 @@ function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragPo
     const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
 
     return (
-        <div onPointerDown={handlePointerDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
+        <div
+            id={!readonly ? `workspace-object-${object.id}` : undefined}
+            onPointerDown={handlePointerDown}
+            onClick={handleClick}
+            className={wrapperClass}
+            style={dynamicWrapperStyle}
+        >
             <div style={contentScaleStyle}>
                 {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
                 {object.type === 'image' && <ImageObjectComponent object={object} />}

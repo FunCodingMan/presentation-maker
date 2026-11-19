@@ -23,6 +23,16 @@ type UseTextStylePanelProps = {
     objects: SlideObject[]
 }
 
+function setPreviewColor(objectId: string, color: string): void {
+    const el = document.getElementById(`workspace-object-${objectId}`)
+    el?.style.setProperty('--preview-font-color', color)
+}
+
+function clearPreviewColor(objectId: string): void {
+    const el = document.getElementById(`workspace-object-${objectId}`)
+    el?.style.removeProperty('--preview-font-color')
+}
+
 function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTextStylePanelProps) {
     const colorInputRef = useRef<HTMLInputElement>(null)
 
@@ -40,6 +50,10 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
     useEffect(() => {
         setFontSizeInput(String(style.fontSize))
         setFontColor(style.fontColor)
+
+        return () => {
+            if (objectId) clearPreviewColor(objectId)
+        }
     }, [objectId, style.fontSize, style.fontColor])
 
     const applyStyle = (updates: Partial<TextStyle>) => {
@@ -60,8 +74,11 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
 
         const handleNativeColorChange = (e: Event) => {
             if (!(e.target instanceof HTMLInputElement)) return
-            if (e.target.value !== style.fontColor) {
-                applyStyle({ fontColor: e.target.value })
+            const finalColor = e.target.value
+
+            clearPreviewColor(objectId)
+            if (finalColor !== style.fontColor) {
+                applyStyle({ fontColor: finalColor })
             }
         }
 
@@ -98,6 +115,7 @@ function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTex
 
     const handleFontColorChange = (color: string) => {
         setFontColor(color)
+        if (objectId) setPreviewColor(objectId, color)
     }
 
     const handleFontFamilyChange = (fontFamily: string) => applyStyle({ fontFamily })
