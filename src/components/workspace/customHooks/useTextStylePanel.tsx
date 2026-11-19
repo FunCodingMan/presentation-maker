@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { TextObject, TextStyle, SlideObject } from '../../../model/types/objects.js'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import type { TextStyle, SlideObject } from '../../../model/types/objects.js'
 import { dispatch } from '../../../editor.js'
 import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
 import { modifySlide } from '../../../model/functions/presentation.js'
@@ -24,109 +24,102 @@ type UseTextStylePanelProps = {
 }
 
 function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTextStylePanelProps) {
-    const selectedTextObject: TextObject | null = (() => {
-        if (!activeSlideId || selectedObjectIds.length !== 1) return null
-        const obj = objects.find(o => o.id === selectedObjectIds[0])
-        if (!obj || obj.type !== 'text') return null
-        return obj
-    })()
+    const colorInputRef = useRef<HTMLInputElement>(null)
 
-    const selectedObjectId = selectedTextObject?.id ?? null
-    const baseStyle = selectedTextObject?.spans[0]?.style ?? DEFAULT_STYLE
+    const foundObj = activeSlideId && selectedObjectIds.length === 1
+        ? objects.find(o => o.id === selectedObjectIds[0])
+        : null
+    const selectedTextObject = foundObj?.type === 'text' ? foundObj : null
 
-    const [fontFamily, setFontFamily] = useState(baseStyle.fontFamily)
-    const [fontSize, setFontSize] = useState<number>(baseStyle.fontSize)
-    const [fontSizeInput, setFontSizeInput] = useState<string>(String(baseStyle.fontSize))
-    const [fontColor, setFontColor] = useState(baseStyle.fontColor)
-    const [fontStyle, setFontStyle] = useState<FontStyle[]>(baseStyle.fontStyle)
+    const objectId = selectedTextObject?.id ?? null
+    const style = selectedTextObject?.spans[0]?.style ?? DEFAULT_STYLE
+
+    const [fontSizeInput, setFontSizeInput] = useState(String(style.fontSize))
+    const [fontColor, setFontColor] = useState(style.fontColor)
 
     useEffect(() => {
-        if (!selectedTextObject) return
-        const style = selectedTextObject.spans[0]?.style ?? DEFAULT_STYLE
-        setFontFamily(style.fontFamily)
-        setFontSize(style.fontSize)
         setFontSizeInput(String(style.fontSize))
         setFontColor(style.fontColor)
-        setFontStyle(style.fontStyle)
-    }, [selectedObjectId])
+    }, [objectId, style.fontSize, style.fontColor])
 
     const applyStyle = (updates: Partial<TextStyle>) => {
-        if (!selectedTextObject || !activeSlideId) return
-        const newStyle: TextStyle = {
-            ...baseStyle,
-            fontFamily,
-            fontSize,
-            fontColor,
-            fontStyle,
-            ...updates,
-        }
+        if (!objectId || !activeSlideId) return
         dispatch(modifyPresentation, {
             operation: modifySlide,
             args: {
                 slideId: activeSlideId,
                 operation: updateTextObjectStyle,
-                args: { objectId: selectedTextObject.id, newTextStyle: newStyle },
+                args: { objectId, newTextStyle: { ...style, ...updates } },
             },
         })
     }
 
-    const handleFontFamilyChange = (value: string) => {
-        setFontFamily(value)
-        applyStyle({ fontFamily: value })
-    }
+    useEffect(() => {
+        const input = colorInputRef.current
+        if (!input || !objectId || !activeSlideId) return
+
+        const handleNativeColorChange = (e: Event) => {
+            if (!(e.target instanceof HTMLInputElement)) return
+            if (e.target.value !== style.fontColor) {
+                applyStyle({ fontColor: e.target.value })
+            }
+        }
+
+        input.addEventListener('change', handleNativeColorChange)
+        return () => input.removeEventListener('change', handleNativeColorChange)
+    }, [objectId, activeSlideId, style])
 
     const commitFontSize = (value: number) => {
         const clamped = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, value))
-        setFontSize(clamped)
         setFontSizeInput(String(clamped))
-        applyStyle({ fontSize: clamped })
+        if (clamped !== style.fontSize) {
+            applyStyle({ fontSize: clamped })
+        }
     }
 
     const handleFontSizeInputChange = (raw: string) => {
         setFontSizeInput(raw)
-        const parsed = Number(raw)
-        if (!isNaN(parsed) && parsed >= MIN_FONT_SIZE && parsed <= MAX_FONT_SIZE) {
-            setFontSize(parsed)
-            applyStyle({ fontSize: parsed })
-        }
     }
 
     const handleFontSizeBlur = () => {
         const parsed = Number(fontSizeInput)
-        if (isNaN(parsed)) {
-            setFontSizeInput(String(fontSize))
+        if (fontSizeInput.trim() === '' || Number.isNaN(parsed)) {
+            setFontSizeInput(String(style.fontSize))
             return
         }
         commitFontSize(parsed)
     }
 
-    const handleFontSizeStep = (delta: number) => {
-        commitFontSize(fontSize + delta)
+    const handleFontSizeKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.currentTarget.blur()
+        }
     }
 
-    const handleFontColorChange = (value: string) => {
-        setFontColor(value)
-        applyStyle({ fontColor: value })
+    const handleFontColorChange = (color: string) => {
+        setFontColor(color)
     }
 
-    const handleFontStyleToggle = (styleToToggle: FontStyle) => {
-        const newFontStyle = fontStyle.includes(styleToToggle)
-            ? fontStyle.filter(s => s !== styleToToggle)
-            : [...fontStyle, styleToToggle]
-        
-        setFontStyle(newFontStyle)
-        applyStyle({ fontStyle: newFontStyle })
+    const handleFontFamilyChange = (fontFamily: string) => applyStyle({ fontFamily })
+    const handleFontSizeStep = (delta: number) => commitFontSize(style.fontSize + delta)
+    const handleFontStyleToggle = (item: FontStyle) => {
+        const fontStyle = style.fontStyle.includes(item)
+            ? style.fontStyle.filter(s => s !== item)
+            : [...style.fontStyle, item]
+        applyStyle({ fontStyle })
     }
 
     return {
         isVisible: selectedTextObject !== null,
-        fontFamily,
+        colorInputRef,
+        fontFamily: style.fontFamily,
         fontSizeInput,
         fontColor,
-        fontStyle,
+        fontStyle: style.fontStyle,
         handleFontFamilyChange,
         handleFontSizeInputChange,
         handleFontSizeBlur,
+        handleFontSizeKeyDown,
         handleFontSizeStep,
         handleFontColorChange,
         handleFontStyleToggle,

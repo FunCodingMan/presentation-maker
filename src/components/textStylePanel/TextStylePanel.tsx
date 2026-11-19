@@ -1,4 +1,4 @@
-import { useTextStylePanel } from '../workspace/customHooks/useTextStylePanel.js'
+import { useTextStylePanel, MIN_FONT_SIZE, MAX_FONT_SIZE } from '../workspace/customHooks/useTextStylePanel.js'
 import type { TextStyle, SlideObject } from '../../model/types/objects.js'
 import styles from './TextStylePanel.module.css'
 
@@ -50,6 +50,7 @@ const STYLE_BUTTONS: StyleButtonDef[] = [
 function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStylePanelProps) {
     const {
         isVisible,
+        colorInputRef,
         fontFamily,
         fontSizeInput,
         fontColor,
@@ -57,6 +58,7 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
         handleFontFamilyChange,
         handleFontSizeInputChange,
         handleFontSizeBlur,
+        handleFontSizeKeyDown,
         handleFontSizeStep,
         handleFontColorChange,
         handleFontStyleToggle,
@@ -69,8 +71,8 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
         : [fontFamily, ...FONT_FAMILIES]
 
     return (
-        <div 
-            className={styles.panel} 
+        <div
+            className={styles.panel}
             onMouseDown={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
         >
@@ -102,10 +104,11 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
                         type="number"
                         className={styles.numberInput}
                         value={fontSizeInput}
-                        min={8}
-                        max={200}
+                        min={MIN_FONT_SIZE}
+                        max={MAX_FONT_SIZE}
                         onChange={(e) => handleFontSizeInputChange(e.target.value)}
                         onBlur={handleFontSizeBlur}
+                        onKeyDown={handleFontSizeKeyDown}
                     />
                     <button
                         type="button"
@@ -141,6 +144,7 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
                 <label className={styles.label}>Цвет</label>
                 <input
                     type="color"
+                    ref={colorInputRef}
                     className={styles.colorInput}
                     value={fontColor}
                     onChange={(e) => handleFontColorChange(e.target.value)}
