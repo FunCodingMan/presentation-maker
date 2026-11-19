@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { jsPDF } from 'jspdf'
@@ -54,12 +54,10 @@ async function captureSlide(root: Root, stage: HTMLDivElement, slide: Slide): Pr
 
 function usePdfExport() {
     const [isExporting, setIsExporting] = useState(false)
-    const activeRef = useRef(false)
 
     const exportToPdf = useCallback(async (presentation: Presentation) => {
-        if (activeRef.current || presentation.slides.length === 0) return
+        if (isExporting || presentation.slides.length === 0) return
 
-        activeRef.current = true
         setIsExporting(true)
 
         const stage = createRenderStage()
@@ -89,10 +87,9 @@ function usePdfExport() {
         } finally {
             root.unmount()
             stage.remove()
-            activeRef.current = false
             setIsExporting(false)
         }
-    }, [])
+    }, [isExporting])
 
     return { exportToPdf, isExporting }
 }
