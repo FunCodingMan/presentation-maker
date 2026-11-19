@@ -1,9 +1,14 @@
 import type { Presentation } from './model/types/presentation.js'
 import type { ViewModel } from './viewmodel/types/view.js'
 
+type HistoryEntry = {
+    presentation: Presentation
+    activeSlideId: string | null
+}
+
 let currentViewModel: ViewModel | null = null
-let past: ViewModel[] = []
-let future: ViewModel[] = []
+let past: HistoryEntry[] = []
+let future: HistoryEntry[] = []
 
 const editorChangeHandlers = new Set<() => void>()
 
@@ -42,27 +47,62 @@ function dispatch(modifier: Modifier, params: any = null): void {
         return
     }
 
-    past = [...past, currentViewModel]
-    future = []
+    const nextViewModel = modifier(currentViewModel, params)
 
-    currentViewModel = modifier(currentViewModel, params)
+    if (nextViewModel.presentation !== currentViewModel.presentation) {
+        past = [
+            ...past,
+            {
+                presentation: currentViewModel.presentation,
+                activeSlideId: currentViewModel.activeSlideId,
+            },
+        ]
+        future = []
+    }
 
+    currentViewModel = nextViewModel
     notifyChange()
 }
 
 function undo(): void {
     if (past.length === 0 || !currentViewModel) return
-    future = [currentViewModel, ...future]
-    currentViewModel = past[past.length - 1]
+    const prevEntry = past[past.length - 1]
+
+    future = [
+        {
+            presentation: currentViewModel.presentation,
+            activeSlideId: currentViewModel.activeSlideId,
+        },
+        ...future,
+    ]
     past = past.slice(0, -1)
+
+    currentViewModel = {
+        ...currentViewModel,
+        presentation: prevEntry.presentation,
+        activeSlideId: prevEntry.activeSlideId,
+    }
     notifyChange()
 }
 
 function redo(): void {
     if (future.length === 0 || !currentViewModel) return
-    past = [...past, currentViewModel]
-    currentViewModel = future[0]
+    const nextEntry = future[0]
+
+    past = [
+        ...past,
+        {
+            presentation: currentViewModel.presentation,
+            activeSlideId: currentViewModel.activeSlideId,
+        },
+    ]
     future = future.slice(1)
+
+    currentViewModel = {
+        ...currentViewModel,
+        presentation: nextEntry.presentation,
+        activeSlideId: nextEntry.activeSlideId,
+    }
     notifyChange()
 }
 
