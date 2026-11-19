@@ -5,12 +5,15 @@ function useHistoryShortcuts(): void {
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (getState()?.isPreviewMode) return
-            const active = document.activeElement as HTMLElement | null
+            const activeElement = document.activeElement
             const isTyping =
-                active?.hasAttribute('contenteditable') ||
-                active?.tagName === 'INPUT' ||
-                active?.tagName === 'TEXTAREA'
-
+                activeElement instanceof HTMLElement &&
+                (
+                    activeElement.isContentEditable ||
+                    activeElement.tagName === 'INPUT' ||
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.tagName === 'SELECT'
+                )
             if (isTyping) return
 
             const isMod = e.ctrlKey

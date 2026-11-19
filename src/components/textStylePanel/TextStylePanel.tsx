@@ -73,8 +73,6 @@ function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStyle
     return (
         <div
             className={styles.panel}
-            onMouseDown={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
         >
             <h3 className={styles.title}>Свойства текста</h3>
 

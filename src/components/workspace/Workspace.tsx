@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { SlideView } from '../slideView/SlideView.js'
 import { Slide } from '../../model/types/slide.js'
 import { TextStylePanel } from '../textStylePanel/TextStylePanel.js'
@@ -24,8 +25,14 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
     })
 
     const handleWorkspaceMouseDown = (e: React.MouseEvent) => {
-        if (e.defaultPrevented) return
-        clearSelection()
+        const target = e.target
+        const isBackgroundClick =
+            target === e.currentTarget ||
+            (target instanceof HTMLElement && target.id === 'workspace-slide-view')
+
+        if (isBackgroundClick) {
+            clearSelection()
+        }
     }
 
     const showBackgroundPanel = selectedObjectIds.length === 0
@@ -47,9 +54,9 @@ function Workspace({ slides, activeSlideId }: WorkspaceProps) {
             </div>
 
             {activeSlide && showBackgroundPanel && (
-                <BackgroundPanel 
-                    activeSlideId={activeSlide.id} 
-                    background={activeSlide.background} 
+                <BackgroundPanel
+                    activeSlideId={activeSlide.id}
+                    background={activeSlide.background}
                 />
             )}
 

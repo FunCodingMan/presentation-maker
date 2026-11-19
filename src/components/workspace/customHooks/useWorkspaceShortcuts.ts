@@ -14,7 +14,14 @@ export function useWorkspaceShortcuts({ selectedObjectIds, activeSlideId, onDele
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const activeElement = document.activeElement
-            const isTyping = activeElement?.hasAttribute('contenteditable')
+            const isTyping =
+                activeElement instanceof HTMLElement &&
+                    (
+                    activeElement.isContentEditable ||
+                    activeElement.tagName === 'INPUT' ||
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.tagName === 'SELECT'
+                    )
             if (isTyping) return
 
             if ((e.key === 'Delete' || e.key === 'Backspace') && selectedObjectIds.length > 0 && activeSlideId) {

@@ -1,0 +1,1978 @@
+Путь к файлу: app/App.tsx
+import type { Presentation } from '../../model/types/presentation.js'
+import type { ViewModel } from '../../viewmodel/types/view.js'
+import { dispatch } from '../../editor.js'
+import { setPreviewMode, goToNextSlide, goToPrevSlide } from '../../viewmodel/functions/navigation.js'
+import { Toolbar } from '../toolbar/Toolbar.js'
+import { SlideList } from '../slideList/SlideList.js'
+import { Workspace } from '../workspace/Workspace.js'
+import { PreviewOverlay } from '../previewOverlay/PreviewOverlay.js'
+import { useHistoryUI } from './customHooks/useHistoryUI.js'
+import { useHistoryShortcuts } from './customHooks/useHistoryShortcuts.js'
+import styles from './App.module.css'
+
+type AppProps = {
+    presentation: Presentation
+    viewModel: ViewModel
+}
+
+function App({ presentation, viewModel }: AppProps) {
+    const { canUndo, canRedo, onUndo, onRedo } = useHistoryUI()
+
+    useHistoryShortcuts()
+
+    const handleClosePreview = () => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => console.error(err))
+        }
+        dispatch(setPreviewMode, false)
+    }
+
+    if (viewModel.isPreviewMode) {
+        return (
+            <PreviewOverlay
+                slides={presentation.slides}
+                activeSlideId={viewModel.activeSlideId}
+                onClose={handleClosePreview}
+                onNextSlide={() => dispatch(goToNextSlide, presentation.slides)}
+                onPrevSlide={() => dispatch(goToPrevSlide, presentation.slides)}
+            />
+        )
+    }
+
+    return (
+        <div className={styles.appContainer}>
+            <Toolbar
+                presentation={presentation}
+                activeSlideId={viewModel.activeSlideId}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={onUndo}
+                onRedo={onRedo}
+            />
+
+            <div className={styles.mainArea}>
+                <SlideList slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />
+                <Workspace slides={presentation.slides} activeSlideId={viewModel.activeSlideId} />
+            </div>
+        </div>
+    )
+}
+
+export { App }
+
+Путь к файлу: app/customHooks/useHistoryShortcuts.ts
+import { useEffect } from 'react'
+import { undo, redo, getState } from '../../../editor.js'
+
+function useHistoryShortcuts(): void {
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (getState()?.isPreviewMode) return
+            const active = document.activeElement as HTMLElement | null
+            const isTyping =
+                active?.hasAttribute('contenteditable') ||
+                active?.tagName === 'INPUT' ||
+                active?.tagName === 'TEXTAREA'
+
+            if (isTyping) return
+
+            const isMod = e.ctrlKey
+            if (!isMod) return
+
+            const key = e.key.toLowerCase()
+            if (key === 'z') {
+                e.preventDefault()
+                undo()
+            } else if (key === 'y') {
+                e.preventDefault()
+                redo()
+            }
+        }
+
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
+    }, [])
+}
+
+export { useHistoryShortcuts }
+
+Путь к файлу: app/customHooks/useHistoryUI.ts
+import { useState, useEffect, useCallback } from 'react'
+import { undo, redo, getCanUndo, getCanRedo, addEditorChangeHandler } from '../../../editor.js'
+
+type HistoryUI = {
+    canUndo: boolean
+    canRedo: boolean
+    onUndo: () => void
+    onRedo: () => void
+}
+
+function useHistoryUI(): HistoryUI {
+    const [canUndo, setCanUndo] = useState(getCanUndo())
+    const [canRedo, setCanRedo] = useState(getCanRedo())
+
+    useEffect(() => {
+        const sync = () => {
+            setCanUndo(getCanUndo())
+            setCanRedo(getCanRedo())
+        }
+        sync()
+        const unsubscribe = addEditorChangeHandler(sync)
+        return unsubscribe
+    }, [])
+
+    const onUndo = useCallback(() => {
+        undo()
+    }, [])
+
+    const onRedo = useCallback(() => {
+        redo()
+    }, [])
+
+    return { canUndo, canRedo, onUndo, onRedo }
+}
+
+export { useHistoryUI }
+
+Путь к файлу: backgroundPanel/BackgroundPanel.tsx
+import { useBackgroundPanel } from '../workspace/customHooks/useBackgroundPanel.js'
+import type { Background } from '../../model/types/slide.js'
+import styles from './BackgroundPanel.module.css'
+
+type BackgroundPanelProps = {
+    activeSlideId: string | null
+    background: Background
+}
+
+export function BackgroundPanel({ activeSlideId, background }: BackgroundPanelProps) {
+    const {
+        colorInputRef,
+        localColor,
+        handleColorChange,
+        handleClear,
+        handleImageUpload,
+        gradType, setGradType,
+        gradColor1, setGradColor1,
+        gradColor2, setGradColor2,
+        gradAngle, setGradAngle,
+        handleGradientChange
+    } = useBackgroundPanel({ activeSlideId, background })
+    //TODO: изменени цвета должно отображаться только в css, а в модели меняться только при сохранении
+    return (
+        <div className={styles.panel} data-panel="true">
+            <h3 className={styles.title}>Фон слайда</h3>
+            
+            <div className={styles.section}>
+                <label className={styles.label}>Сплошной цвет</label>
+                <input 
+                    type="color" 
+                    ref={colorInputRef} 
+                    value={localColor} 
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    className={styles.colorInput}
+                />
+            </div>
+
+            <div className={styles.section}>
+                <label className={styles.label}>Фоновое изображение</label>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload}
+                    className={styles.fileInput}
+                />
+            </div>
+
+            <div className={styles.section}>
+                <label className={styles.label}>Градиент</label>
+                <select 
+                    value={gradType} 
+                    onChange={(e) => setGradType(e.target.value as 'linear' | 'radial')}
+                    className={styles.select}
+                >
+                    <option value="linear">Линейный</option>
+                    <option value="radial">Радиальный</option>
+                </select>
+                
+                <div className={styles.row}>
+                    <input type="color" value={gradColor1} onChange={(e) => setGradColor1(e.target.value)} />
+                    <input type="color" value={gradColor2} onChange={(e) => setGradColor2(e.target.value)} />
+                </div>
+
+                {gradType === 'linear' && (
+                    <div className={styles.row}>
+                        <span className={styles.smallLabel}>Угол:</span>
+                        <input 
+                            type="range" 
+                            min="0" max="360" 
+                            value={gradAngle} 
+                            onChange={(e) => setGradAngle(Number(e.target.value))} 
+                        />
+                        <span>{gradAngle}°</span>
+                    </div>
+                )}
+                
+                <button className={styles.applyBtn} onClick={handleGradientChange}>
+                    Применить градиент
+                </button>
+            </div>
+
+            <div className={styles.footer}>
+                <button className={styles.clearBtn} onClick={handleClear}>
+                    Убрать фон
+                </button>
+            </div>
+        </div>
+    )
+}
+
+Путь к файлу: colorPicker/ColorPicker.tsx
+import styles from './ColorPicker.module.css'
+
+type ColorPickerProps = {
+    value: string
+    onChange: (value: string) => void
+    className?: string
+}
+
+function ColorPicker({ value, onChange, className = '' }: ColorPickerProps) {
+    return (
+        <input
+            type="color"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`${styles.colorInput} ${className}`}
+        />
+    )
+}
+
+export { ColorPicker }
+
+Путь к файлу: common/button/Button.tsx
+import styles from './Button.module.css'
+
+type ButtonProps = {
+    text: string
+    onClick: () => void
+    className?: string
+    disabled?: boolean
+}
+
+function Button({text, onClick, className, disabled = false}: ButtonProps) {
+    return (
+        <button 
+            className={`${styles.button} ${className}`}
+            onClick={onClick}
+            disabled={disabled}
+        >
+            {text}
+        </button>
+    )
+}
+
+export { Button }
+
+Путь к файлу: common/shapePicker/ShapePicker.tsx
+import React from 'react'
+import styles from './ShapePicker.module.css'
+
+type ShapePickerProps = {
+    onChange: (shape: 'rectangle' | 'circle' | 'triangle') => void
+    className?: string
+}
+
+const SHAPES = [
+    { label: '🟩 Фигура...', value: '' },
+    { label: '▭ Прямоугольник', value: 'rectangle' },
+    { label: '◯ Круг', value: 'circle' },
+    { label: '△ Треугольник', value: 'triangle' }
+]
+
+function ShapePicker({ onChange, className = '' }: ShapePickerProps) {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as 'rectangle' | 'circle' | 'triangle' | ''
+        
+        if (value !== '') {
+            onChange(value)
+            e.target.value = '' 
+        }
+    }
+
+    return (
+        <select
+            className={`${styles.shapeSelect}`}
+            onChange={handleChange}
+            defaultValue=''
+        >
+            {SHAPES.map((shape, idx) => (
+                <option
+                    key={idx}
+                    value={shape.value}
+                    hidden={shape.value === ''}
+                >
+                    {shape.label}
+                </option>
+            ))}
+        </select>
+    )
+}
+
+export { ShapePicker }
+
+Путь к файлу: common/textInput/TextInput.tsx
+import React, { useRef, useEffect } from 'react'
+import styles from './TextInput.module.css'
+
+type TextInputProps = {
+    value: string
+    onChange: (value: string) => void
+    className?: string
+    placeHolder?: string
+    style?: React.CSSProperties
+    readonly?: boolean
+    canvasMode?: boolean 
+}
+
+function TextInput({ 
+    value, 
+    onChange, 
+    className = '', 
+    placeHolder = '', 
+    style, 
+    readonly = false,
+    canvasMode = false
+}: TextInputProps) {
+    const divRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const element = divRef.current
+        if (element && document.activeElement !== element && element.innerText !== value) {
+            element.innerText = value
+        }
+    }, [value])
+
+    const handleSave = (e: React.SyntheticEvent<HTMLDivElement>) => {
+        if (readonly) return
+        
+        const newText = (e.currentTarget as HTMLElement).innerText || ''
+
+        if (newText !== value) {
+            onChange(newText)
+        }
+    }
+
+    const combinedClassName = [
+        styles.contentEditableDiv,
+        canvasMode ? styles.canvasMode : '',
+        className
+    ].filter(Boolean).join(' ')
+
+    return (
+        <div
+            ref={divRef}
+            contentEditable={!readonly}
+            className={combinedClassName}
+            style={{
+                ...style,
+                cursor: readonly ? 'default' : 'text',
+            }}
+            data-placeholder={readonly ? '' : placeHolder}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+                if (readonly) return
+                if (e.key === 'Escape') {
+                    e.preventDefault()
+                    if (divRef.current) {
+                        divRef.current.innerText = value
+                    }
+                    e.currentTarget.blur()
+                } else if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                }
+            }}
+        >
+            {value}
+        </div>
+    )
+}
+
+export { TextInput }
+
+Путь к файлу: previewOverlay/customHooks/usePreviewNavigation.ts
+import { useEffect } from 'react'
+
+type UsePreviewNavigationProps = {
+    onNextSlide: () => void
+    onPrevSlide: () => void
+    onClose: () => void
+}
+
+export function usePreviewNavigation({ onNextSlide, onPrevSlide, onClose }: UsePreviewNavigationProps) {
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                onNextSlide()
+            } else if (e.key === 'ArrowLeft') {
+                onPrevSlide()
+            } else if (e.key === 'Escape') {
+                onClose()
+            }
+        }
+
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                onClose()
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('fullscreenchange', handleFullscreenChange)
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+            document.removeEventListener('fullscreenchange', handleFullscreenChange)
+        }
+    }, [onNextSlide, onPrevSlide, onClose])
+}
+
+Путь к файлу: previewOverlay/customHooks/usePreviewScale.ts
+import { useState, useEffect } from 'react'
+
+export function usePreviewScale() {
+    const [scale, setScale] = useState(1)
+
+    useEffect(() => {
+        const calculateScale = () => {
+            const windowRatio = window.innerWidth / window.innerHeight
+            const slideRatio = 1000 / 562
+            
+            if (windowRatio > slideRatio) {
+                setScale(window.innerHeight / 562)
+            } else {
+                setScale(window.innerWidth / 1000)
+            }
+        }
+
+        calculateScale()
+        window.addEventListener('resize', calculateScale)
+        return () => window.removeEventListener('resize', calculateScale)
+    }, [])
+
+    return scale
+}
+
+Путь к файлу: previewOverlay/PreviewOverlay.tsx
+import type { Slide } from '../../model/types/slide.js'
+import { SlideView } from '../slideView/SlideView.js'
+import { Button } from '../common/button/Button.js'
+import { usePreviewScale } from './customHooks/usePreviewScale.js'
+import { usePreviewNavigation } from './customHooks/usePreviewNavigation.js'
+import styles from './PreviewOverlay.module.css'
+
+type PreviewOverlayProps = {
+    slides: Slide[]
+    activeSlideId: string | null
+    onPrevSlide: () => void
+    onNextSlide: () => void
+    onClose: () => void
+}
+
+function PreviewOverlay({ slides, activeSlideId, onClose, onNextSlide, onPrevSlide }: PreviewOverlayProps) {
+    let currentIndex = slides.findIndex((slide) => slide.id === activeSlideId)
+    if (currentIndex === -1) {
+        currentIndex = 0
+    }
+    const currentSlide = slides[currentIndex]
+
+    const scale = usePreviewScale()
+    usePreviewNavigation({ onNextSlide, onPrevSlide, onClose })
+
+    return (
+        <div className={styles.overlay} onClick={onNextSlide}>
+            
+            <div className={styles.controlsArea}>
+                
+                <div className={styles.controls} onClick={(e) => e.stopPropagation()}>
+                    <Button text="◄ Назад" onClick={onPrevSlide} />
+                    
+                    <span className={styles.counter}>
+                        {currentIndex + 1} / {slides.length}
+                    </span>
+                    
+                    <Button text="Далее ►" onClick={onNextSlide} />
+                    <Button text="✕ Выход" onClick={onClose} className={styles.closeBtn} />
+                </div>
+            </div>
+
+            <div 
+                className={styles.scaleWrapper} 
+                style={{ transform: `scale(${scale})` }}
+            >
+                {currentSlide && <SlideView slide={currentSlide} readonly={true} />}
+            </div>
+        </div>
+    )
+}
+
+export { PreviewOverlay }
+
+Путь к файлу: slideList/SlideList.tsx
+import type { Presentation } from '../../model/types/presentation.js'
+import { SlideView } from '../slideView/SlideView.js'
+import { dispatch } from '../../editor.js'
+import { Slide } from '../../model/types/slide.js'
+import { setActiveSlideId } from '../../viewmodel/functions/navigation.js'
+import styles from './SlideList.module.css'
+
+type SlideListProps = {
+    slides: Slide[]
+    activeSlideId: string | null
+}
+//TODO: список слайдов в пропс
+function SlideList({ slides, activeSlideId }: SlideListProps) {
+    return (
+        <div className={styles.slideList}>
+            {slides.map((slide, index) => {
+                const isActive = slide.id === (activeSlideId || slides[0]?.id)
+
+                return (
+                    <div 
+                        key={slide.id} 
+                        className={styles.slideItem}
+                        onClick={() => dispatch(setActiveSlideId, slide.id)}
+                    >
+                        <span className={styles.slideNumber}>{index + 1}</span>
+                        <div 
+                            className={`${styles.thumbnailContainer} ${isActive ? styles.activeSlide : ''}`}
+                        >
+                            <div className={styles.thumbnailScale}>
+                                <SlideView slide={slide} readonly={true}/>
+                            </div>
+                        </div>
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
+export { SlideList }
+
+Путь к файлу: slideObject/SlideObject.tsx
+import type { SlideObject, TextObject, ImageObject, FigureObject } from '../../model/types/objects.js'
+import { TextInput } from '../common/textInput/TextInput.js'
+import { dispatch } from '../../editor.js'
+import { modifySlide } from '../../model/functions/presentation.js'
+import { updateTextContent } from '../../model/functions/objects.js'
+import styles from './SlideObject.module.css'
+import { modifyPresentation } from '../../viewmodel/functions/navigation.js'
+import React from 'react'
+
+type SlideObjectProps = {
+    object: SlideObject
+    slideId: string
+    readonly?: boolean
+    isSelected?: boolean
+    onSelect?: (objectId: string, isShiftPressed: boolean) => void
+    onDragPointerDown?: (e: React.PointerEvent, objectId: string) => void
+    dragOffset?: { dx: number; dy: number }
+    onResizePointerDown?: (e: React.PointerEvent, objectId: string) => void
+    resizeOffset?: { dw: number; dh: number }
+}
+
+type TextObjectProps = { object: TextObject; slideId: string; readonly?: boolean }
+type ImageObjectProps = { object: ImageObject }
+type FigureObjectProps = { object: FigureObject }
+
+function TextObjectComponent({ object, slideId, readonly }: TextObjectProps) {
+    const plainText = object.spans.map(span => span.text).join('')
+    const baseStyle = object.spans[0]?.style
+    const styleArray = baseStyle?.fontStyle || []
+
+    const decorations: string[] = []
+    if (styleArray.includes('underline')) decorations.push('underline')
+    if (styleArray.includes('strikethrough')) decorations.push('line-through')
+
+    const textObjectStyle: React.CSSProperties = {
+        textAlign: object.textLayout,
+        fontFamily: baseStyle?.fontFamily,
+        fontSize: `${baseStyle?.fontSize || 24}px`,
+        color: baseStyle?.fontColor || '#000000',
+        fontWeight: styleArray.includes('bold') ? 'bold' : 'normal',
+        fontStyle: styleArray.includes('italic') ? 'italic' : 'normal',
+        textDecorationLine: decorations.length > 0 ? decorations.join(' ') : 'none',
+    }
+
+    const handleTextChange = (newText: string) => {
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: {
+                slideId,
+                operation: updateTextContent,
+                args: { objectId: object.id, newText },
+            },
+        })
+    }
+
+    return (
+        <TextInput
+            value={plainText}
+            onChange={handleTextChange}
+            style={textObjectStyle}
+            readonly={readonly}
+            placeHolder="Введите текст"
+            className={styles.textObject}
+            canvasMode={true}
+        />
+    )
+}
+
+function ImageObjectComponent({ object }: ImageObjectProps) {
+    let filterStr = 'none'
+    if (object.filters) {
+        const blur = object.filters.blur ? `blur(${object.filters.blur}px)` : ''
+        const brightness = object.filters.brightness !== undefined ? `brightness(${object.filters.brightness}%)` : ''
+        filterStr = `${blur} ${brightness}`.trim() || 'none'
+    }
+    return (
+        <img
+            src={object.src}
+            alt="Image"
+            style={{ filter: filterStr }}
+            className={styles.imageObject}
+            draggable={false}
+        />
+    )
+}
+
+function FigureObjectComponent({ object }: FigureObjectProps) {
+    const { shape, fillColor, strokeColor, strokeWidth } = object.figureStyle
+    return (
+        <svg className={styles.figureObject} viewBox="0 0 100 100" preserveAspectRatio="none">
+            {shape === 'rectangle' && (
+                <rect width="100" height="100" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+            {shape === 'circle' && (
+                <ellipse cx="50" cy="50" rx="47" ry="47" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+            {shape === 'triangle' && (
+                <polygon points="50,0 100,100 0,100" fill={fillColor} stroke={strokeColor} strokeWidth={strokeWidth} />
+            )}
+        </svg>
+    )
+}
+
+function SlideObject({ object, slideId, readonly, isSelected, onSelect, onDragPointerDown, dragOffset = { dx: 0, dy: 0 }, onResizePointerDown, resizeOffset = { dw: 0, dh: 0 } }: SlideObjectProps) {
+    const handlePointerDown = (e: React.PointerEvent) => {
+        if (e.defaultPrevented || readonly) return
+
+        e.currentTarget.setPointerCapture(e.pointerId)
+
+        if (e.shiftKey && isSelected) {
+            e.preventDefault()
+            onSelect?.(object.id, true)
+            return
+        }
+
+        if (onSelect && !isSelected) {
+            onSelect(object.id, e.shiftKey)
+        }
+
+        const target = e.target as HTMLElement
+        const isClickInsideText = target.closest('[contenteditable="true"]') !== null
+
+        if (onDragPointerDown && (!isClickInsideText || !isSelected)) {
+            e.preventDefault()
+            onDragPointerDown(e, object.id)
+        }
+    }
+
+    const handleClick = (e: React.MouseEvent) => {
+        if (readonly) return
+        if (onSelect && isSelected && !e.shiftKey) {
+            onSelect(object.id, false)
+        }
+    }
+    //TODO: сделать изменение размера через scale transform
+    //TODO: синяя кайма не должна увеличиваться вместе с объектом
+    const isText = object.type === 'text'
+    const scaleX = object.size.width > 0 ? (object.size.width + resizeOffset.dw) / object.size.width : 1
+    const scaleY = object.size.height > 0 ? (object.size.height + resizeOffset.dh) / object.size.height : 1
+
+    const dynamicWrapperStyle: React.CSSProperties = {
+        left: `${object.position.x}px`,
+        top: `${object.position.y}px`,
+        width: isText ? `${object.size.width + resizeOffset.dw}px` : `${object.size.width}px`,
+        transform: (dragOffset.dx !== 0 || dragOffset.dy !== 0) ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` : 'none',
+        ...(isText ? { minHeight: `${object.size.height + resizeOffset.dh}px` } : { height: `${object.size.height}px` }),
+    }
+
+    const contentScaleStyle: React.CSSProperties = {
+        width: '100%',
+        height: '100%',
+        transformOrigin: 'top left',
+        transform: (!isText && (scaleX !== 1 || scaleY !== 1)) ? `scale(${scaleX}, ${scaleY})` : 'none',
+    }
+
+    const selectionBoxStyle: React.CSSProperties = {
+        width: isText ? '100%' : `${object.size.width + resizeOffset.dw}px`,
+        height: isText ? '100%' : `${object.size.height + resizeOffset.dh}px`,
+    }
+    
+    const wrapperClass = `${styles.objectWrapper} ${isSelected ? styles.objectWrapperSelected : ''}`
+
+    return (
+        <div onPointerDown={handlePointerDown} onClick={handleClick} className={wrapperClass} style={dynamicWrapperStyle}>
+            <div style={contentScaleStyle}>
+                {object.type === 'text' && <TextObjectComponent object={object} slideId={slideId} readonly={readonly} />}
+                {object.type === 'image' && <ImageObjectComponent object={object} />}
+                {object.type === 'figure' && <FigureObjectComponent object={object} />}
+            </div>
+
+            {isSelected && !readonly && (
+                <div className={styles.selectionBox} style={selectionBoxStyle}>
+                    <div
+                        className={styles.resizeHandle}
+                        onPointerDown={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            e.currentTarget.setPointerCapture(e.pointerId)
+                            onResizePointerDown?.(e, object.id)
+                        }}
+                    />
+                </div>
+            )}
+        </div>
+    )
+}
+
+export { SlideObject }
+
+Путь к файлу: slideView/SlideView.tsx
+import type { Slide } from '../../model/types/slide.js'
+import styles from './SlideView.module.css'
+import { SlideObject } from '../slideObject/SlideObject.js'
+import { useObjectDrag } from '../workspace/customHooks/useObjectDrag.js'
+import { useObjectResize } from '../workspace/customHooks/useObjectResize.js'
+
+
+type SlideViewProps = {
+    slide: Slide
+    readonly?: boolean
+    selectedObjectIds?: string[]
+    onObjectSelect?: (objectId: string, isShiftPressed: boolean) => void
+    id?: string
+}
+
+function SlideView({
+    slide,
+    readonly = false,
+    selectedObjectIds = [],
+    onObjectSelect,
+    id,
+}: SlideViewProps) {
+    const { handleDragPointerDown, dragOffset } = useObjectDrag({
+        selectedObjectIds,
+        activeSlideId: slide.id,
+        objects: slide.objects,
+    })
+
+    const { handleResizePointerDown, resizeOffset } = useObjectResize({
+        selectedObjectIds,
+        activeSlideId: slide.id,
+        objects: slide.objects,
+    })
+    
+
+    let backgroundStyles: React.CSSProperties = {}
+
+    switch (slide.background.type) {
+        case 'color':
+            backgroundStyles.backgroundColor = slide.background.color
+            break
+        case 'image':
+            backgroundStyles.backgroundImage = `url(${slide.background.src})`
+            backgroundStyles.backgroundSize = 'cover'
+            backgroundStyles.backgroundPosition = 'center'
+            break
+        case 'gradient':
+            const angle = slide.background.angle ?? 90
+            const colorsStr = slide.background.colors.join(', ')
+            
+            if (slide.background.gradientType === 'radial') {
+                backgroundStyles.background = `radial-gradient(circle, ${colorsStr})`
+            } else {
+                backgroundStyles.background = `linear-gradient(${angle}deg, ${colorsStr})`
+            }
+            break
+        case 'none':
+        default:
+            backgroundStyles.backgroundColor = '#ffffff'
+            break            
+    }
+
+    return (
+        <div className={styles.slidePreview} style={backgroundStyles} id={id}>
+            {slide.objects.map(obj => {
+                const isSelected = selectedObjectIds.includes(obj.id)
+                return (
+                    <SlideObject
+                        key={obj.id}
+                        object={obj}
+                        slideId={slide.id}
+                        readonly={readonly}
+                        isSelected={isSelected}
+                        onSelect={onObjectSelect}
+                        onDragPointerDown={handleDragPointerDown}
+                        dragOffset={isSelected ? dragOffset : undefined}
+                        onResizePointerDown={handleResizePointerDown}
+                        resizeOffset={isSelected ? resizeOffset : undefined}
+                    />
+                )
+            })}
+        </div>
+    )
+}
+
+export { SlideView }
+
+Путь к файлу: textStylePanel/TextStylePanel.tsx
+import { useTextStylePanel, MIN_FONT_SIZE, MAX_FONT_SIZE } from '../workspace/customHooks/useTextStylePanel.js'
+import type { TextStyle, SlideObject } from '../../model/types/objects.js'
+import styles from './TextStylePanel.module.css'
+
+type TextStylePanelProps = {
+    activeSlideId: string | null
+    selectedObjectIds: string[]
+    objects: SlideObject[]
+}
+
+const FONT_FAMILIES = [
+    'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Courier New',
+    'Verdana', 'Tahoma', 'Trebuchet MS', 'Comic Sans MS', 'Impact',
+]
+
+type StyleButton = {
+    key: TextStyle['fontStyle'][number]
+    label: string
+    title: string
+    iconStyle: React.CSSProperties
+}
+
+const STYLE_BUTTONS: StyleButton[] = [
+    {
+        key: 'bold',
+        label: 'B',
+        title: 'Жирный',
+        iconStyle: { fontWeight: 700 },
+    },
+    {
+        key: 'italic',
+        label: 'I',
+        title: 'Курсив',
+        iconStyle: { fontStyle: 'italic' },
+    },
+    {
+        key: 'underline',
+        label: 'U',
+        title: 'Подчёркнутый',
+        iconStyle: { textDecoration: 'underline' },
+    },
+    {
+        key: 'strikethrough',
+        label: 'S',
+        title: 'Зачёркнутый',
+        iconStyle: { textDecoration: 'line-through' },
+    },
+]
+
+function TextStylePanel({ activeSlideId, selectedObjectIds, objects }: TextStylePanelProps) {
+    const {
+        isVisible,
+        colorInputRef,
+        fontFamily,
+        fontSizeInput,
+        fontColor,
+        fontStyle,
+        handleFontFamilyChange,
+        handleFontSizeInputChange,
+        handleFontSizeBlur,
+        handleFontSizeKeyDown,
+        handleFontSizeStep,
+        handleFontColorChange,
+        handleFontStyleToggle,
+    } = useTextStylePanel({ selectedObjectIds, activeSlideId, objects })
+
+    if (!isVisible) return null
+
+    const fontOptions = FONT_FAMILIES.includes(fontFamily)
+        ? FONT_FAMILIES
+        : [fontFamily, ...FONT_FAMILIES]
+
+    return (
+        <div
+            className={styles.panel}
+            onMouseDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+        >
+            <h3 className={styles.title}>Свойства текста</h3>
+
+            <div className={styles.field}>
+                <label className={styles.label}>Шрифт</label>
+                <select
+                    className={styles.select}
+                    value={fontFamily}
+                    onChange={(e) => handleFontFamilyChange(e.target.value)}
+                >
+                    {fontOptions.map(f => (
+                        <option key={f} value={f}>{f}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div className={styles.field}>
+                <label className={styles.label}>Размер</label>
+                <div className={styles.sizeRow}>
+                    <button
+                        type="button"
+                        className={styles.stepButton}
+                        onClick={() => handleFontSizeStep(-1)}
+                        aria-label="Уменьшить размер"
+                    >−</button>
+                    <input
+                        type="number"
+                        className={styles.numberInput}
+                        value={fontSizeInput}
+                        min={MIN_FONT_SIZE}
+                        max={MAX_FONT_SIZE}
+                        onChange={(e) => handleFontSizeInputChange(e.target.value)}
+                        onBlur={handleFontSizeBlur}
+                        onKeyDown={handleFontSizeKeyDown}
+                    />
+                    <button
+                        type="button"
+                        className={styles.stepButton}
+                        onClick={() => handleFontSizeStep(1)}
+                        aria-label="Увеличить размер"
+                    >+</button>
+                </div>
+            </div>
+
+            <div className={styles.field}>
+                <label className={styles.label}>Начертание</label>
+                <div className={styles.styleRow}>
+                    {STYLE_BUTTONS.map(({ key, label, title, iconStyle }) => {
+                        const isActive = fontStyle.includes(key)
+                        return (
+                            <button
+                                key={key}
+                                type="button"
+                                className={`${styles.styleButton} ${isActive ? styles.styleButtonActive : ''}`}
+                                onClick={() => handleFontStyleToggle(key)}
+                                title={title}
+                                aria-pressed={isActive}
+                            >
+                                <span style={iconStyle}>{label}</span>
+                            </button>
+                        )
+                    })}
+                </div>
+            </div>
+
+            <div className={styles.field}>
+                <label className={styles.label}>Цвет</label>
+                <input
+                    type="color"
+                    ref={colorInputRef}
+                    className={styles.colorInput}
+                    value={fontColor}
+                    onChange={(e) => handleFontColorChange(e.target.value)}
+                />
+            </div>
+        </div>
+    )
+}
+
+export { TextStylePanel }
+
+Путь к файлу: toolbar/customHooks/useImageUpload.ts
+import { useCallback, useRef } from 'react'
+import { dispatch } from '../../../editor.js'
+import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
+import { modifySlide, generateId } from '../../../model/functions/presentation.js'
+import { addImageObject } from '../../../model/functions/objects.js'
+
+type UseImageUploadProps = {
+    activeSlideId: string | null
+}
+
+function useImageUpload({ activeSlideId }: UseImageUploadProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const chooseFile = useCallback(() => {
+        fileInputRef.current?.click()
+    }, [])
+
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file || !activeSlideId) return
+
+        if (!file.type.startsWith('image/')) {
+            alert('Пожалуйста, выберите файл изображения.')
+            return
+        }
+
+        const reader = new FileReader()
+
+        reader.onload = (event) => {
+            const url = event.target?.result
+            if (!url) return
+
+            dispatch(modifyPresentation, {
+                operation: modifySlide,
+                args: {
+                    slideId: activeSlideId,
+                    operation: addImageObject,
+                    args: {
+                        id: generateId(),
+                        url,
+                        position: { x: 200, y: 150 },
+                        size: { width: 300, height: 200 },
+                        filters: {},
+                    },
+                },
+            })
+        }
+
+        reader.readAsDataURL(file)
+        e.target.value = ''
+    }, [activeSlideId])
+
+    return {
+        fileInputRef,
+        handleFileChange,
+        chooseFile,
+    }
+}
+
+export { useImageUpload }
+
+Путь к файлу: toolbar/customHooks/usePdfExport.tsx
+import { useCallback, useState } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { flushSync } from 'react-dom'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
+import { SlideView } from '../../slideView/SlideView.js'
+import type { Presentation } from '../../../model/types/presentation.js'
+import type { Slide } from '../../../model/types/slide.js'
+
+const EXPORT_SIZE = {
+    width: 1000,
+    height: 562,
+} as const
+
+function createRenderStage(): HTMLDivElement {
+    const stage = document.createElement('div')
+    stage.style.position = 'fixed'
+    stage.style.left = '-10000px'
+    stage.style.top = '0'
+    stage.style.width = `${EXPORT_SIZE.width}px`
+    stage.style.height = `${EXPORT_SIZE.height}px`
+    stage.style.pointerEvents = 'none'
+    document.body.appendChild(stage)
+    return stage
+}
+
+async function waitForImages(container: HTMLElement): Promise<void> {
+    const images = Array.from(container.querySelectorAll('img'))
+    await Promise.all(
+        images.map((img) => {
+            if (img.complete) return Promise.resolve()
+            return new Promise<void>((resolve) => {
+                img.onload = () => resolve()
+                img.onerror = () => resolve()
+            })
+        })
+    )
+}
+
+async function captureSlide(root: Root, stage: HTMLDivElement, slide: Slide): Promise<HTMLCanvasElement> {
+    flushSync(() => {
+        root.render(<SlideView slide={slide} readonly />)
+    })
+
+    await waitForImages(stage)
+
+    return html2canvas(stage, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+    })
+}
+
+function usePdfExport() {
+    const [isExporting, setIsExporting] = useState(false)
+
+    const exportToPdf = useCallback(async (presentation: Presentation) => {
+        if (isExporting || presentation.slides.length === 0) return
+
+        setIsExporting(true)
+
+        const stage = createRenderStage()
+        const root = createRoot(stage)
+
+        try {
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [EXPORT_SIZE.width, EXPORT_SIZE.height],
+                hotfixes: ['px_scaling'],
+            })
+
+            for (let index = 0; index < presentation.slides.length; index++) {
+                if (index > 0) {
+                    doc.addPage([EXPORT_SIZE.width, EXPORT_SIZE.height], 'landscape')
+                }
+
+                const canvas = await captureSlide(root, stage, presentation.slides[index])
+                doc.addImage(canvas, 'PNG', 0, 0, EXPORT_SIZE.width, EXPORT_SIZE.height)
+            }
+
+            const fileName = presentation.name.trim() || 'presentation'
+            doc.save(`${fileName}.pdf`)
+        } catch (err) {
+            console.error('Не удалось экспортировать PDF:', err)
+        } finally {
+            root.unmount()
+            stage.remove()
+            setIsExporting(false)
+        }
+    }, [isExporting])
+
+    return { exportToPdf, isExporting }
+}
+
+export { usePdfExport }
+
+Путь к файлу: toolbar/Toolbar.tsx
+import type { Presentation } from '../../model/types/presentation.js'
+import { dispatch } from '../../editor.js'
+import { modifyPresentation, setPreviewMode, removeActiveSlide } from '../../viewmodel/functions/navigation.js'
+import { updatePresentationName, addSlide, modifySlide, generateId } from '../../model/functions/presentation.js'
+import { addTextObject, addFigureObject } from '../../model/functions/objects.js' 
+import { Button } from '../common/button/Button.js'
+import { TextInput } from '../common/textInput/TextInput.js'
+import styles from './Toolbar.module.css'
+import { ShapePicker } from '../common/shapePicker/ShapePicker.js'
+import { useImageUpload } from './customHooks/useImageUpload.js'
+import { usePdfExport } from './customHooks/usePdfExport.js'
+
+type ToolbarProps = {
+    presentation: Presentation
+    activeSlideId: string | null
+    canUndo: boolean
+    canRedo: boolean
+    onUndo: () => void
+    onRedo: () => void
+}
+
+function Toolbar({
+    presentation,
+    activeSlideId,
+    canUndo,
+    canRedo,
+    onUndo,
+    onRedo,
+}: ToolbarProps) {
+    const activeSlide = presentation.slides.find(s => s.id === activeSlideId) || presentation.slides[0]
+
+    const { fileInputRef, handleFileChange, chooseFile } = useImageUpload({
+        activeSlideId: activeSlide?.id ?? null,
+    })
+
+    const { exportToPdf, isExporting } = usePdfExport()
+
+    const onNameChange = (newName: string) => {
+        dispatch(modifyPresentation, {
+            operation: updatePresentationName,
+            args: newName
+        })
+    }
+
+    const onAddSlide = () => {
+        dispatch(modifyPresentation, {
+            operation: addSlide,
+            args: { id: generateId(), slidename: `Слайд ${presentation.slides.length + 1}` }
+        })
+    }
+
+    const onStartPreview = () => {
+        dispatch(setPreviewMode, true)
+        document.documentElement.requestFullscreen().catch(e => console.log(e))
+    }
+
+    const onRemoveSlide = () => {
+        dispatch(removeActiveSlide)
+    }
+
+    const onAddText = () => {
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: {
+                slideId: activeSlide.id,
+                operation: addTextObject,
+                args: {
+                    id: generateId(),
+                    spans: [{ text: '', style: { fontFamily: 'Arial', fontSize: 24, fontColor: '#000000', fontStyle: [] } }],
+                    position: { x: 50, y: 50 },
+                    size: { width: 300, height: 50 },
+                    textLayout: 'left'
+                }
+            }
+        })
+    }
+
+    const onAddFigure = (shapeType: 'rectangle' | 'circle' | 'triangle') => {
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: {
+                slideId: activeSlide.id,
+                operation: addFigureObject,
+                args: {
+                    id: generateId(),
+                    position: { x: 100, y: 100 },
+                    size: { width: 100, height: 100 },
+                    figureStyle: {
+                        shape: shapeType,
+                        fillColor: '#3498db',
+                        strokeColor: '#2980b9',
+                        strokeWidth: 2
+                    }
+                }
+            }
+        })
+    }
+
+    return (
+        <div className={styles.toolbar}>
+            <div className={styles.leftGroup}>
+                <TextInput
+                    value={presentation.name}
+                    onChange={onNameChange}
+                    className={styles.titleInput}
+                    placeHolder="Название презентации"
+                />
+            </div>
+
+            <div className={styles.centerGroup}>
+                <Button
+                    text="↩"
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                />
+                <Button
+                    text="↪"
+                    onClick={onRedo}
+                    disabled={!canRedo}
+                />
+
+                <Button text="+ Слайд" onClick={onAddSlide} />
+                <Button text="Удалить слайд" onClick={onRemoveSlide} />
+                <Button text="Текст" onClick={onAddText} />
+                <Button text="Картинка" onClick={chooseFile} />
+
+                <ShapePicker onChange={onAddFigure} />
+                
+                <Button 
+                    text={isExporting ? "Экспорт в PDF..." : "Экспорт PDF"} 
+                    onClick={() => exportToPdf(presentation)}
+                    disabled={isExporting} 
+                />
+            </div>
+
+            <div className={styles.rightGroup}>
+                <Button text="Слайд-шоу" onClick={onStartPreview} className={styles.primaryButton} />
+            </div>
+
+            <input 
+                type="file" 
+                accept="image/*" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                onChange={handleFileChange} 
+            />
+        </div>
+    )
+}
+
+export { Toolbar }
+
+Путь к файлу: workspace/customHooks/useBackgroundPanel.ts
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { dispatch } from '../../../editor.js'
+import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
+import { modifySlide } from '../../../model/functions/presentation.js'
+import type { Background } from '../../../model/types/slide.js'
+import { 
+    setSlideBackgroundColor, 
+    setSlideBackgroundImage, 
+    setSlideBackgroundGradient, 
+    clearSlideBackground 
+} from '../../../model/functions/slide.js'
+
+type UseBackgroundPanelProps = {
+    activeSlideId: string | null
+    background: Background
+}
+
+export function useBackgroundPanel({ activeSlideId, background }: UseBackgroundPanelProps) {
+    const colorInputRef = useRef<HTMLInputElement>(null)
+    const [localColor, setLocalColor] = useState(
+        background.type === 'color' ? background.color : '#ffffff'
+    )
+    
+    const [gradType, setGradType] = useState<'linear' | 'radial'>(
+        background.type === 'gradient' ? (background.gradientType || 'linear') : 'linear'
+    )
+    const [gradColor1, setGradColor1] = useState(
+        background.type === 'gradient' ? background.colors[0] : '#a18cd1'
+    )
+    const [gradColor2, setGradColor2] = useState(
+        background.type === 'gradient' ? background.colors[1] : '#fbc2eb'
+    )
+    const [gradAngle, setGradAngle] = useState(
+        background.type === 'gradient' ? (background.angle ?? 90) : 90
+    )
+
+    useEffect(() => {
+        if (background.type === 'color') setLocalColor(background.color)
+        if (background.type === 'gradient') {
+            setGradType(background.gradientType || 'linear')
+            setGradColor1(background.colors[0] || '#a18cd1')
+            setGradColor2(background.colors[1] || '#fbc2eb')
+            setGradAngle(background.angle ?? 90)
+        }
+    }, [background])
+
+    const updateBg = (operation: any, args?: any) => {
+        if (!activeSlideId) return
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: { slideId: activeSlideId, operation, args }
+        })
+    }
+
+    const handleColorChange = (color: string) => {
+        setLocalColor(color)
+        
+        const slideView = document.getElementById('workspace-slide-view')
+        if (slideView) {
+            slideView.style.backgroundImage = 'none'
+            slideView.style.backgroundColor = color
+        }
+    }
+
+    useEffect(() => {
+        const input = colorInputRef.current
+        if (!input) return
+
+        const handleNativeChange = (e: Event) => {
+            const finalColor = (e.target as HTMLInputElement).value
+            
+            const slideView = document.getElementById('workspace-slide-view')
+            if (slideView) {
+                slideView.style.backgroundImage = ''
+                slideView.style.backgroundColor = ''
+            }
+            
+            updateBg(setSlideBackgroundColor, finalColor)
+        }
+
+        input.addEventListener('change', handleNativeChange)
+        return () => input.removeEventListener('change', handleNativeChange)
+    }, [activeSlideId])
+
+    const handleClear = () => updateBg(clearSlideBackground)
+
+    const handleGradientChange = () => {
+        updateBg(setSlideBackgroundGradient, { 
+            colors: [gradColor1, gradColor2], 
+            angle: gradAngle, 
+            gradientType: gradType 
+        })
+    }
+
+    const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file || !file.type.startsWith('image/')) return
+
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const src = event.target?.result as string
+            if (src) updateBg(setSlideBackgroundImage, src)
+        }
+        reader.readAsDataURL(file)
+        e.target.value = ''
+    }, [activeSlideId])
+
+    return {
+        colorInputRef,
+        localColor,
+        handleColorChange,
+        handleClear,
+        handleImageUpload,
+        gradType, setGradType,
+        gradColor1, setGradColor1,
+        gradColor2, setGradColor2,
+        gradAngle, setGradAngle,
+        handleGradientChange
+    }
+}
+
+Путь к файлу: workspace/customHooks/useObjectDrag.ts
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { dispatch } from '../../../editor.js'
+import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
+import { modifySlide } from '../../../model/functions/presentation.js'
+import { moveObjects } from '../../../model/functions/objects.js'
+import { SlideObject } from '../../../model/types/objects.js'
+import { Point } from '../../../model/types/objects.js'
+
+type ObjectPositionUpdate = { objectId: string; position: Point }
+
+type UseObjectDragProps = {
+    selectedObjectIds: string[]
+    activeSlideId: string | null
+    objects: SlideObject[]
+}
+
+function useObjectDrag({ selectedObjectIds, activeSlideId, objects }: UseObjectDragProps) {
+    const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number }>({ dx: 0, dy: 0 })
+    const dragRef = useRef<{
+        isDragging: boolean
+        startMouseX: number
+        startMouseY: number
+        currentDx: number
+        currentDy: number
+        initialPositions: Map<string, Point>
+    }>({
+        isDragging: false,
+        startMouseX: 0,
+        startMouseY: 0,
+        currentDx: 0,
+        currentDy: 0,
+        initialPositions: new Map(),
+    })
+
+    const handleDragPointerDown = useCallback((e: React.PointerEvent, objectId: string) => {
+        if (e.button !== 0 || !activeSlideId) return
+
+        let idsToMove: string[]
+
+        if (selectedObjectIds.includes(objectId)) {
+            idsToMove = selectedObjectIds
+        } else if (e.shiftKey) {
+            idsToMove = [...selectedObjectIds, objectId]
+        } else {
+            idsToMove = [objectId]
+        }
+
+        const initialPositions = new Map<string, Point>()
+        objects.forEach(obj => {
+            if (idsToMove.includes(obj.id)) {
+                initialPositions.set(obj.id, obj.position)
+            }
+        })
+
+        dragRef.current = {
+            isDragging: true,
+            startMouseX: e.clientX,
+            startMouseY: e.clientY,
+            currentDx: 0,
+            currentDy: 0,
+            initialPositions,
+        }
+
+        setDragOffset({ dx: 0, dy: 0 })
+    }, [selectedObjectIds, activeSlideId, objects])
+
+    useEffect(() => {
+        const handlePointerMove = (e: PointerEvent) => {
+            if (!dragRef.current.isDragging || !activeSlideId) return
+
+            const dx = e.clientX - dragRef.current.startMouseX
+            const dy = e.clientY - dragRef.current.startMouseY
+            
+            dragRef.current.currentDx = dx
+            dragRef.current.currentDy = dy
+            setDragOffset({ dx, dy })
+        }
+
+        const handlePointerUp = () => {
+            const { isDragging, currentDx, currentDy, initialPositions } = dragRef.current
+
+            if (!isDragging || !activeSlideId) return;
+
+            if (Math.abs(currentDx) >= 2 || Math.abs(currentDy) >= 2) {
+                const updates: ObjectPositionUpdate[] = []
+                
+                initialPositions.forEach((pos, objectId) => {
+                    updates.push({
+                        objectId,
+                        position: { x: pos.x + currentDx, y: pos.y + currentDy },
+                    })
+                })
+
+                dispatch(modifyPresentation, {
+                    operation: modifySlide,
+                    args: {
+                        slideId: activeSlideId,
+                        operation: moveObjects,
+                        args: { updates },
+                    },
+                })
+            }
+
+            dragRef.current.isDragging = false
+            setDragOffset({ dx: 0, dy: 0 })
+        }
+
+        document.addEventListener('pointermove', handlePointerMove)
+        document.addEventListener('pointerup', handlePointerUp)
+        return () => {
+            document.removeEventListener('pointermove', handlePointerMove)
+            document.removeEventListener('pointerup', handlePointerUp)
+        }
+    }, [activeSlideId])
+
+    return { handleDragPointerDown, dragOffset }
+}
+
+export { useObjectDrag }
+
+Путь к файлу: workspace/customHooks/useObjectResize.ts
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { Size, SlideObject } from "../../../model/types/objects"
+import { ObjectSizeUpdate, resizeObjects } from "../../../model/functions/objects"
+import { dispatch } from "../../../editor"
+import { modifyPresentation } from "../../../viewmodel/functions/navigation"
+import { modifySlide } from "../../../model/functions/presentation"
+
+type UseObjectResizeProps = {
+    selectedObjectIds: string[],
+    activeSlideId: string | null,
+    objects: SlideObject[]
+}
+
+type InitialSizesMap = Map<string, Size>
+
+function useObjectResize({selectedObjectIds, activeSlideId, objects}: UseObjectResizeProps) {
+    const [resizeOffset, setResizeOffset] = useState<{dw: number, dh: number}>({dw: 0, dh: 0})
+    const resizeRef = useRef<{
+        isResizing: boolean
+        startMouseX: number
+        startMouseY: number
+        currentDw: number
+        currentDh: number
+        initialSizes: InitialSizesMap
+    }>({
+        isResizing: false,
+        startMouseX: 0,
+        startMouseY: 0,
+        currentDw: 0,
+        currentDh: 0,
+        initialSizes: new Map()
+    })
+    
+    const handleResizePointerDown = useCallback((e: React.PointerEvent, objectId: string) => {
+        if (e.button !== 0 || !activeSlideId) return
+
+        const idsToMove = selectedObjectIds.includes(objectId) ? selectedObjectIds: [objectId]
+        const initialSizes: InitialSizesMap = new Map();
+
+        objects.forEach(obj => {
+            if (idsToMove.includes(obj.id)) {
+                initialSizes.set(obj.id, obj.size)
+            }
+        })
+
+        if (initialSizes.size === 0) return
+
+        resizeRef.current = {
+            isResizing: true,
+            startMouseX: e.clientX,
+            startMouseY: e.clientY,
+            currentDw: 0,
+            currentDh: 0,
+            initialSizes: initialSizes
+        }
+    }, [selectedObjectIds, activeSlideId, objects])
+
+    useEffect(() => {
+        const handlePointerMove = (e: PointerEvent) => {
+            if (!resizeRef.current.isResizing || !activeSlideId) return
+
+            let dw = e.clientX - resizeRef.current.startMouseX
+            let dh = e.clientY - resizeRef.current.startMouseY
+
+            resizeRef.current.initialSizes.forEach((oldSize) => {
+                if (oldSize.width + dw < 30) {
+                    dw = 30 - oldSize.width;
+                }
+                if (oldSize.height + dh < 30) {
+                    dh = 30 - oldSize.height;
+                }
+            })
+
+            resizeRef.current.currentDw = dw;
+            resizeRef.current.currentDh = dh;
+            setResizeOffset({ dw, dh })
+        }
+
+        const handlePointerUp = () => {
+            const { isResizing, currentDw, currentDh, initialSizes } = resizeRef.current
+            if(!isResizing || !activeSlideId) return
+
+            const updates: ObjectSizeUpdate[] = []
+
+            initialSizes.forEach((oldSize, objectId) => {
+                updates.push({
+                    objectId,
+                    size: {width: oldSize.width + currentDw, height: oldSize.height + currentDh},
+                })
+            })
+
+            dispatch(modifyPresentation, {
+                operation: modifySlide,
+                args: {
+                    slideId: activeSlideId,
+                    operation: resizeObjects,
+                    args: { updates }
+                }
+            })
+
+            resizeRef.current.isResizing = false;
+            setResizeOffset({dw: 0, dh: 0})
+        }
+
+        document.addEventListener('pointermove', handlePointerMove)
+        document.addEventListener('pointerup', handlePointerUp)
+        return () => {
+            document.removeEventListener('pointermove', handlePointerMove)
+            document.removeEventListener('pointerup', handlePointerUp)
+        }
+    }, [activeSlideId])
+
+    return { handleResizePointerDown, resizeOffset }
+}
+
+export { useObjectResize }
+
+Путь к файлу: workspace/customHooks/useSelection.ts
+import { useState, useEffect } from 'react'
+import { SlideObject } from '../../../model/types/objects'
+
+type UseSelectionProps = {
+    activeSlideId: string | null,
+}
+
+function useSelection({ activeSlideId }: UseSelectionProps) {
+    const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([])
+
+    useEffect(() => {
+        setSelectedObjectIds([])
+    }, [activeSlideId])
+     
+    const handleSelect = (objectId: string, isShiftPressed: boolean, ) => {
+        if (isShiftPressed) {
+            setSelectedObjectIds(prev =>
+                prev.includes(objectId)
+                    ? prev.filter(id => id !== objectId)
+                    : [...prev, objectId]
+            )
+        } else {
+            setSelectedObjectIds([objectId])
+        }
+    }
+
+    const clearSelection = () => {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur()
+        }
+        setSelectedObjectIds([])
+    }
+
+    return { selectedObjectIds, handleSelect, clearSelection }
+}
+
+export {
+    useSelection
+}
+
+Путь к файлу: workspace/customHooks/useTextStylePanel.tsx
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import type { TextStyle, SlideObject } from '../../../model/types/objects.js'
+import { dispatch } from '../../../editor.js'
+import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
+import { modifySlide } from '../../../model/functions/presentation.js'
+import { updateTextObjectStyle } from '../../../model/functions/objects.js'
+
+const DEFAULT_STYLE: TextStyle = {
+    fontFamily: 'Arial',
+    fontSize: 24,
+    fontColor: '#000000',
+    fontStyle: [],
+}
+
+const MIN_FONT_SIZE = 8
+const MAX_FONT_SIZE = 200
+
+type FontStyle = TextStyle['fontStyle'][number]
+
+type UseTextStylePanelProps = {
+    selectedObjectIds: string[]
+    activeSlideId: string | null
+    objects: SlideObject[]
+}
+
+function useTextStylePanel({ selectedObjectIds, activeSlideId, objects }: UseTextStylePanelProps) {
+    const colorInputRef = useRef<HTMLInputElement>(null)
+
+    const foundObj = activeSlideId && selectedObjectIds.length === 1
+        ? objects.find(o => o.id === selectedObjectIds[0])
+        : null
+    const selectedTextObject = foundObj?.type === 'text' ? foundObj : null
+
+    const objectId = selectedTextObject?.id ?? null
+    const style = selectedTextObject?.spans[0]?.style ?? DEFAULT_STYLE
+
+    const [fontSizeInput, setFontSizeInput] = useState(String(style.fontSize))
+    const [fontColor, setFontColor] = useState(style.fontColor)
+
+    useEffect(() => {
+        setFontSizeInput(String(style.fontSize))
+        setFontColor(style.fontColor)
+    }, [objectId, style.fontSize, style.fontColor])
+
+    const applyStyle = (updates: Partial<TextStyle>) => {
+        if (!objectId || !activeSlideId) return
+        dispatch(modifyPresentation, {
+            operation: modifySlide,
+            args: {
+                slideId: activeSlideId,
+                operation: updateTextObjectStyle,
+                args: { objectId, newTextStyle: { ...style, ...updates } },
+            },
+        })
+    }
+
+    useEffect(() => {
+        const input = colorInputRef.current
+        if (!input || !objectId || !activeSlideId) return
+
+        const handleNativeColorChange = (e: Event) => {
+            if (!(e.target instanceof HTMLInputElement)) return
+            if (e.target.value !== style.fontColor) {
+                applyStyle({ fontColor: e.target.value })
+            }
+        }
+
+        input.addEventListener('change', handleNativeColorChange)
+        return () => input.removeEventListener('change', handleNativeColorChange)
+    }, [objectId, activeSlideId, style])
+
+    const commitFontSize = (value: number) => {
+        const clamped = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, value))
+        setFontSizeInput(String(clamped))
+        if (clamped !== style.fontSize) {
+            applyStyle({ fontSize: clamped })
+        }
+    }
+
+    const handleFontSizeInputChange = (raw: string) => {
+        setFontSizeInput(raw)
+    }
+
+    const handleFontSizeBlur = () => {
+        const parsed = Number(fontSizeInput)
+        if (fontSizeInput.trim() === '' || Number.isNaN(parsed)) {
+            setFontSizeInput(String(style.fontSize))
+            return
+        }
+        commitFontSize(parsed)
+    }
+
+    const handleFontSizeKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.currentTarget.blur()
+        }
+    }
+
+    const handleFontColorChange = (color: string) => {
+        setFontColor(color)
+    }
+
+    const handleFontFamilyChange = (fontFamily: string) => applyStyle({ fontFamily })
+    const handleFontSizeStep = (delta: number) => commitFontSize(style.fontSize + delta)
+    const handleFontStyleToggle = (item: FontStyle) => {
+        const fontStyle = style.fontStyle.includes(item)
+            ? style.fontStyle.filter(s => s !== item)
+            : [...style.fontStyle, item]
+        applyStyle({ fontStyle })
+    }
+
+    return {
+        isVisible: selectedTextObject !== null,
+        colorInputRef,
+        fontFamily: style.fontFamily,
+        fontSizeInput,
+        fontColor,
+        fontStyle: style.fontStyle,
+        handleFontFamilyChange,
+        handleFontSizeInputChange,
+        handleFontSizeBlur,
+        handleFontSizeKeyDown,
+        handleFontSizeStep,
+        handleFontColorChange,
+        handleFontStyleToggle,
+    }
+}
+
+export { useTextStylePanel, MIN_FONT_SIZE, MAX_FONT_SIZE }
+export type { FontStyle }
+
+Путь к файлу: workspace/customHooks/useWorkspaceShortcuts.ts
+import { useEffect } from 'react'
+import { dispatch } from '../../../editor.js'
+import { modifyPresentation } from '../../../viewmodel/functions/navigation.js'
+import { modifySlide } from '../../../model/functions/presentation.js'
+import { removeObjects, bringToFront, sendToBack } from '../../../model/functions/objects.js'
+
+type UseWorkspaceShortcutsProps = {
+    selectedObjectIds: string[]
+    activeSlideId: string | null
+    onDelete: () => void
+}
+
+export function useWorkspaceShortcuts({ selectedObjectIds, activeSlideId, onDelete }: UseWorkspaceShortcutsProps) {
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const activeElement = document.activeElement
+            const isTyping = activeElement?.hasAttribute('contenteditable')
+            if (isTyping) return
+
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedObjectIds.length > 0 && activeSlideId) {
+                dispatch(modifyPresentation, {
+                    operation: modifySlide,
+                    args: {
+                        slideId: activeSlideId,
+                        operation: removeObjects,
+                        args: { objectIds: selectedObjectIds },
+                    },
+                })
+                onDelete()
+            }
+
+            if ((e.key === ']' || e.key === 'ArrowUp') && e.ctrlKey && selectedObjectIds.length > 0 && activeSlideId) {
+                e.preventDefault()
+                dispatch(modifyPresentation, {
+                    operation: modifySlide,
+                    args: {
+                        slideId: activeSlideId,
+                        operation: bringToFront,
+                        args: { objectId: selectedObjectIds[0] },
+                    },
+                })
+            }
+
+            if ((e.key === '[' || e.key === 'ArrowDown') && e.ctrlKey && selectedObjectIds.length > 0 && activeSlideId) {
+                e.preventDefault()
+                dispatch(modifyPresentation, {
+                    operation: modifySlide,
+                    args: {
+                        slideId: activeSlideId,
+                        operation: sendToBack,
+                        args: { objectId: selectedObjectIds[0] },
+                    },
+                })
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [selectedObjectIds, activeSlideId, onDelete])
+}
+
+Путь к файлу: workspace/Workspace.tsx
+import { SlideView } from '../slideView/SlideView.js'
+import { Slide } from '../../model/types/slide.js'
+import { TextStylePanel } from '../textStylePanel/TextStylePanel.js'
+import { BackgroundPanel } from '../backgroundPanel/BackgroundPanel.js'
+import styles from './Workspace.module.css'
+import { useSelection } from './customHooks/useSelection.js'
+import { useWorkspaceShortcuts } from './customHooks/useWorkspaceShortcuts.js'
+
+type WorkspaceProps = {
+    slides: Slide[]
+    activeSlideId: string | null
+}
+
+function Workspace({ slides, activeSlideId }: WorkspaceProps) {
+    const activeSlide = slides.find(slide => slide.id === activeSlideId) || slides[0]
+    const { selectedObjectIds, handleSelect, clearSelection } = useSelection({
+        activeSlideId,
+    })
+
+    useWorkspaceShortcuts({
+        selectedObjectIds,
+        activeSlideId: activeSlide?.id ?? null,
+        onDelete: clearSelection,
+    })
+
+    const handleWorkspaceMouseDown = (e: React.MouseEvent) => {
+        if (e.defaultPrevented) return
+        clearSelection()
+    }
+
+    const showBackgroundPanel = selectedObjectIds.length === 0
+
+    return (
+        <div className={styles.workspace} onMouseDown={handleWorkspaceMouseDown}>
+            <div className={styles.canvasContainer}>
+                {activeSlide ? (
+                    <SlideView
+                        id="workspace-slide-view"
+                        slide={activeSlide}
+                        readonly={false}
+                        selectedObjectIds={selectedObjectIds}
+                        onObjectSelect={handleSelect}
+                    />
+                ) : (
+                    <div className={styles.emptyState}>Нет слайдов</div>
+                )}
+            </div>
+
+            {activeSlide && showBackgroundPanel && (
+                <BackgroundPanel 
+                    activeSlideId={activeSlide.id} 
+                    background={activeSlide.background} 
+                />
+            )}
+
+            {activeSlide && (
+                <TextStylePanel
+                    activeSlideId={activeSlide.id}
+                    selectedObjectIds={selectedObjectIds}
+                    objects={activeSlide.objects}
+                />
+            )}
+        </div>
+    )
+}
+
+export { Workspace }
+
