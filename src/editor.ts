@@ -81,6 +81,7 @@ function undo(): void {
         ...currentViewModel,
         presentation: prevEntry.presentation,
         activeSlideId: prevEntry.activeSlideId,
+        selectedObjectIds: []
     }
     notifyChange()
 }
@@ -102,6 +103,7 @@ function redo(): void {
         ...currentViewModel,
         presentation: nextEntry.presentation,
         activeSlideId: nextEntry.activeSlideId,
+        selectedObjectIds: []
     }
     notifyChange()
 }
